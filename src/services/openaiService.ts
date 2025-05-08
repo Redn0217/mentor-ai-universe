@@ -33,13 +33,15 @@ export const generateTutorResponse = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
+        'Authorization': `Bearer ${API_KEY}`,
+        'Accept': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini', // Using a cost-effective model
+        model: 'meta/llama-4-maverick-17b-128e-instruct', // Using the model from the example
         messages: allMessages,
-        temperature: 0.7,
-        max_tokens: 500
+        temperature: 1.0,
+        top_p: 1.0,
+        max_tokens: 512
       })
     });
 
@@ -76,13 +78,15 @@ export const generateCodeFeedback = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
+        'Authorization': `Bearer ${API_KEY}`,
+        'Accept': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'meta/llama-4-maverick-17b-128e-instruct',
         messages: messages,
-        temperature: 0.7,
-        max_tokens: 500
+        temperature: 1.0,
+        top_p: 1.0,
+        max_tokens: 512
       })
     });
 
