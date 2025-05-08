@@ -60,8 +60,9 @@ const Login = () => {
       setIsLoading(true);
       setErrorMessage(null);
       await signIn(values.email, values.password);
-      navigate(from, { replace: true });
+      // No need to navigate here as the useEffect will handle it once user state is updated
     } catch (error: any) {
+      console.error('Login error:', error);
       setErrorMessage(error.message || 'Failed to sign in. Please check your credentials.');
     } finally {
       setIsLoading(false);

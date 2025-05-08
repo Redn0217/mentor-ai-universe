@@ -1,11 +1,14 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -50,12 +53,20 @@ export const NavBar = () => {
             <Link to="/contact" className="text-gray-600 hover:text-primary">
               Contact
             </Link>
-            <Button variant="outline" className="ml-4">
-              Sign In
-            </Button>
-            <Button>
-              Get Started
-            </Button>
+            {user ? (
+              <Button onClick={() => navigate('/dashboard')} variant="outline" className="ml-4">
+                Dashboard
+              </Button>
+            ) : (
+              <>
+                <Button onClick={() => navigate('/login')} variant="outline" className="ml-4">
+                  Sign In
+                </Button>
+                <Button onClick={() => navigate('/signup')}>
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -117,12 +128,20 @@ export const NavBar = () => {
               <Link to="/contact" className="text-gray-600 hover:text-primary">
                 Contact
               </Link>
-              <Button variant="outline" className="w-full">
-                Sign In
-              </Button>
-              <Button className="w-full">
-                Get Started
-              </Button>
+              {user ? (
+                <Button onClick={() => navigate('/dashboard')} variant="outline" className="w-full">
+                  Dashboard
+                </Button>
+              ) : (
+                <>
+                  <Button onClick={() => navigate('/login')} variant="outline" className="w-full">
+                    Sign In
+                  </Button>
+                  <Button onClick={() => navigate('/signup')} className="w-full">
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
