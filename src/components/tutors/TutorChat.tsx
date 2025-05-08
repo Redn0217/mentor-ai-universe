@@ -1,10 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
+import { generateTutorResponse } from '@/services/openaiService';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Message {
   id: string;
@@ -37,8 +39,18 @@ export const TutorChat = ({
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll when new messages arrive
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const scrollArea = scrollAreaRef.current;
+      scrollArea.scrollTop = scrollArea.scrollHeight;
+    }
+  }, [messages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
     // Add user message
@@ -53,31 +65,39 @@ export const TutorChat = ({
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response (would be replaced with actual API call)
-    setTimeout(() => {
+    try {
+      // Format messages for the API
+      const apiMessages = messages
+        .concat(userMessage)
+        .map(msg => ({
+          role: msg.sender === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        }));
+
+      // Get response from OpenAI
+      const responseContent = await generateTutorResponse(
+        apiMessages,
+        technology
+      );
+      
       const tutorResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: generateResponse(inputValue, technology),
+        content: responseContent,
         sender: 'tutor',
         timestamp: new Date(),
       };
       
       setMessages((prev) => [...prev, tutorResponse]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      toast({
+        title: "Connection Error",
+        description: "Unable to get a response. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
       setIsTyping(false);
-    }, 1500);
-  };
-
-  const generateResponse = (query: string, tech: string) => {
-    // This would be replaced with actual API call to an AI service
-    const responses = [
-      `That's a great question about ${tech}! Let me explain...`,
-      `In ${tech}, we approach this by considering several factors...`,
-      `This is a common challenge in ${tech}. The best practice is to...`,
-      `Let me provide some examples of how this works in ${tech}...`,
-      `I'd be happy to guide you through this ${tech} concept step by step.`
-    ];
-    
-    return responses[Math.floor(Math.random() * responses.length)];
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -107,7 +127,7 @@ export const TutorChat = ({
       </div>
       
       {/* Chat Area */}
-      <ScrollArea className="flex-1 p-4 bg-gray-50">
+      <ScrollArea className="flex-1 p-4 bg-gray-50" ref={scrollAreaRef}>
         <div className="space-y-4">
           {messages.map((message) => (
             <div
@@ -124,7 +144,7 @@ export const TutorChat = ({
                   borderLeft: message.sender === 'tutor' ? `4px solid ${techColor}` : undefined
                 }}
               >
-                <p>{message.content}</p>
+                <p className="whitespace-pre-wrap">{message.content}</p>
                 <span className={`text-xs ${message.sender === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'} block mt-1`}>
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
@@ -166,7 +186,7 @@ export const TutorChat = ({
         />
         <Button
           onClick={handleSendMessage}
-          disabled={!inputValue.trim()}
+          disabled={!inputValue.trim() || isTyping}
           className="ml-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>

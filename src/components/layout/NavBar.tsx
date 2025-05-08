@@ -47,6 +47,9 @@ export const NavBar = () => {
                 </div>
               </div>
             </div>
+            <Link to="/playground" className="text-gray-600 hover:text-primary">
+              Playground
+            </Link>
             <Link to="/about" className="text-gray-600 hover:text-primary">
               About
             </Link>
@@ -122,6 +125,9 @@ export const NavBar = () => {
                   <Link to="/tech/ai" className="block text-sm hover:text-primary">AI & Machine Learning</Link>
                 </div>
               </div>
+              <Link to="/playground" className="text-gray-600 hover:text-primary">
+                Playground
+              </Link>
               <Link to="/about" className="text-gray-600 hover:text-primary">
                 About
               </Link>
