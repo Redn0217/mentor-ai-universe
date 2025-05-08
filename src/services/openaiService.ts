@@ -1,27 +1,7 @@
 
-import { supabase } from '@/lib/supabase';
-
-// OpenAI API endpoints
-const API_URL = 'https://api.openai.com/v1/chat/completions';
-
-// Get OpenAI API key from Supabase
-const getApiKey = async () => {
-  try {
-    const { data, error } = await supabase.functions.invoke('get-openai-key', {
-      method: 'GET',
-    });
-
-    if (error) {
-      console.error('Error fetching OpenAI API key:', error);
-      throw new Error('Failed to fetch OpenAI API key');
-    }
-
-    return data.apiKey;
-  } catch (error) {
-    console.error('Error in getApiKey:', error);
-    throw error;
-  }
-};
+// OpenAI API endpoints using NVIDIA's API
+const API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
+const API_KEY = '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';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -47,17 +27,17 @@ export const generateTutorResponse = async (
       content: `You are an expert tutor in ${technology}. Provide helpful, accurate, and educational responses to help the user learn ${technology}. Include code examples when relevant. Keep your responses concise but informative.`
     };
     
-    const apiKey = await getApiKey();
+    const allMessages = [systemMessage, ...messages];
     
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Authorization': `Bearer ${API_KEY}`
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini', // Using a cost-effective model
-        messages: [systemMessage, ...messages],
+        messages: allMessages,
         temperature: 0.7,
         max_tokens: 500
       })
@@ -65,7 +45,7 @@ export const generateTutorResponse = async (
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
+      throw new Error(`API error: ${errorData.error?.message || response.statusText}`);
     }
 
     const data: OpenAIResponse = await response.json();
@@ -81,8 +61,6 @@ export const generateCodeFeedback = async (
   language: string
 ): Promise<string> => {
   try {
-    const apiKey = await getApiKey();
-    
     const messages: ChatMessage[] = [
       {
         role: 'system',
@@ -98,7 +76,7 @@ export const generateCodeFeedback = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Authorization': `Bearer ${API_KEY}`
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
@@ -110,7 +88,7 @@ export const generateCodeFeedback = async (
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
+      throw new Error(`API error: ${errorData.error?.message || response.statusText}`);
     }
 
     const data: OpenAIResponse = await response.json();

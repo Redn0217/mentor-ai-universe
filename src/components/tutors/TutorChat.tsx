@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,11 +65,11 @@ export const TutorChat = ({
     setIsTyping(true);
 
     try {
-      // Format messages for the API
+      // Format messages for the API - ensure correct typing
       const apiMessages = messages
         .concat(userMessage)
         .map(msg => ({
-          role: msg.sender === 'user' ? 'user' : 'assistant',
+          role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
           content: msg.content
         }));
 
