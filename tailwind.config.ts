@@ -1,5 +1,6 @@
 
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
@@ -53,6 +54,13 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Custom brand colors
+				brand: {
+					orange: '#F15A29',
+					'red-orange': '#EF3B24',
+					teal: '#007C87',
+					gray: '#757575',
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -64,15 +72,15 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				tech: {
-					python: '#3776AB',
-					devops: '#EE3424',
-					cloud: '#4285F4',
-					linux: '#FCC624',
-					networking: '#00BCF2',
-					storage: '#FF6F00',
-					virtualization: '#0F9D58', 
-					objectstorage: '#FF9900',
-					ai: '#9B30FF'
+					python: '#007C87',  // Teal
+					devops: '#EF3B24',  // Red-Orange
+					cloud: '#F15A29',   // Bright Orange
+					linux: '#757575',   // Medium Gray
+					networking: '#007C87', // Teal
+					storage: '#F15A29',  // Bright Orange
+					virtualization: '#007C87', // Teal
+					objectstorage: '#EF3B24', // Red-Orange
+					ai: '#007C87'  // Teal
 				}
 			},
 			borderRadius: {
@@ -124,5 +132,5 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;

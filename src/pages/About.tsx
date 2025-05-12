@@ -6,11 +6,11 @@ const About = () => {
     <MainLayout>
       <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl font-bold mb-8">About TechMentor</h1>
+          <h1 className="text-4xl font-bold mb-8">About Internsify</h1>
           
           <div className="prose prose-lg max-w-none">
             <p className="lead text-xl text-gray-600 mb-6">
-              TechMentor is a next-generation learning platform designed to help technology professionals master essential skills through AI-powered tutoring.
+            Internsify is a next-generation learning platform designed to help technology professionals master essential skills through AI-powered tutoring.
             </p>
             
             <h2 className="text-2xl font-semibold mt-8 mb-4">Our Mission</h2>
@@ -18,9 +18,9 @@ const About = () => {
               Our mission is to democratize technology education by providing accessible, personalized learning experiences that adapt to each learner's unique needs and goals. We believe that with the right guidance, anyone can master complex technical skills.
             </p>
             
-            <h2 className="text-2xl font-semibold mt-8 mb-4">The TechMentor Approach</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">The Internsify Approach</h2>
             <p>
-              What sets TechMentor apart is our revolutionary approach to tech education:
+              What sets Internsify apart is our revolutionary approach to tech education:
             </p>
             
             <ul className="list-disc pl-5 space-y-2 my-4">
@@ -32,7 +32,7 @@ const About = () => {
             
             <h2 className="text-2xl font-semibold mt-8 mb-4">Our Technology Domains</h2>
             <p>
-              TechMentor covers a comprehensive range of technology domains essential for modern IT professionals:
+            Internsify covers a comprehensive range of technology domains essential for modern IT professionals:
             </p>
             
             <div className="grid md:grid-cols-2 gap-4 my-6">
@@ -76,12 +76,12 @@ const About = () => {
             
             <h2 className="text-2xl font-semibold mt-8 mb-4">Our Team</h2>
             <p>
-              TechMentor was founded by a team of technology experts and education specialists passionate about improving tech education through AI. Our team combines decades of industry experience with cutting-edge expertise in artificial intelligence, learning science, and educational technology.
+            Internsify was founded by a team of technology experts and education specialists passionate about improving tech education through AI. Our team combines decades of industry experience with cutting-edge expertise in artificial intelligence, learning science, and educational technology.
             </p>
             
             <h2 className="text-2xl font-semibold mt-8 mb-4">Join Us</h2>
             <p>
-              Whether you're starting your tech journey or advancing your career, TechMentor provides the guidance, resources, and support you need to succeed. Join our community of learners and start mastering essential tech skills today.
+              Whether you're starting your tech journey or advancing your career, Internsify provides the guidance, resources, and support you need to succeed. Join our community of learners and start mastering essential tech skills today.
             </p>
           </div>
         </div>

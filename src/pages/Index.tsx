@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { TechnologyCard } from '@/components/technologies/TechnologyCard';
@@ -133,13 +132,13 @@ const Index = () => {
   return (
     <MainLayout>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary/90 to-accent/90 text-white py-16 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-brand-teal to-brand-orange text-white py-16 overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid gap-8 md:grid-cols-2 items-center">
             <div className="animate-fade-in">
-              <h1 className="text-4xl sm:text-5xl font-extrabold mb-6">
-                Master Tech Skills with AI Tutors
-              </h1>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+              <span className="text-tech-purple">AI-Powered</span> Learning for Modern Tech Skills
+            </h1>
               <p className="text-lg opacity-90 mb-8 max-w-lg">
                 Interactive learning platform with dedicated AI tutors for Python, DevOps, Cloud Computing, and more.
               </p>
@@ -221,7 +220,7 @@ const Index = () => {
       <section className="py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Why Choose TechMentor?</h2>
+            <h2 className="text-3xl font-bold mb-4">Why Choose Internsify?</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Our platform combines cutting-edge AI with proven learning methodologies to provide the best tech education.
             </p>
@@ -332,11 +331,11 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-br from-primary/90 to-accent/90 text-white">
+      <section className="py-16 bg-gradient-to-br from-brand-teal to-brand-orange text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Start Your Learning Journey?</h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Join thousands of tech professionals who are advancing their careers with TechMentor's AI-powered learning platform.
+            Join thousands of tech professionals who are advancing their careers with Internsify's AI-powered learning platform.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button size="lg" className="bg-white text-primary hover:bg-white/90">
