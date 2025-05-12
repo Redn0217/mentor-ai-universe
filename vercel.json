@@ -2,8 +2,5 @@
   "rewrites": [
     { "source": "/api/chat", "destination": "/api/chat.js" }
   ],
-  "env": {
-    "VITE_NVIDIA_API_KEY": "@vite_nvidia_api_key",
-    "VITE_OPENAI_API_KEY": "@vite_openai_api_key"
-  }
+
 }
