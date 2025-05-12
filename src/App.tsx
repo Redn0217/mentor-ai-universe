@@ -14,6 +14,9 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Playground from "./pages/Playground";
+import Pricing from "./pages/Pricing";
+import Certifications from "./pages/Certifications";
+import Corporate from "./pages/Corporate";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +34,9 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/playground" element={<Playground />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/certifications" element={<Certifications />} />
+            <Route path="/corporate" element={<Corporate />} />
             
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
