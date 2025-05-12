@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ProgressTracker } from '@/components/dashboard/ProgressTracker';
+import { Progress } from '@/components/ui/progress';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -58,7 +59,7 @@ const Dashboard = () => {
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <p className="text-muted-foreground mt-2">
-              Welcome back, {user?.displayName || user?.email || 'Learner'}
+              Welcome back, {user?.email || 'Learner'}
             </p>
           </div>
           <Button onClick={signOut} variant="outline">Sign Out</Button>

@@ -5,6 +5,7 @@ import { TechnologyCard } from '@/components/technologies/TechnologyCard';
 import { TutorChat } from '@/components/tutors/TutorChat';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Link } from 'react-router-dom';
 
 const technologies = [
   {
@@ -342,7 +343,7 @@ const Index = () => {
               Get Started Free
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/20">
-              View Pricing
+              <Link to="/pricing">View Pricing</Link>
             </Button>
           </div>
         </div>
