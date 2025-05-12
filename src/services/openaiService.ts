@@ -1,8 +1,8 @@
 // OpenAI API Key from environment variable
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || 'your-openai-api-key-here';
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
 
 // NVIDIA API Key from environment variable
-const NVIDIA_API_KEY = import.meta.env.VITE_NVIDIA_API_KEY || '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';
+const NVIDIA_API_KEY = import.meta.env.VITE_NVIDIA_API_KEY || '';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';

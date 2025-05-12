@@ -1,5 +1,9 @@
 export default async function handler(req, res) {
-  const NVIDIA_API_KEY = process.env.VITE_NVIDIA_API_KEY || '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';
+  const NVIDIA_API_KEY = process.env.VITE_NVIDIA_API_KEY;
+  
+  if (!NVIDIA_API_KEY) {
+    return res.status(500).json({ error: 'API key not configured' });
+  }
   
   try {
     const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
@@ -18,3 +22,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Failed to fetch from NVIDIA API' });
   }
 }
+
