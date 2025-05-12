@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/chat/, ''),
         headers: {
-          'Authorization': `Bearer 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`,
+          'Authorization': `Bearer ${process.env.VITE_NVIDIA_API_KEY || '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'}`,
         },
       },
     },

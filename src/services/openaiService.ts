@@ -1,8 +1,8 @@
-// OpenAI API Key - Replace with your own key or environment variable
-const OPENAI_API_KEY = 'your-openai-api-key-here'; // Replace with actual key or use environment variable
+// OpenAI API Key from environment variable
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || 'your-openai-api-key-here';
 
-// NVIDIA API Key
-const API_KEY = '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';
+// NVIDIA API Key from environment variable
+const NVIDIA_API_KEY = import.meta.env.VITE_NVIDIA_API_KEY || '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';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -77,7 +77,7 @@ export const generateTutorResponse = async (
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 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`,
+          'Authorization': `Bearer ${NVIDIA_API_KEY}`,
           'Accept': 'application/json'
         },
         body: JSON.stringify({
@@ -204,7 +204,7 @@ export const generateCodeFeedback = async (
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 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`,
+          'Authorization': `Bearer ${NVIDIA_API_KEY}`,
           'Accept': 'application/json'
         },
         body: JSON.stringify({
@@ -510,7 +510,7 @@ export const testAPIConnection = async (): Promise<{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer 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`,
+        'Authorization': `Bearer ${NVIDIA_API_KEY}`,
         'Accept': 'application/json'
       },
       body: JSON.stringify({
