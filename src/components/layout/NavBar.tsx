@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -20,8 +19,9 @@ export const NavBar = () => {
         <nav className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
+              <img src="/logo.png" alt="Internsify Logo" className="h-8 w-auto" />
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                TechMentor
+                Internsify
               </span>
             </Link>
           </div>

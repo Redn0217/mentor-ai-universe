@@ -7,7 +7,7 @@ export const Footer = () => {
       <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-4">
           <div>
-            <h3 className="text-xl font-bold text-primary">TechMentor</h3>
+            <h3 className="text-xl font-bold text-primary">Internsify</h3>
             <p className="mt-4 text-sm text-gray-600">
               Advanced interactive learning platform for technology professionals and graduates.
             </p>
@@ -47,7 +47,7 @@ export const Footer = () => {
         
         <div className="mt-12 border-t border-gray-200 pt-8">
           <p className="text-sm text-gray-600 text-center">
-            &copy; {new Date().getFullYear()} TechMentor. All rights reserved.
+            &copy; {new Date().getFullYear()} Internsify. All rights reserved.
           </p>
         </div>
       </div>

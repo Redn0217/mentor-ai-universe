@@ -51,7 +51,7 @@ const Contact = () => {
             <div>
               <h2 className="text-2xl font-semibold mb-4">Get In Touch</h2>
               <p className="text-gray-600 mb-6">
-                Have questions about TechMentor? We're here to help! Fill out the form and our team will get back to you as soon as possible.
+                Have questions about Internsify? We're here to help! Fill out the form and our team will get back to you as soon as possible.
               </p>
               
               <div className="space-y-4">
@@ -81,7 +81,7 @@ const Contact = () => {
                   </div>
                   <div className="ml-3">
                     <h3 className="text-lg font-medium">Email</h3>
-                    <p className="text-gray-600">support@techmentor.ai</p>
+                    <p className="text-gray-600">support@Internsify.ai</p>
                   </div>
                 </div>
                 
