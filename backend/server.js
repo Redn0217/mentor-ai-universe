@@ -1,6 +1,7 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+// CommonJS version of the server for compatibility
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
 
 // Load environment variables
 dotenv.config();

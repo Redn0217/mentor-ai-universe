@@ -27,8 +27,8 @@ The backend code has already been prepared for deployment with:
    - **Name**: internsify-backend (or your preferred name)
    - **Root Directory**: backend
    - **Runtime**: Node
-   - **Build Command**: `npm install && npm run build`
-   - **Start Command**: `npm start`
+   - **Build Command**: `chmod +x build.sh && ./build.sh`
+   - **Start Command**: `node server.js`
    - **Plan**: Free (or select a paid plan for better performance)
 5. Add environment variables:
    - `NODE_ENV`: production
@@ -53,7 +53,7 @@ After your backend is deployed, you'll need to update your frontend to use the R
 1. Get your Render service URL (e.g., https://internsify-backend.onrender.com)
 2. Update the API_BASE_URL in src/services/openaiService.ts:
    ```typescript
-   const API_BASE_URL = import.meta.env.PROD 
+   const API_BASE_URL = import.meta.env.PROD
      ? 'https://internsify-backend.onrender.com' // Replace with your actual Render URL
      : '';
    ```
