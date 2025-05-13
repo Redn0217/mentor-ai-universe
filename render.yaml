@@ -4,7 +4,7 @@ services:
     runtime: node
     rootDir: backend
     buildCommand: chmod +x build.sh && ./build.sh
-    startCommand: node server.js
+    startCommand: ./start.sh
     envVars:
       - key: NODE_ENV
         value: production

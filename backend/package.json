@@ -5,18 +5,18 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development node --loader tsx src/server.ts",
     "build": "tsc || echo 'TypeScript build failed, will use server.js instead'",
-    "start": "cross-env NODE_ENV=production node dist/server.js || cross-env NODE_ENV=production node server.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "cross-env": "^7.0.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.1",
     "@types/node": "^22.5.5",
-    "cross-env": "^7.0.3",
     "tsx": "^4.19.4",
     "typescript": "^5.5.3"
   },

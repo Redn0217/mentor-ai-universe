@@ -28,7 +28,7 @@ The backend code has already been prepared for deployment with:
    - **Root Directory**: backend
    - **Runtime**: Node
    - **Build Command**: `chmod +x build.sh && ./build.sh`
-   - **Start Command**: `node server.js`
+   - **Start Command**: `./start.sh`
    - **Plan**: Free (or select a paid plan for better performance)
 5. Add environment variables:
    - `NODE_ENV`: production

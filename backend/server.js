@@ -6,6 +6,9 @@ const dotenv = require('dotenv');
 // Load environment variables
 dotenv.config();
 
+// Set NODE_ENV if not already set
+process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+
 // Create Express app
 const app = express();
 const PORT = process.env.PORT || 8080;
