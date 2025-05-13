@@ -4,6 +4,9 @@ const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
 // NVIDIA API Key from environment variable
 const NVIDIA_API_KEY = import.meta.env.VITE_NVIDIA_API_KEY || '';
 
+// Log API keys for debugging (remove in production)
+console.log('NVIDIA API Key available:', !!NVIDIA_API_KEY);
+
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -100,13 +103,13 @@ export const generateTutorResponse = async (
       console.error('Error with NVIDIA API:', error);
       // Fall through to mock response
     }
-    
+
     // Ultimate fallback: Use mock response
     console.log('API error, using fallback mock response');
-    
+
     // Generate a simple but helpful mock response based on the technology and last message
     const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || '';
-    
+
     const mockResponses: Record<string, string[]> = {
       'JavaScript': [
         `That's a great question about JavaScript! When working with JavaScript, remember that it's a versatile language used for web development. For your specific question about "${lastUserMessage.slice(0, 30)}...", I'd recommend exploring the MDN documentation for detailed examples.`,
@@ -131,7 +134,7 @@ export const generateTutorResponse = async (
       `${technology} is an important skill in today's tech landscape. Keep practicing and building projects to gain experience.`,
       `When learning ${technology}, focus on understanding core concepts before diving into complex applications. This approach will help you build a solid foundation.`
     ];
-    
+
     // Randomly select one response
     return techResponses[Math.floor(Math.random() * techResponses.length)];
   } catch (error) {
@@ -227,7 +230,7 @@ export const generateCodeFeedback = async (
       console.error('Error with NVIDIA API:', error);
       // Fall through to mock response
     }
-    
+
     // Mock response as ultimate fallback
     console.log('API error, using fallback mock feedback response');
 
@@ -288,10 +291,10 @@ def greet(name):
 def greet(name: str) -> str:
     """
     Create a personalized greeting message.
-    
+
     Args:
         name: The name to include in the greeting
-        
+
     Returns:
         A formatted greeting string
     """
@@ -330,7 +333,7 @@ public class Main {
 public class GreetingApp {
     /**
      * Creates a personalized greeting message
-     * 
+     *
      * @param name The name to include in the greeting
      * @return The formatted greeting
      */
@@ -340,7 +343,7 @@ public class GreetingApp {
         }
         return "Hello, " + name + "!";
     }
-    
+
     public static void main(String[] args) {
         System.out.println(createGreeting("World"));
     }
@@ -400,8 +403,8 @@ int main() {
 
 Keep practicing!`
     };
-    
-    return mockFeedback[language.toLowerCase()] || 
+
+    return mockFeedback[language.toLowerCase()] ||
       `I've analyzed your ${language} code, and here are some general observations:
 
 **Strengths:**
@@ -440,9 +443,9 @@ export const trackCodingProgress = async (
   try {
     // This would ideally connect to a backend service to store and analyze progress
     // For now, we'll return mock progress data
-    
+
     console.log(`Tracking progress for user ${userId} in ${language}`);
-    
+
     // Mock progress analysis
     const mockProgress = {
       progress: Math.floor(Math.random() * 100),
@@ -456,11 +459,11 @@ export const trackCodingProgress = async (
         `Code optimization and efficiency`,
         `Documentation and comments`
       ],
-      nextChallengeRecommendation: codeSubmission.completed 
+      nextChallengeRecommendation: codeSubmission.completed
         ? `Try building a more complex application using ${language} data structures`
         : `Continue working on the current challenge, focusing on error handling`
     };
-    
+
     return mockProgress;
   } catch (error) {
     console.error('Error tracking coding progress:', error);
@@ -480,7 +483,7 @@ export const testAPIConnection = async (): Promise<{
 }> => {
   let openaiWorking = false;
   let nvidiaWorking = false;
-  
+
   // Test OpenAI connection if key is available
   if (OPENAI_API_KEY !== 'your-openai-api-key-here') {
     try {
@@ -496,13 +499,13 @@ export const testAPIConnection = async (): Promise<{
           max_tokens: 5
         })
       });
-      
+
       openaiWorking = response.ok;
     } catch (e) {
       console.error('OpenAI test failed:', e);
     }
   }
-  
+
   // Test NVIDIA API connection
   try {
     const proxyUrl = '/api/chat';
@@ -519,12 +522,12 @@ export const testAPIConnection = async (): Promise<{
         max_tokens: 5
       })
     });
-    
+
     nvidiaWorking = response.ok;
   } catch (e) {
     console.error('NVIDIA API test failed:', e);
   }
-  
+
   return {
     openaiWorking,
     nvidiaWorking,

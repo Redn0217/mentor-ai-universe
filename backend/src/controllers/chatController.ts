@@ -6,9 +6,18 @@ export const chatController = {
    * Handle chat request to NVIDIA API
    */
   handleChatRequest: async (req: Request, res: Response) => {
-    const NVIDIA_API_KEY = config.nvidiaApiKey;
+    // Get API key from config or from request headers
+    let apiKey = config.nvidiaApiKey;
 
-    if (!NVIDIA_API_KEY) {
+    // Check if Authorization header is provided in the request
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      apiKey = authHeader.substring(7); // Remove 'Bearer ' prefix
+    }
+
+    console.log('API Key available:', !!apiKey);
+
+    if (!apiKey) {
       return res.status(500).json({ error: 'API key not configured' });
     }
 
@@ -17,7 +26,7 @@ export const chatController = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${NVIDIA_API_KEY}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Accept': 'application/json'
         },
         body: JSON.stringify(req.body)
