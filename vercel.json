@@ -1,9 +1,9 @@
 {
   "rewrites": [
-    { "source": "/api/chat", "destination": "/api/chat.js" }
+    { "source": "/api/(.*)", "destination": "/backend/src/index.ts" }
   ],
   "functions": {
-    "api/chat.js": {
+    "backend/src/index.ts": {
       "memory": 1024,
       "maxDuration": 30
     }

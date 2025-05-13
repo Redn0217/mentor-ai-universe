@@ -9,13 +9,13 @@ export default defineConfig(({ mode }) => {
   const config: UserConfig = {
     server: {
       host: "::",
-      port: 8080,
-      proxy: mode === 'development' ? {
+      port: 3000, // Changed to 3000 to avoid conflict with backend on 8080
+      proxy: {
         '/api': {
-          target: 'http://localhost:8080',
+          target: 'http://localhost:8080', // Backend server
           changeOrigin: true,
         }
-      } : undefined
+      }
     },
     plugins: [
       react(),

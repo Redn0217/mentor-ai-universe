@@ -5,12 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:express": "cross-env NODE_ENV=development tsx watch server.ts",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:backend\"",
     "build": "vite build",
+    "build:backend": "cd backend && npm run build",
+    "build:all": "npm run build && npm run build:backend",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "cross-env NODE_ENV=production tsx server.ts"
+    "start": "cd backend && npm run start",
+    "postinstall": "cd backend && npm install"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -77,6 +81,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
