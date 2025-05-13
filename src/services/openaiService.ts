@@ -4,6 +4,11 @@ const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
 // NVIDIA API Key from environment variable
 const NVIDIA_API_KEY = import.meta.env.VITE_NVIDIA_API_KEY || '';
 
+// API URL - will be replaced with Render URL in production
+const API_BASE_URL = import.meta.env.PROD
+  ? 'https://internsify-backend.onrender.com' // Replace with your actual Render URL
+  : '';
+
 // Log API keys for debugging (remove in production)
 console.log('NVIDIA API Key available:', !!NVIDIA_API_KEY);
 
@@ -67,7 +72,7 @@ export const generateTutorResponse = async (
     // Fallback to NVIDIA API as a second option
     try {
       // Use the proxy URL to avoid CORS issues
-      const proxyUrl = '/api/chat';
+      const proxyUrl = API_BASE_URL + '/api/chat';
 
       const systemMessage: ChatMessage = {
         role: 'system',
@@ -190,7 +195,7 @@ export const generateCodeFeedback = async (
     // Fallback to NVIDIA API
     try {
       // Use the proxy URL to avoid CORS issues
-      const proxyUrl = '/api/chat';
+      const proxyUrl = API_BASE_URL + '/api/chat';
 
       const messages: ChatMessage[] = [
         {
@@ -508,7 +513,7 @@ export const testAPIConnection = async (): Promise<{
 
   // Test NVIDIA API connection
   try {
-    const proxyUrl = '/api/chat';
+    const proxyUrl = API_BASE_URL + '/api/chat';
     const response = await fetch(proxyUrl, {
       method: 'POST',
       headers: {
