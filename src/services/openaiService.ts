@@ -1,13 +1,11 @@
 // OpenAI API Key from environment variable
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
+const OPENAI_API_KEY = import.meta.env.OPENAI_API_KEY || '';
 
 // NVIDIA API Key from environment variable
-const NVIDIA_API_KEY = import.meta.env.VITE_NVIDIA_API_KEY || '';
+const NVIDIA_API_KEY = import.meta.env.NVIDIA_API_KEY || '';
 
-// API URL - will be replaced with Render URL in production
-const API_BASE_URL = import.meta.env.PROD
-  ? 'https://internsify-backend.onrender.com' // Replace with your actual Render URL
-  : '';
+// API URL - Use Render backend URL for both production and development
+const API_BASE_URL = 'https://internsify-backend.onrender.com'; // Your Render backend URL
 
 // Log API keys for debugging (remove in production)
 console.log('NVIDIA API Key available:', !!NVIDIA_API_KEY);
@@ -86,7 +84,8 @@ export const generateTutorResponse = async (
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${NVIDIA_API_KEY}`,
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'X-API-KEY': NVIDIA_API_KEY // Add API key as a custom header as well
         },
         body: JSON.stringify({
           model: 'meta/llama-4-maverick-17b-128e-instruct',
@@ -213,7 +212,8 @@ export const generateCodeFeedback = async (
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${NVIDIA_API_KEY}`,
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'X-API-KEY': NVIDIA_API_KEY // Add API key as a custom header as well
         },
         body: JSON.stringify({
           model: 'meta/llama-4-maverick-17b-128e-instruct',

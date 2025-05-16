@@ -15,6 +15,12 @@ export const chatController = {
       apiKey = authHeader.substring(7); // Remove 'Bearer ' prefix
     }
 
+    // Also check for X-API-KEY header
+    const xApiKey = req.headers['x-api-key'] as string;
+    if (xApiKey) {
+      apiKey = xApiKey;
+    }
+
     console.log('API Key available:', !!apiKey);
 
     if (!apiKey) {

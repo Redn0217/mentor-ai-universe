@@ -33,8 +33,8 @@ The backend code has already been prepared for deployment with:
 5. Add environment variables:
    - `NODE_ENV`: production
    - `PORT`: 8080
-   - `VITE_NVIDIA_API_KEY`: [Your NVIDIA API Key]
-   - `VITE_OPENAI_API_KEY`: [Your OpenAI API Key]
+   - `NVIDIA_API_KEY`: [Your NVIDIA API Key]
+   - `OPENAI_API_KEY`: [Your OpenAI API Key]
 6. Click "Create Web Service"
 
 ### Option 2: Using render.yaml (Blueprint)

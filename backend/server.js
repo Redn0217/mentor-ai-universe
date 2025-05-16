@@ -17,10 +17,10 @@ const PORT = process.env.PORT || 8080;
 // Configure CORS to allow requests from your Hostinger domain
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://internsify.com', 'https://www.internsify.com', 'https://*.hostinger.com'] // Add your actual Hostinger domain
+    ? ['https://internsify.in', 'https://www.internsify.com', 'https://*.hostinger.com'] // Add your actual Hostinger domain
     : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-KEY'],
   credentials: true
 };
 
@@ -35,12 +35,18 @@ app.get('/health', (req, res) => {
 // API proxy for NVIDIA API
 app.post('/api/chat', async (req, res) => {
   // Get API key from environment or from request headers
-  let apiKey = process.env.VITE_NVIDIA_API_KEY;
+  let apiKey = process.env.NVIDIA_API_KEY;
 
   // Check if Authorization header is provided in the request
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     apiKey = authHeader.substring(7); // Remove 'Bearer ' prefix
+  }
+
+  // Also check for X-API-KEY header
+  const xApiKey = req.headers['x-api-key'];
+  if (xApiKey) {
+    apiKey = xApiKey;
   }
 
   console.log('API Key available:', !!apiKey);

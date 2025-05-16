@@ -10,7 +10,7 @@ services:
         value: production
       - key: PORT
         value: 8080
-      - key: VITE_NVIDIA_API_KEY
+      - key: NVIDIA_API_KEY
         sync: false
-      - key: VITE_OPENAI_API_KEY
+      - key: OPENAI_API_KEY
         sync: false

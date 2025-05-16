@@ -7,17 +7,15 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => {
   // Create base configuration
   const config: UserConfig = {
+    define: {
+      // Define environment variables for the frontend
+      'import.meta.env.OPENAI_API_KEY': JSON.stringify(process.env.OPENAI_API_KEY || ''),
+      'import.meta.env.NVIDIA_API_KEY': JSON.stringify(process.env.NVIDIA_API_KEY || ''),
+    },
     server: {
       host: "::",
       port: 3000, // Changed to 3000 to avoid conflict with backend on 8080
-      proxy: {
-        '/api': {
-          target: 'http://localhost:8080', // Backend server
-          changeOrigin: true,
-          secure: false,
-          rewrite: (path) => path
-        }
-      }
+      // No proxy needed as we're using the Render backend URL directly
     },
     plugins: [
       react(),
