@@ -12,7 +12,7 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["node", "express", "cors"],
+    // Remove specific types from here as they're causing issues
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true
   },

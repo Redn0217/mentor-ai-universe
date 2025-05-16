@@ -14,21 +14,33 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Middleware
-// Configure CORS to allow requests from your Hostinger domain
+// Configure CORS to allow requests from all origins
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://internsify.in', 'https://www.internsify.com', 'https://*.hostinger.com'] // Add your actual Hostinger domain
-    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+  origin: '*', // Allow all origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-API-KEY'],
-  credentials: true
+  credentials: false // Changed to false since we're using '*' for origin
 };
 
+// Apply CORS middleware
 app.use(cors(corsOptions));
+
+// Add specific handling for OPTIONS requests (preflight)
+app.options('*', cors(corsOptions));
+
+// Add custom CORS headers for all responses
+app.use((_req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-KEY');
+  res.header('Access-Control-Allow-Credentials', 'false');
+  next();
+});
+
 app.use(express.json());
 
 // Health check endpoint for Render
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
 });
 
