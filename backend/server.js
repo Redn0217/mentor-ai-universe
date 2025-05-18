@@ -1,7 +1,12 @@
+
 // CommonJS version of the server for compatibility
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
+
+// Import routes
+const courseRoutes = require('./src/routes/course');
 
 // Load environment variables
 dotenv.config();
@@ -44,6 +49,9 @@ app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
 });
 
+// API routes
+app.use('/api/courses', courseRoutes);
+
 // API proxy for NVIDIA API
 app.post('/api/chat', async (req, res) => {
   // Get API key from environment or from request headers
@@ -85,6 +93,24 @@ app.post('/api/chat', async (req, res) => {
     return res.status(500).json({ error: 'Failed to fetch from NVIDIA API' });
   }
 });
+
+// Create data directory for course storage
+const dataDir = path.join(__dirname, 'src', 'data');
+if (!require('fs').existsSync(dataDir)) {
+  require('fs').mkdirSync(dataDir, { recursive: true });
+  console.log(`Created data directory: ${dataDir}`);
+}
+
+// Serve static files from the React app build directory in production
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from Vite build output
+  app.use(express.static(path.join(__dirname, '../dist')));
+
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  });
+}
 
 // Start server
 app.listen(PORT, () => {

@@ -54,6 +54,12 @@ export const NavBar = () => {
             <Link to="/pricing" className="text-gray-600 hover:text-primary">
               Pricing
             </Link>
+            <Link to="/certifications" className="text-gray-600 hover:text-primary">
+              Certifications
+            </Link>
+            <Link to="/corporate" className="text-gray-600 hover:text-primary">
+              Corporate
+            </Link>
             <Link to="/about" className="text-gray-600 hover:text-primary">
               About
             </Link>
@@ -61,9 +67,16 @@ export const NavBar = () => {
               Contact
             </Link>
             {user ? (
-              <Button onClick={() => navigate('/dashboard')} variant="outline" className="ml-4">
-                Dashboard
-              </Button>
+              <>
+                <Button onClick={() => navigate('/dashboard')} variant="outline" className="ml-4">
+                  Dashboard
+                </Button>
+                {user.email === "admin@example.com" && (
+                  <Button onClick={() => navigate('/admin/courses')} variant="outline">
+                    Admin
+                  </Button>
+                )}
+              </>
             ) : (
               <>
                 <Button onClick={() => navigate('/login')} variant="outline" className="ml-4">
@@ -135,6 +148,12 @@ export const NavBar = () => {
               <Link to="/pricing" className="text-gray-600 hover:text-primary">
                 Pricing
               </Link>
+              <Link to="/certifications" className="text-gray-600 hover:text-primary">
+                Certifications
+              </Link>
+              <Link to="/corporate" className="text-gray-600 hover:text-primary">
+                Corporate
+              </Link>
               <Link to="/about" className="text-gray-600 hover:text-primary">
                 About
               </Link>
@@ -142,9 +161,16 @@ export const NavBar = () => {
                 Contact
               </Link>
               {user ? (
-                <Button onClick={() => navigate('/dashboard')} variant="outline" className="w-full">
-                  Dashboard
-                </Button>
+                <>
+                  <Button onClick={() => navigate('/dashboard')} variant="outline" className="w-full">
+                    Dashboard
+                  </Button>
+                  {user.email === "admin@example.com" && (
+                    <Button onClick={() => navigate('/admin/courses')} variant="outline" className="w-full">
+                      Admin
+                    </Button>
+                  )}
+                </>
               ) : (
                 <>
                   <Button onClick={() => navigate('/login')} variant="outline" className="w-full">
