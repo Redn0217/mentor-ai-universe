@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -49,6 +50,9 @@ export const NavBar = () => {
             </div>
             <Link to="/playground" className="text-gray-600 hover:text-primary">
               Playground
+            </Link>
+            <Link to="/pricing" className="text-gray-600 hover:text-primary">
+              Pricing
             </Link>
             <Link to="/about" className="text-gray-600 hover:text-primary">
               About
@@ -127,6 +131,9 @@ export const NavBar = () => {
               </div>
               <Link to="/playground" className="text-gray-600 hover:text-primary">
                 Playground
+              </Link>
+              <Link to="/pricing" className="text-gray-600 hover:text-primary">
+                Pricing
               </Link>
               <Link to="/about" className="text-gray-600 hover:text-primary">
                 About

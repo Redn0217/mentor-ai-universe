@@ -1,12 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ProgressTracker } from '@/components/dashboard/ProgressTracker';
-import { Progress } from '@/components/ui/progress';
+import { Progress as UIProgress } from '@/components/ui/progress';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -52,6 +52,9 @@ const Dashboard = () => {
     { id: 'course3', name: 'Data Structures & Algorithms', progress: 18, instructor: 'Alex Johnson' }
   ];
 
+  // Get user display name or email
+  const userDisplayName = user?.email ? user.email.split('@')[0] : 'Learner';
+
   return (
     <MainLayout>
       <div className="px-4 py-8 md:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -59,7 +62,7 @@ const Dashboard = () => {
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <p className="text-muted-foreground mt-2">
-              Welcome back, {user?.email || 'Learner'}
+              Welcome back, {userDisplayName}
             </p>
           </div>
           <Button onClick={signOut} variant="outline">Sign Out</Button>
@@ -193,7 +196,7 @@ const Dashboard = () => {
                     <CardContent>
                       <div className="flex items-center gap-2">
                         <div className="text-sm">Progress:</div>
-                        <Progress value={course.progress} className="h-2 flex-1" />
+                        <UIProgress value={course.progress} className="h-2 flex-1" />
                         <div className="text-sm">{course.progress}%</div>
                       </div>
                       <div className="mt-4">
