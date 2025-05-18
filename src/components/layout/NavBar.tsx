@@ -19,10 +19,10 @@ export const NavBar = () => {
         <nav className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <img src="/logo.png" alt="Internsify Logo" className="h-8 w-auto" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <img src="/logo.png" alt="Internsify Logo" className="h-12 w-auto" />
+              {/* <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Internsify
-              </span>
+              </span> */}
             </Link>
           </div>
 

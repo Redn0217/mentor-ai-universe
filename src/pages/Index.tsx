@@ -143,10 +143,10 @@ const Index = () => {
                 Interactive learning platform with dedicated AI tutors for Python, DevOps, Cloud Computing, and more.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button size="lg" className="bg-white text-primary hover:bg-white/90">
+                <Button size="lg" className="bg-white text-primary hover:bg-white/80">
                   Get Started
                 </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/20">
+                <Button size="lg" variant="outline" className="bg-white/10 border-white text-white hover:text-primary hover:bg-white/90">
                   Explore Technologies
                 </Button>
               </div>
@@ -341,7 +341,7 @@ const Index = () => {
             <Button size="lg" className="bg-white text-primary hover:bg-white/90">
               Get Started Free
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/20">
+            <Button size="lg" variant="outline" className="bg-white/10 border-white text-white hover:text-primary hover:bg-white/90">
               <Link to="/pricing">View Pricing</Link>
             </Button>
           </div>
