@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
 const signUpSchema = z.object({
+  username: z.string().min(3, { message: 'Username must be at least 3 characters' }),
   email: z.string().email({ message: 'Please enter a valid email address' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
   confirmPassword: z.string(),
@@ -37,6 +38,7 @@ const SignUp = () => {
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
+      username: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -46,7 +48,7 @@ const SignUp = () => {
   const onSubmit = async (values: SignUpValues) => {
     try {
       setIsLoading(true);
-      await signUp(values.email, values.password);
+      await signUp(values.email, values.password, values.username);
       // Navigate to login after successful signup
       navigate('/login', { state: { message: 'Please check your email to verify your account before logging in.' } });
     } catch (error) {
@@ -66,6 +68,20 @@ const SignUp = () => {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="johndoe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
               <FormField
                 control={form.control}
                 name="email"
