@@ -188,7 +188,7 @@ export const CodeEditor = ({ defaultLanguage = 'javascript' }: CodeEditorProps) 
     
     try {
       const progressData = await trackCodingProgress(
-        user.uid || 'anonymous',
+        user.id || 'anonymous',  // Use id instead of uid which is the correct property in Supabase User type
         language,
         {
           code,
