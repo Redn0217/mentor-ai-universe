@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 
 export type Course = {
@@ -60,7 +61,7 @@ export const getCourses = async (): Promise<Partial<Course>[]> => {
     
     return data.map(course => ({
       ...course,
-      modules: course.modules_count || 0,
+      modules: 0, // Set a default value since we don't have modules_count
     }));
   } catch (error) {
     console.error('Error in getCourses:', error);
