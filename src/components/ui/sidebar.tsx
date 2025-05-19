@@ -155,7 +155,7 @@ export const SidebarTrigger = React.forwardRef<
     <button
       ref={ref}
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded-md border text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex h-9 w-9 items-center justify-center rounded-md border text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
         className
       )}
       onClick={() => setCollapsed(!collapsed)}
@@ -331,6 +331,9 @@ export const SidebarMenuButton = React.forwardRef<
   
   // If asChild is true, we just render children directly
   if (asChild && React.isValidElement(children)) {
+    // Remove the ref from props to avoid passing it down directly
+    const { ref: _omitRef, ...restProps } = props as any;
+    
     return React.cloneElement(children, {
       className: cn(
         "flex w-full cursor-pointer rounded-md p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -338,8 +341,7 @@ export const SidebarMenuButton = React.forwardRef<
         className,
         children.props.className
       ),
-      ...props,
-      ref
+      ...restProps
     });
   }
 
