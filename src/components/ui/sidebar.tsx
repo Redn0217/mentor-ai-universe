@@ -86,14 +86,15 @@ const sidebarVariants = cva(
   }
 );
 
-interface SidebarElement
-  extends React.ElementRef<"aside">,
+// Fixed interface definition to use proper React types
+interface SidebarProps 
+  extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof sidebarVariants> {
   className?: string;
   children?: React.ReactNode;
 }
 
-export const Sidebar = React.forwardRef<SidebarElement, SidebarElement>(
+export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
   ({ className, children, collapsible, ...props }, ref) => {
     return (
       <aside
@@ -318,14 +319,32 @@ export const SidebarMenuItem = React.forwardRef<
 ));
 SidebarMenuItem.displayName = "SidebarMenuItem";
 
+export interface SidebarMenuButtonProps extends React.HTMLAttributes<HTMLDivElement> {
+  asChild?: boolean;
+}
+
 export const SidebarMenuButton = React.forwardRef<
-  HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ className, ...props }, ref) => {
+  HTMLDivElement,
+  SidebarMenuButtonProps
+>(({ className, asChild, children, ...props }, ref) => {
   const { collapsed } = useSidebar();
+  
+  // If asChild is true, we just render children directly
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children, {
+      className: cn(
+        "flex w-full cursor-pointer rounded-md p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        collapsed && "justify-center",
+        className,
+        children.props.className
+      ),
+      ...props,
+      ref
+    });
+  }
 
   return (
-    <button
+    <div
       ref={ref}
       className={cn(
         "flex w-full cursor-pointer rounded-md p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -333,7 +352,9 @@ export const SidebarMenuButton = React.forwardRef<
         className
       )}
       {...props}
-    />
+    >
+      {children}
+    </div>
   );
 });
 SidebarMenuButton.displayName = "SidebarMenuButton";
