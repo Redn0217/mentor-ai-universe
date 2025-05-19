@@ -52,7 +52,7 @@ export const getCourses = async (): Promise<Partial<Course>[]> => {
   try {
     const { data, error } = await supabase
       .from('courses')
-      .select('id, slug, title, description, color, lastUpdated');
+      .select('id, slug, title, description, color, last_updated');
       
     if (error) {
       console.error('Error fetching courses:', error);
@@ -61,7 +61,8 @@ export const getCourses = async (): Promise<Partial<Course>[]> => {
     
     return data.map(course => ({
       ...course,
-      modules: 0, // Set a default value since we don't have modules_count
+      lastUpdated: course.last_updated,
+      modules: [] as Module[], // Fix: Use empty array instead of number
     }));
   } catch (error) {
     console.error('Error in getCourses:', error);
@@ -93,9 +94,16 @@ export const getCourse = async (slug: string): Promise<Course | null> => {
 // Function to create a new course
 export const createCourse = async (course: Course): Promise<Course> => {
   try {
+    // Convert lastUpdated field to last_updated for Supabase
+    const courseData = {
+      ...course,
+      last_updated: course.lastUpdated,
+    };
+    delete courseData.lastUpdated; // Remove the original lastUpdated field
+    
     const { data, error } = await supabase
       .from('courses')
-      .insert([course])
+      .insert([courseData])
       .select()
       .single();
       
@@ -104,7 +112,11 @@ export const createCourse = async (course: Course): Promise<Course> => {
       throw error;
     }
     
-    return data;
+    // Convert back to our app format
+    return {
+      ...data,
+      lastUpdated: data.last_updated,
+    };
   } catch (error) {
     console.error('Error in createCourse:', error);
     throw error;
@@ -114,9 +126,16 @@ export const createCourse = async (course: Course): Promise<Course> => {
 // Function to update an existing course
 export const updateCourse = async (course: Course): Promise<Course> => {
   try {
+    // Convert lastUpdated field to last_updated for Supabase
+    const courseData = {
+      ...course,
+      last_updated: course.lastUpdated,
+    };
+    delete courseData.lastUpdated; // Remove the original lastUpdated field
+    
     const { data, error } = await supabase
       .from('courses')
-      .update(course)
+      .update(courseData)
       .eq('slug', course.slug)
       .select()
       .single();
@@ -126,7 +145,11 @@ export const updateCourse = async (course: Course): Promise<Course> => {
       throw error;
     }
     
-    return data;
+    // Convert back to our app format
+    return {
+      ...data,
+      lastUpdated: data.last_updated,
+    };
   } catch (error) {
     console.error('Error in updateCourse:', error);
     throw error;
@@ -172,10 +195,16 @@ export const migrateCoursesToSupabase = async (coursesData: Course[]): Promise<v
       return;
     }
     
+    // Convert each course to the format expected by Supabase
+    const supabaseCoursesData = coursesData.map(course => ({
+      ...course,
+      last_updated: course.lastUpdated,
+    }));
+    
     // Insert all courses
     const { error } = await supabase
       .from('courses')
-      .insert(coursesData);
+      .insert(supabaseCoursesData);
       
     if (error) {
       console.error('Error migrating courses to Supabase:', error);
