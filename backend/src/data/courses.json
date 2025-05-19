@@ -1,0 +1,32 @@
+[
+  {
+    "id": "python",
+    "slug": "python",
+    "title": "Python",
+    "description": "Learn Python programming from basics to advanced concepts with practical exercises.",
+    "icon": "code",
+    "color": "#3776AB",
+    "modules": [
+      {
+        "id": "module1",
+        "title": "Getting Started",
+        "description": "Learn the basics and set up your development environment.",
+        "lessons": [
+          {
+            "id": "lesson1",
+            "title": "Introduction",
+            "content": "Overview of the course and what you will learn.",
+            "duration": 15
+          }
+        ],
+        "exercises": [],
+        "resources": []
+      }
+    ],
+    "tutor": {
+      "name": "Dr. Ana Python",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana"
+    },
+    "lastUpdated": "2023-05-15"
+  }
+]

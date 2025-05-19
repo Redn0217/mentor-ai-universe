@@ -134,7 +134,7 @@ export default function CoursesList() {
 
   // Check if user is admin (simplified check - in real app, use proper role-based auth)
   useEffect(() => {
-    if (user && user.email !== "admin@example.com") {
+    if (user && user.email !== "hadaa914@gmail.com") {
       toast({
         title: "Access Denied",
         description: "You don't have permission to access this page.",
