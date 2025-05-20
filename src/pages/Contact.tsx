@@ -61,7 +61,7 @@ const Contact = () => {
                   </div>
                   <div className="ml-3">
                     <h3 className="text-lg font-medium">Location</h3>
-                    <p className="text-gray-600">123 Tech Plaza, San Francisco, CA 94107</p>
+                    <p className="text-gray-600">No. 182, Manassu, 1st Main, Kembathalli Main Road, Pavamana Layout, Bannerghatta Bangalore 560083</p>
                   </div>
                 </div>
                 
@@ -71,7 +71,7 @@ const Contact = () => {
                   </div>
                   <div className="ml-3">
                     <h3 className="text-lg font-medium">Phone</h3>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                    <p className="text-gray-600">+918147704825</p>
                   </div>
                 </div>
                 
@@ -81,7 +81,7 @@ const Contact = () => {
                   </div>
                   <div className="ml-3">
                     <h3 className="text-lg font-medium">Email</h3>
-                    <p className="text-gray-600">support@Internsify.ai</p>
+                    <p className="text-gray-600">info@Internsify.ai</p>
                   </div>
                 </div>
                 
