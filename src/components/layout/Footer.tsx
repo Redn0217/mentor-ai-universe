@@ -7,7 +7,13 @@ export const Footer = () => {
       <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-4">
           <div>
-            <h3 className="text-xl font-bold text-primary">Internsify</h3>
+            {/* <h3 className="text-xl font-bold text-primary">Internsify</h3> */}
+            <Link to="/" className="flex items-center space-x-2">
+              <img src="/logo.png" alt="Internsify Logo" className="h-12 w-auto" />
+              {/* <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Internsify
+              </span> */}
+            </Link>
             <p className="mt-4 text-sm text-gray-600">
               Advanced interactive learning platform for technology professionals and graduates.
             </p>
