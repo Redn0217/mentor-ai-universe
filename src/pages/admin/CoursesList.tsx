@@ -7,124 +7,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from '@/components/ui/card';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table';
-
-// Course type definition
-interface CourseListItem {
-  id: string;
-  slug: string;
-  title: string;
-  description: string;
-  color: string;
-  modules: number;
-  lastUpdated: string;
-}
-
-// Fetch courses from API
-const fetchCourses = async (): Promise<CourseListItem[]> => {
-  try {
-    const response = await fetch('/api/courses');
-    if (!response.ok) {
-      throw new Error('Failed to fetch courses');
-    }
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching courses:', error);
-    // Fallback to sample data for development
-    return getMockCourses();
-  }
-};
-
-// Delete course via API
-const deleteCourse = async (slug: string): Promise<void> => {
-  try {
-    const response = await fetch(`/api/courses/${slug}`, {
-      method: 'DELETE',
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to delete course');
-    }
-  } catch (error) {
-    console.error('Error deleting course:', error);
-    throw error;
-  }
-};
-
-// Mock data for development
-const getMockCourses = (): CourseListItem[] => {
-  return [
-    {
-      id: '1',
-      slug: 'python',
-      title: 'Python',
-      description: 'Learn Python programming from basics to advanced concepts with practical exercises.',
-      color: '#3776AB',
-      modules: 8,
-      lastUpdated: '2023-05-15'
-    },
-    {
-      id: '2',
-      slug: 'devops',
-      title: 'DevOps',
-      description: 'Master continuous integration, delivery, and deployment practices.',
-      color: '#EE3424',
-      modules: 6,
-      lastUpdated: '2023-06-20'
-    },
-    {
-      id: '3',
-      slug: 'cloud',
-      title: 'Cloud Computing',
-      description: 'Learn to deploy and manage applications on major cloud platforms.',
-      color: '#4285F4',
-      modules: 7,
-      lastUpdated: '2023-07-05'
-    },
-    {
-      id: '4',
-      slug: 'linux',
-      title: 'Linux',
-      description: 'Master Linux administration, shell scripting, and system configuration.',
-      color: '#FCC624',
-      modules: 5,
-      lastUpdated: '2023-04-12'
-    },
-    {
-      id: '5',
-      slug: 'networking',
-      title: 'Networking',
-      description: 'Understand network protocols, configuration, and troubleshooting.',
-      color: '#00BCF2',
-      modules: 6,
-      lastUpdated: '2023-08-30'
-    },
-    {
-      id: '6',
-      slug: 'ai',
-      title: 'AI & Machine Learning',
-      description: 'Explore artificial intelligence concepts, machine learning algorithms, and their applications.',
-      color: '#9B30FF',
-      modules: 8,
-      lastUpdated: '2023-09-15'
-    }
-  ];
-};
+import { fetchCourses, deleteCourse } from '@/services/apiService';
 
 export default function CoursesList() {
   const navigate = useNavigate();
@@ -151,8 +49,8 @@ export default function CoursesList() {
   });
 
   // Filter courses based on search term
-  const filteredCourses = courses.filter(course => 
-    course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredCourses = courses.filter(course =>
+    course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     course.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -237,8 +135,8 @@ export default function CoursesList() {
                     {filteredCourses.map((course) => (
                       <TableRow key={course.id}>
                         <TableCell>
-                          <div 
-                            className="w-6 h-6 rounded-full" 
+                          <div
+                            className="w-6 h-6 rounded-full"
                             style={{ backgroundColor: course.color }}
                           ></div>
                         </TableCell>
@@ -251,22 +149,22 @@ export default function CoursesList() {
                         <TableCell className="hidden md:table-cell">{course.lastUpdated}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => navigate(`/tech/${course.slug}`)}
                             >
                               View
                             </Button>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => navigate(`/admin/courses/${course.slug}`)}
                             >
                               Edit
                             </Button>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               className="text-red-500 hover:text-red-700"
                               onClick={() => handleDeleteCourse(course.slug)}

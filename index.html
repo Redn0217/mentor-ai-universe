@@ -15,6 +15,19 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@internsify" />
     <meta name="twitter:image" content="" />
+
+    <!-- Handle client-side routing -->
+    <script>
+      // Check if we need to redirect to a specific path
+      (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const path = urlParams.get('path');
+        if (path) {
+          // Remove the query parameter and navigate to the path
+          history.replaceState(null, null, path);
+        }
+      })();
+    </script>
   </head>
 
   <body>

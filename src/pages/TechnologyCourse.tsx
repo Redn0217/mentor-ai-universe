@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
 import { TutorChat } from '@/components/tutors/TutorChat';
 import { useAuth } from '@/contexts/AuthContext';
+import { fetchCourse, CourseData } from '@/services/apiService';
 
 // Define the interface for module content
 interface Module {
@@ -45,118 +46,6 @@ interface Resource {
   url: string;
 }
 
-interface CourseData {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  color: string;
-  modules: Module[];
-  tutor: {
-    name: string;
-    avatar: string;
-  }
-}
-
-// Fetch course data from API
-const fetchCourseData = async (slug: string) => {
-  try {
-    const response = await fetch(`/api/courses/${slug}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch course data');
-    }
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching course data:', error);
-    // Fallback to sample data if API fails
-    return getMockCourseData(slug);
-  }
-};
-
-// Mock data for development/fallback
-const getMockCourseData = (slug: string): CourseData => {
-  // Basic mock data structure that matches expected API response
-  return {
-    id: slug,
-    title: slug.charAt(0).toUpperCase() + slug.slice(1),
-    description: `Learn ${slug} from basics to advanced concepts with hands-on projects.`,
-    icon: 'code',
-    color: '#3776AB',
-    modules: [
-      {
-        id: 'module1',
-        title: 'Getting Started',
-        description: 'Learn the basics and set up your development environment.',
-        lessons: [
-          {
-            id: 'lesson1',
-            title: 'Introduction',
-            content: 'Overview of the course and what you will learn.',
-            duration: 15
-          },
-          {
-            id: 'lesson2',
-            title: 'Installation & Setup',
-            content: 'Setting up your development environment.',
-            duration: 25
-          }
-        ],
-        exercises: [
-          {
-            id: 'ex1',
-            title: 'Hello World',
-            description: 'Create your first program.',
-            difficulty: 'beginner',
-            estimatedTime: 10
-          }
-        ],
-        resources: [
-          {
-            id: 'res1',
-            title: 'Official Documentation',
-            type: 'article',
-            url: '#'
-          }
-        ]
-      },
-      {
-        id: 'module2',
-        title: 'Core Concepts',
-        description: 'Master the fundamental concepts and syntax.',
-        lessons: [
-          {
-            id: 'lesson3',
-            title: 'Data Types',
-            content: 'Learn about different data types.',
-            duration: 30
-          }
-        ],
-        exercises: [
-          {
-            id: 'ex2',
-            title: 'Working with Data',
-            description: 'Practice with different data types.',
-            difficulty: 'beginner',
-            estimatedTime: 20
-          }
-        ],
-        resources: [
-          {
-            id: 'res2',
-            title: 'Interactive Tutorial',
-            type: 'tutorial',
-            url: '#'
-          }
-        ]
-      }
-    ],
-    tutor: {
-      name: `${slug.charAt(0).toUpperCase() + slug.slice(1)} Expert`,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${slug}`
-    }
-  };
-};
-
 export default function TechnologyCourse() {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
@@ -166,7 +55,7 @@ export default function TechnologyCourse() {
 
   const { data: courseData, isLoading, error } = useQuery({
     queryKey: ['course', slug],
-    queryFn: () => fetchCourseData(slug || ''),
+    queryFn: () => fetchCourse(slug || ''),
     enabled: !!slug
   });
 
@@ -174,7 +63,7 @@ export default function TechnologyCourse() {
     // Initialize with first module when data loads
     if (courseData?.modules && courseData.modules.length > 0) {
       setActiveModule(courseData.modules[0].id);
-      
+
       // Simulate fetching user progress data
       const mockProgress: Record<string, number> = {};
       courseData.modules.forEach(module => {
@@ -240,7 +129,7 @@ export default function TechnologyCourse() {
         {/* Course Header */}
         <div className="mb-10">
           <div className="flex items-center gap-4 mb-4">
-            <div 
+            <div
               className="w-16 h-16 rounded-lg flex items-center justify-center text-white"
               style={{ backgroundColor: courseData.color }}
             >
@@ -255,7 +144,7 @@ export default function TechnologyCourse() {
               <p className="text-gray-600">{courseData.description}</p>
             </div>
           </div>
-          
+
           {!user && (
             <Card className="bg-muted/20 p-4 mb-6">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -265,15 +154,15 @@ export default function TechnologyCourse() {
             </Card>
           )}
         </div>
-        
+
         <div className="grid md:grid-cols-3 gap-8">
           {/* Course Modules Sidebar */}
           <div className="md:col-span-1">
             <h2 className="text-xl font-bold mb-4">Course Modules</h2>
             <div className="space-y-4">
               {courseData.modules.map((module) => (
-                <Card 
-                  key={module.id} 
+                <Card
+                  key={module.id}
                   className={`cursor-pointer hover:border-primary transition-colors ${activeModule === module.id ? 'border-primary' : ''}`}
                   onClick={() => setActiveModule(module.id)}
                 >
@@ -296,8 +185,8 @@ export default function TechnologyCourse() {
                     )}
                   </CardContent>
                   <CardFooter>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant={userProgress[module.id] > 0 ? "outline" : "default"}
                       className="w-full"
                       onClick={(e) => {
@@ -311,7 +200,7 @@ export default function TechnologyCourse() {
                 </Card>
               ))}
             </div>
-            
+
             {/* Chat with Tutor */}
             <div className="mt-8">
               <h2 className="text-xl font-bold mb-4">Need Help?</h2>
@@ -321,7 +210,7 @@ export default function TechnologyCourse() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-3 mb-2">
-                    <img 
+                    <img
                       src={courseData.tutor.avatar}
                       alt={courseData.tutor.name}
                       className="w-10 h-10 rounded-full"
@@ -331,8 +220,8 @@ export default function TechnologyCourse() {
                       <p className="text-sm text-muted-foreground">Course Expert</p>
                     </div>
                   </div>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full mt-2"
                     onClick={() => {
                       toast({
@@ -347,20 +236,20 @@ export default function TechnologyCourse() {
               </Card>
             </div>
           </div>
-          
+
           {/* Module Content */}
           <div className="md:col-span-2">
             {currentModule && (
               <>
                 <h2 className="text-2xl font-bold mb-6">{currentModule.title}</h2>
-                
+
                 <Tabs defaultValue="lessons">
                   <TabsList className="mb-6">
                     <TabsTrigger value="lessons">Lessons</TabsTrigger>
                     <TabsTrigger value="exercises">Exercises</TabsTrigger>
                     <TabsTrigger value="resources">Resources</TabsTrigger>
                   </TabsList>
-                  
+
                   <TabsContent value="lessons" className="space-y-6">
                     {currentModule.lessons.map((lesson, index) => (
                       <Card key={lesson.id}>
@@ -381,7 +270,7 @@ export default function TechnologyCourse() {
                       </Card>
                     ))}
                   </TabsContent>
-                  
+
                   <TabsContent value="exercises" className="space-y-6">
                     {currentModule.exercises.map((exercise, index) => (
                       <Card key={exercise.id}>
@@ -407,7 +296,7 @@ export default function TechnologyCourse() {
                       </Card>
                     ))}
                   </TabsContent>
-                  
+
                   <TabsContent value="resources" className="space-y-4">
                     {currentModule.resources.map((resource) => (
                       <Card key={resource.id}>

@@ -11,6 +11,8 @@
     "build:backend": "cd backend && npm run build",
     "build:all": "npm run build && npm run build:backend",
     "build:dev": "vite build --mode development",
+    "build:hostinger": "npm run build && node prepare-hostinger.js",
+    "update-api-url": "node update-api-url.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "cd backend && npm run start",

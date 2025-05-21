@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { Separator } from '@/components/ui/separator';
+
 import {
   Table,
   TableBody,
@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import { fetchCourse, createCourse, updateCourse, CourseData } from '@/services/apiService';
 
 interface Module {
   id: string;
@@ -53,151 +54,21 @@ interface Resource {
   url: string;
 }
 
-interface CourseData {
-  id: string;
-  slug: string;
-  title: string;
-  description: string;
-  icon: string;
-  color: string;
-  modules: Module[];
-  tutor: {
-    name: string;
-    avatar: string;
-  }
-}
-
-// Fetch course data from API
-const fetchCourseData = async (slug: string): Promise<CourseData> => {
-  try {
-    const response = await fetch(`/api/courses/${slug}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch course data');
-    }
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching course data:', error);
-    // Fallback to sample data for development
-    return getMockCourseData(slug);
-  }
-};
-
 // Save course data via API
 const saveCourseData = async (courseData: CourseData): Promise<CourseData> => {
   try {
     // Determine if this is a new course or an existing one
     const isNewCourse = courseData.id === 'new';
 
-    // For new courses, use POST to /api/courses
-    // For existing courses, use PUT to /api/courses/:id
-    const url = isNewCourse ? '/api/courses' : `/api/courses/${courseData.id}`;
-    const method = isNewCourse ? 'POST' : 'PUT';
-
-    console.log(`Saving course with ${method} to ${url}`);
-
-    const response = await fetch(url, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(courseData),
-    });
-
-    if (!response.ok) {
-      console.error('Server response:', await response.text());
-      throw new Error('Failed to save course data');
+    if (isNewCourse) {
+      return await createCourse(courseData);
+    } else {
+      return await updateCourse(courseData.slug, courseData);
     }
-
-    return response.json();
   } catch (error) {
     console.error('Error saving course data:', error);
-    // For development, just return the data that was passed in
     throw error;
   }
-};
-
-// Mock data for development
-const getMockCourseData = (slug: string): CourseData => {
-  return {
-    id: slug,
-    slug: slug,
-    title: slug.charAt(0).toUpperCase() + slug.slice(1),
-    description: `Learn ${slug} from basics to advanced concepts with hands-on projects.`,
-    icon: 'code',
-    color: '#3776AB',
-    modules: [
-      {
-        id: 'module1',
-        title: 'Getting Started',
-        description: 'Learn the basics and set up your development environment.',
-        lessons: [
-          {
-            id: 'lesson1',
-            title: 'Introduction',
-            content: 'Overview of the course and what you will learn.',
-            duration: 15
-          },
-          {
-            id: 'lesson2',
-            title: 'Installation & Setup',
-            content: 'Setting up your development environment.',
-            duration: 25
-          }
-        ],
-        exercises: [
-          {
-            id: 'ex1',
-            title: 'Hello World',
-            description: 'Create your first program.',
-            difficulty: 'beginner',
-            estimatedTime: 10
-          }
-        ],
-        resources: [
-          {
-            id: 'res1',
-            title: 'Official Documentation',
-            type: 'article',
-            url: '#'
-          }
-        ]
-      },
-      {
-        id: 'module2',
-        title: 'Core Concepts',
-        description: 'Master the fundamental concepts and syntax.',
-        lessons: [
-          {
-            id: 'lesson3',
-            title: 'Data Types',
-            content: 'Learn about different data types.',
-            duration: 30
-          }
-        ],
-        exercises: [
-          {
-            id: 'ex2',
-            title: 'Working with Data',
-            description: 'Practice with different data types.',
-            difficulty: 'beginner',
-            estimatedTime: 20
-          }
-        ],
-        resources: [
-          {
-            id: 'res2',
-            title: 'Interactive Tutorial',
-            type: 'tutorial',
-            url: '#'
-          }
-        ]
-      }
-    ],
-    tutor: {
-      name: `${slug.charAt(0).toUpperCase() + slug.slice(1)} Expert`,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${slug}`
-    }
-  };
 };
 
 export default function CourseEditor() {
@@ -212,20 +83,20 @@ export default function CourseEditor() {
   // Fetch course data
   const { data, isLoading, error } = useQuery({
     queryKey: ['courseEdit', slug],
-    queryFn: () => fetchCourseData(slug || ''),
+    queryFn: () => fetchCourse(slug || ''),
     enabled: !!slug
   });
 
   // Save course data mutation
   const mutation = useMutation({
     mutationFn: saveCourseData,
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast({
         title: "Changes saved",
         description: "Course content has been updated successfully.",
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to save changes. Please try again.",

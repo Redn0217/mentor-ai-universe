@@ -5,7 +5,7 @@ const OPENAI_API_KEY = import.meta.env.OPENAI_API_KEY || '';
 const NVIDIA_API_KEY = import.meta.env.NVIDIA_API_KEY || '';
 
 // API URL - Use Render backend URL for both production and development
-const API_BASE_URL = 'https://internsify-backend.onrender.com'; // Your Render backend URL
+const API_BASE_URL = 'https://internsify-backend-2.onrender.com'; // Your Render backend URL // Your Render backend URL
 
 // Log API keys for debugging (remove in production)
 console.log('NVIDIA API Key available:', !!NVIDIA_API_KEY);
