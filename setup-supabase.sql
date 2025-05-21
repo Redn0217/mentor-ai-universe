@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS courses (
   color TEXT,
   modules JSONB NOT NULL DEFAULT '[]'::jsonb,
   tutor JSONB,
-  lastUpdated TEXT,
+  last_updated TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -35,26 +35,26 @@ BEGIN
       color TEXT,
       modules JSONB NOT NULL DEFAULT '[]'::jsonb,
       tutor JSONB,
-      lastUpdated TEXT,
+      last_updated TEXT,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
   END IF;
-  
+
   -- Set up RLS policies
   ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
-  
+
   -- Create policies
   DROP POLICY IF EXISTS "Allow public read access" ON public.courses;
-  CREATE POLICY "Allow public read access" 
-    ON public.courses 
-    FOR SELECT 
+  CREATE POLICY "Allow public read access"
+    ON public.courses
+    FOR SELECT
     USING (true);
-  
+
   DROP POLICY IF EXISTS "Allow authenticated users to modify" ON public.courses;
-  CREATE POLICY "Allow authenticated users to modify" 
-    ON public.courses 
-    FOR ALL 
+  CREATE POLICY "Allow authenticated users to modify"
+    ON public.courses
+    FOR ALL
     USING (auth.role() = 'authenticated')
     WITH CHECK (auth.role() = 'authenticated');
 END;
@@ -77,23 +77,23 @@ BEGIN
       color TEXT,
       modules JSONB NOT NULL DEFAULT '[]'::jsonb,
       tutor JSONB,
-      lastUpdated TEXT,
+      last_updated TEXT,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
-    
+
     -- Set up RLS policies
     ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
-    
+
     -- Create policies
-    CREATE POLICY "Allow public read access" 
-      ON public.courses 
-      FOR SELECT 
+    CREATE POLICY "Allow public read access"
+      ON public.courses
+      FOR SELECT
       USING (true);
-    
-    CREATE POLICY "Allow authenticated users to modify" 
-      ON public.courses 
-      FOR ALL 
+
+    CREATE POLICY "Allow authenticated users to modify"
+      ON public.courses
+      FOR ALL
       USING (auth.role() = 'authenticated')
       WITH CHECK (auth.role() = 'authenticated');
   END IF;
@@ -118,31 +118,31 @@ CREATE TABLE IF NOT EXISTS profiles (
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Allow users to read all profiles
-CREATE POLICY "Allow public read access to profiles" 
-  ON public.profiles 
-  FOR SELECT 
+CREATE POLICY "Allow public read access to profiles"
+  ON public.profiles
+  FOR SELECT
   USING (true);
-  
+
 -- Allow users to update their own profiles
-CREATE POLICY "Allow users to update own profile" 
-  ON public.profiles 
-  FOR UPDATE 
+CREATE POLICY "Allow users to update own profile"
+  ON public.profiles
+  FOR UPDATE
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
-  
+
 -- Allow users to insert their own profile
-CREATE POLICY "Allow users to insert own profile" 
-  ON public.profiles 
-  FOR INSERT 
+CREATE POLICY "Allow users to insert own profile"
+  ON public.profiles
+  FOR INSERT
   WITH CHECK (auth.uid() = id);
 
 -- Create a trigger to create a profile when a user is created
-CREATE OR REPLACE FUNCTION handle_new_user() 
+CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id, username, display_name)
   VALUES (
-    new.id, 
+    new.id,
     COALESCE(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1)),
     COALESCE(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1))
   );

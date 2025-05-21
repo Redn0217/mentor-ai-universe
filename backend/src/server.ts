@@ -19,9 +19,11 @@ app.use(express.json());
 
 // Import routes
 import chatRoutes from './routes/chat.js';
+import courseRoutes from './routes/course.js';
 
 // Use routes
 app.use('/api/chat', chatRoutes);
+app.use('/api/courses', courseRoutes);
 
 // Serve static files from the React app build directory in production
 if (config.nodeEnv === 'production') {

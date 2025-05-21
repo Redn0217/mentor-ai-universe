@@ -33,13 +33,17 @@ const AppContent = () => {
     // Attempt to migrate data when the app starts
     const attemptMigration = async () => {
       try {
+        console.log("Attempting to migrate data to Supabase...");
         await migrateDataToSupabase();
+        console.log("Data migration process completed");
       } catch (error) {
-        console.error("Data migration failed:", error);
+        // This should not happen anymore since we've made migrateDataToSupabase
+        // handle errors internally, but just in case:
+        console.error("Unexpected error during data migration:", error);
         // Silently fail - the app can still function with the API
       }
     };
-    
+
     attemptMigration();
   }, []);
 
@@ -56,19 +60,19 @@ const AppContent = () => {
         <Route path="/certifications" element={<Certifications />} />
         <Route path="/corporate" element={<Corporate />} />
         <Route path="/tech/:slug" element={<TechnologyCourse />} />
-        
+
         {/* Admin Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/admin/courses" element={<CoursesList />} />
           <Route path="/admin/courses/:slug" element={<CourseEditor />} />
         </Route>
-        
+
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           {/* Add more protected routes here */}
         </Route>
-        
+
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

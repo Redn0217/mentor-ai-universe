@@ -22,11 +22,45 @@ export const supabase = createClient(
 // Function to create the courses table in Supabase if it doesn't exist
 export const setupSupabase = async () => {
   try {
-    // This function needs to be called with appropriate RLS policies in Supabase
+    console.log('Setting up Supabase database...');
+
+    // First, check if we can connect to Supabase
+    const { error: authError } = await supabase.auth.getSession();
+    if (authError) {
+      console.error('Error connecting to Supabase:', authError);
+      return;
+    }
+
+    console.log('Successfully connected to Supabase');
+
+    // Try to call the setup_database function
+    console.log('Attempting to call setup_database function...');
     const { error } = await supabase.rpc('setup_database');
-    
-    if (error && !error.message.includes('function does not exist')) {
-      console.error('Error setting up database:', error);
+
+    if (error) {
+      if (error.message.includes('function does not exist')) {
+        console.log('setup_database function does not exist, will try alternative setup methods');
+      } else {
+        console.error('Error setting up database:', error);
+      }
+
+      // Try to check if the courses table exists
+      console.log('Checking if courses table exists...');
+      const { error: tableError } = await supabase
+        .from('courses')
+        .select('count(*)', { count: 'exact', head: true });
+
+      if (tableError) {
+        if (tableError.message.includes('relation "courses" does not exist')) {
+          console.log('Courses table does not exist, will be created during migration');
+        } else {
+          console.error('Error checking courses table:', tableError);
+        }
+      } else {
+        console.log('Courses table already exists');
+      }
+    } else {
+      console.log('Database setup completed successfully');
     }
   } catch (error) {
     console.error('Failed to setup database:', error);

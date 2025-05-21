@@ -12,13 +12,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table';
 
 interface Module {
@@ -55,6 +55,7 @@ interface Resource {
 
 interface CourseData {
   id: string;
+  slug: string;
   title: string;
   description: string;
   icon: string;
@@ -84,23 +85,34 @@ const fetchCourseData = async (slug: string): Promise<CourseData> => {
 // Save course data via API
 const saveCourseData = async (courseData: CourseData): Promise<CourseData> => {
   try {
-    const response = await fetch(`/api/courses/${courseData.id}`, {
-      method: 'PUT',
+    // Determine if this is a new course or an existing one
+    const isNewCourse = courseData.id === 'new';
+
+    // For new courses, use POST to /api/courses
+    // For existing courses, use PUT to /api/courses/:id
+    const url = isNewCourse ? '/api/courses' : `/api/courses/${courseData.id}`;
+    const method = isNewCourse ? 'POST' : 'PUT';
+
+    console.log(`Saving course with ${method} to ${url}`);
+
+    const response = await fetch(url, {
+      method: method,
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(courseData),
     });
-    
+
     if (!response.ok) {
+      console.error('Server response:', await response.text());
       throw new Error('Failed to save course data');
     }
-    
+
     return response.json();
   } catch (error) {
     console.error('Error saving course data:', error);
     // For development, just return the data that was passed in
-    return courseData;
+    throw error;
   }
 };
 
@@ -108,6 +120,7 @@ const saveCourseData = async (courseData: CourseData): Promise<CourseData> => {
 const getMockCourseData = (slug: string): CourseData => {
   return {
     id: slug,
+    slug: slug,
     title: slug.charAt(0).toUpperCase() + slug.slice(1),
     description: `Learn ${slug} from basics to advanced concepts with hands-on projects.`,
     icon: 'code',
@@ -266,7 +279,7 @@ export default function CourseEditor() {
         }
         return module;
       });
-      
+
       setCourseData({
         ...courseData,
         modules: updatedModules
@@ -286,12 +299,12 @@ export default function CourseEditor() {
         exercises: [],
         resources: []
       };
-      
+
       setCourseData({
         ...courseData,
         modules: [...courseData.modules, newModule]
       });
-      
+
       setActiveModule(newModuleId);
       toast({
         title: "Module added",
@@ -308,11 +321,11 @@ export default function CourseEditor() {
         ...courseData,
         modules: updatedModules
       });
-      
+
       if (activeModule === moduleId && updatedModules.length > 0) {
         setActiveModule(updatedModules[0].id);
       }
-      
+
       toast({
         title: "Module deleted",
         description: "The module has been removed from the course.",
@@ -332,7 +345,7 @@ export default function CourseEditor() {
           content: 'Lesson content goes here',
           duration: 15
         };
-        
+
         const updatedModules = courseData.modules.map(module => {
           if (module.id === moduleId) {
             return {
@@ -342,12 +355,12 @@ export default function CourseEditor() {
           }
           return module;
         });
-        
+
         setCourseData({
           ...courseData,
           modules: updatedModules
         });
-        
+
         toast({
           title: "Lesson added",
           description: "New lesson has been added to the module.",
@@ -367,7 +380,7 @@ export default function CourseEditor() {
             }
             return lesson;
           });
-          
+
           return {
             ...module,
             lessons: updatedLessons
@@ -375,7 +388,7 @@ export default function CourseEditor() {
         }
         return module;
       });
-      
+
       setCourseData({
         ...courseData,
         modules: updatedModules
@@ -395,12 +408,12 @@ export default function CourseEditor() {
         }
         return module;
       });
-      
+
       setCourseData({
         ...courseData,
         modules: updatedModules
       });
-      
+
       toast({
         title: "Lesson deleted",
         description: "The lesson has been removed from the module.",
@@ -421,7 +434,7 @@ export default function CourseEditor() {
           difficulty: 'beginner',
           estimatedTime: 15
         };
-        
+
         const updatedModules = courseData.modules.map(module => {
           if (module.id === moduleId) {
             return {
@@ -431,12 +444,12 @@ export default function CourseEditor() {
           }
           return module;
         });
-        
+
         setCourseData({
           ...courseData,
           modules: updatedModules
         });
-        
+
         toast({
           title: "Exercise added",
           description: "New exercise has been added to the module.",
@@ -457,7 +470,7 @@ export default function CourseEditor() {
           type: 'article',
           url: '#'
         };
-        
+
         const updatedModules = courseData.modules.map(module => {
           if (module.id === moduleId) {
             return {
@@ -467,12 +480,12 @@ export default function CourseEditor() {
           }
           return module;
         });
-        
+
         setCourseData({
           ...courseData,
           modules: updatedModules
         });
-        
+
         toast({
           title: "Resource added",
           description: "New resource has been added to the module.",
@@ -539,7 +552,7 @@ export default function CourseEditor() {
             <TabsTrigger value="overview">Course Overview</TabsTrigger>
             <TabsTrigger value="modules">Modules</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="overview">
             <Card>
               <CardHeader>
@@ -549,16 +562,31 @@ export default function CourseEditor() {
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="courseTitle">Course Title</Label>
-                  <Input 
-                    id="courseTitle" 
-                    value={courseData.title} 
+                  <Input
+                    id="courseTitle"
+                    value={courseData.title}
                     onChange={(e) => updateCourseField('title', e.target.value)}
                   />
                 </div>
                 <div>
+                  <Label htmlFor="courseSlug">Course Slug</Label>
+                  <Input
+                    id="courseSlug"
+                    value={courseData.slug}
+                    onChange={(e) => updateCourseField('slug', e.target.value)}
+                    placeholder="unique-url-friendly-name"
+                    disabled={courseData.id !== 'new'} // Only allow editing for new courses
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {courseData.id === 'new'
+                      ? "URL-friendly identifier for your course. Use lowercase letters, numbers, and hyphens only."
+                      : "Slug cannot be changed after course creation."}
+                  </p>
+                </div>
+                <div>
                   <Label htmlFor="courseDesc">Course Description</Label>
-                  <Textarea 
-                    id="courseDesc" 
+                  <Textarea
+                    id="courseDesc"
                     value={courseData.description}
                     onChange={(e) => updateCourseField('description', e.target.value)}
                     rows={4}
@@ -567,13 +595,13 @@ export default function CourseEditor() {
                 <div>
                   <Label htmlFor="courseColor">Theme Color</Label>
                   <div className="flex gap-2">
-                    <Input 
-                      id="courseColor" 
+                    <Input
+                      id="courseColor"
                       value={courseData.color}
                       onChange={(e) => updateCourseField('color', e.target.value)}
                     />
-                    <div 
-                      className="w-10 h-10 rounded" 
+                    <div
+                      className="w-10 h-10 rounded"
                       style={{ backgroundColor: courseData.color }}
                     ></div>
                   </div>
@@ -586,8 +614,8 @@ export default function CourseEditor() {
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="tutorName">Tutor Name</Label>
-                  <Input 
-                    id="tutorName" 
+                  <Input
+                    id="tutorName"
                     value={courseData.tutor.name}
                     onChange={(e) => setCourseData({
                       ...courseData,
@@ -598,8 +626,8 @@ export default function CourseEditor() {
                 <div>
                   <Label htmlFor="tutorAvatar">Tutor Avatar URL</Label>
                   <div className="flex gap-2">
-                    <Input 
-                      id="tutorAvatar" 
+                    <Input
+                      id="tutorAvatar"
                       value={courseData.tutor.avatar}
                       onChange={(e) => setCourseData({
                         ...courseData,
@@ -607,9 +635,9 @@ export default function CourseEditor() {
                       })}
                     />
                     <div className="h-10 w-10 rounded-full overflow-hidden">
-                      <img 
-                        src={courseData.tutor.avatar} 
-                        alt="Tutor avatar" 
+                      <img
+                        src={courseData.tutor.avatar}
+                        alt="Tutor avatar"
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -618,7 +646,7 @@ export default function CourseEditor() {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="modules">
             <div className="grid md:grid-cols-3 gap-6">
               {/* Modules List */}
@@ -630,8 +658,8 @@ export default function CourseEditor() {
                 <CardContent>
                   <div className="space-y-2">
                     {courseData.modules.map((module) => (
-                      <div 
-                        key={module.id} 
+                      <div
+                        key={module.id}
                         className={`p-3 rounded-md cursor-pointer flex justify-between items-center ${
                           activeModule === module.id ? 'bg-muted' : 'hover:bg-muted/50'
                         }`}
@@ -643,8 +671,8 @@ export default function CourseEditor() {
                             {module.lessons.length} lessons · {module.exercises.length} exercises
                           </p>
                         </div>
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -663,7 +691,7 @@ export default function CourseEditor() {
                   </Button>
                 </CardFooter>
               </Card>
-              
+
               {/* Module Editor */}
               <Card className="md:col-span-2">
                 <CardHeader>
@@ -679,27 +707,27 @@ export default function CourseEditor() {
                         <TabsTrigger value="exercises">Exercises</TabsTrigger>
                         <TabsTrigger value="resources">Resources</TabsTrigger>
                       </TabsList>
-                      
+
                       <TabsContent value="details" className="space-y-4">
                         <div>
                           <Label htmlFor="moduleTitle">Module Title</Label>
-                          <Input 
-                            id="moduleTitle" 
+                          <Input
+                            id="moduleTitle"
                             value={currentModule.title}
                             onChange={(e) => updateModule(currentModule.id, 'title', e.target.value)}
                           />
                         </div>
                         <div>
                           <Label htmlFor="moduleDesc">Module Description</Label>
-                          <Textarea 
-                            id="moduleDesc" 
+                          <Textarea
+                            id="moduleDesc"
                             value={currentModule.description}
                             onChange={(e) => updateModule(currentModule.id, 'description', e.target.value)}
                             rows={4}
                           />
                         </div>
                       </TabsContent>
-                      
+
                       <TabsContent value="lessons">
                         <div className="space-y-4">
                           {currentModule.lessons.length > 0 ? (
@@ -715,21 +743,21 @@ export default function CourseEditor() {
                                 {currentModule.lessons.map((lesson) => (
                                   <TableRow key={lesson.id}>
                                     <TableCell>
-                                      <Input 
+                                      <Input
                                         value={lesson.title}
                                         onChange={(e) => updateLesson(currentModule.id, lesson.id, 'title', e.target.value)}
                                       />
                                     </TableCell>
                                     <TableCell>
-                                      <Input 
+                                      <Input
                                         type="number"
                                         value={lesson.duration}
                                         onChange={(e) => updateLesson(currentModule.id, lesson.id, 'duration', parseInt(e.target.value))}
                                       />
                                     </TableCell>
                                     <TableCell>
-                                      <Button 
-                                        variant="outline" 
+                                      <Button
+                                        variant="outline"
                                         size="sm"
                                         onClick={() => deleteLesson(currentModule.id, lesson.id)}
                                       >
@@ -745,13 +773,13 @@ export default function CourseEditor() {
                               No lessons added yet
                             </div>
                           )}
-                          
+
                           <Button onClick={() => addLesson(currentModule.id)}>
                             Add Lesson
                           </Button>
                         </div>
                       </TabsContent>
-                      
+
                       <TabsContent value="exercises">
                         <div className="space-y-4">
                           {currentModule.exercises.length > 0 ? (
@@ -759,7 +787,7 @@ export default function CourseEditor() {
                               {currentModule.exercises.map((exercise) => (
                                 <Card key={exercise.id}>
                                   <CardHeader className="pb-2">
-                                    <Input 
+                                    <Input
                                       value={exercise.title}
                                       onChange={(e) => {
                                         const updatedModules = courseData.modules.map(module => {
@@ -770,7 +798,7 @@ export default function CourseEditor() {
                                               }
                                               return ex;
                                             });
-                                            
+
                                             return {
                                               ...module,
                                               exercises: updatedExercises
@@ -778,7 +806,7 @@ export default function CourseEditor() {
                                           }
                                           return module;
                                         });
-                                        
+
                                         setCourseData({
                                           ...courseData,
                                           modules: updatedModules
@@ -787,7 +815,7 @@ export default function CourseEditor() {
                                     />
                                   </CardHeader>
                                   <CardContent className="space-y-2">
-                                    <Textarea 
+                                    <Textarea
                                       value={exercise.description}
                                       onChange={(e) => {
                                         const updatedModules = courseData.modules.map(module => {
@@ -798,7 +826,7 @@ export default function CourseEditor() {
                                               }
                                               return ex;
                                             });
-                                            
+
                                             return {
                                               ...module,
                                               exercises: updatedExercises
@@ -806,7 +834,7 @@ export default function CourseEditor() {
                                           }
                                           return module;
                                         });
-                                        
+
                                         setCourseData({
                                           ...courseData,
                                           modules: updatedModules
@@ -814,11 +842,11 @@ export default function CourseEditor() {
                                       }}
                                       rows={3}
                                     />
-                                    
+
                                     <div className="grid grid-cols-2 gap-2">
                                       <div>
                                         <Label>Difficulty</Label>
-                                        <select 
+                                        <select
                                           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                           value={exercise.difficulty}
                                           onChange={(e) => {
@@ -826,14 +854,14 @@ export default function CourseEditor() {
                                               if (module.id === currentModule.id) {
                                                 const updatedExercises = module.exercises.map(ex => {
                                                   if (ex.id === exercise.id) {
-                                                    return { 
-                                                      ...ex, 
+                                                    return {
+                                                      ...ex,
                                                       difficulty: e.target.value as 'beginner' | 'intermediate' | 'advanced'
                                                     };
                                                   }
                                                   return ex;
                                                 });
-                                                
+
                                                 return {
                                                   ...module,
                                                   exercises: updatedExercises
@@ -841,7 +869,7 @@ export default function CourseEditor() {
                                               }
                                               return module;
                                             });
-                                            
+
                                             setCourseData({
                                               ...courseData,
                                               modules: updatedModules
@@ -855,7 +883,7 @@ export default function CourseEditor() {
                                       </div>
                                       <div>
                                         <Label>Estimated Time (min)</Label>
-                                        <Input 
+                                        <Input
                                           type="number"
                                           value={exercise.estimatedTime}
                                           onChange={(e) => {
@@ -863,14 +891,14 @@ export default function CourseEditor() {
                                               if (module.id === currentModule.id) {
                                                 const updatedExercises = module.exercises.map(ex => {
                                                   if (ex.id === exercise.id) {
-                                                    return { 
-                                                      ...ex, 
-                                                      estimatedTime: parseInt(e.target.value) 
+                                                    return {
+                                                      ...ex,
+                                                      estimatedTime: parseInt(e.target.value)
                                                     };
                                                   }
                                                   return ex;
                                                 });
-                                                
+
                                                 return {
                                                   ...module,
                                                   exercises: updatedExercises
@@ -878,7 +906,7 @@ export default function CourseEditor() {
                                               }
                                               return module;
                                             });
-                                            
+
                                             setCourseData({
                                               ...courseData,
                                               modules: updatedModules
@@ -889,8 +917,8 @@ export default function CourseEditor() {
                                     </div>
                                   </CardContent>
                                   <CardFooter>
-                                    <Button 
-                                      variant="outline" 
+                                    <Button
+                                      variant="outline"
                                       size="sm"
                                       onClick={() => {
                                         const updatedModules = courseData.modules.map(module => {
@@ -902,7 +930,7 @@ export default function CourseEditor() {
                                           }
                                           return module;
                                         });
-                                        
+
                                         setCourseData({
                                           ...courseData,
                                           modules: updatedModules
@@ -920,13 +948,13 @@ export default function CourseEditor() {
                               No exercises added yet
                             </div>
                           )}
-                          
+
                           <Button onClick={() => addExercise(currentModule.id)}>
                             Add Exercise
                           </Button>
                         </div>
                       </TabsContent>
-                      
+
                       <TabsContent value="resources">
                         <div className="space-y-4">
                           {currentModule.resources.length > 0 ? (
@@ -934,7 +962,7 @@ export default function CourseEditor() {
                               {currentModule.resources.map((resource) => (
                                 <Card key={resource.id}>
                                   <CardHeader className="pb-2">
-                                    <Input 
+                                    <Input
                                       value={resource.title}
                                       onChange={(e) => {
                                         const updatedModules = courseData.modules.map(module => {
@@ -945,7 +973,7 @@ export default function CourseEditor() {
                                               }
                                               return res;
                                             });
-                                            
+
                                             return {
                                               ...module,
                                               resources: updatedResources
@@ -953,7 +981,7 @@ export default function CourseEditor() {
                                           }
                                           return module;
                                         });
-                                        
+
                                         setCourseData({
                                           ...courseData,
                                           modules: updatedModules
@@ -965,7 +993,7 @@ export default function CourseEditor() {
                                     <div className="grid grid-cols-2 gap-2">
                                       <div>
                                         <Label>Type</Label>
-                                        <select 
+                                        <select
                                           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                           value={resource.type}
                                           onChange={(e) => {
@@ -973,14 +1001,14 @@ export default function CourseEditor() {
                                               if (module.id === currentModule.id) {
                                                 const updatedResources = module.resources.map(res => {
                                                   if (res.id === resource.id) {
-                                                    return { 
-                                                      ...res, 
+                                                    return {
+                                                      ...res,
                                                       type: e.target.value as 'article' | 'video' | 'book' | 'tutorial'
                                                     };
                                                   }
                                                   return res;
                                                 });
-                                                
+
                                                 return {
                                                   ...module,
                                                   resources: updatedResources
@@ -988,7 +1016,7 @@ export default function CourseEditor() {
                                               }
                                               return module;
                                             });
-                                            
+
                                             setCourseData({
                                               ...courseData,
                                               modules: updatedModules
@@ -1003,7 +1031,7 @@ export default function CourseEditor() {
                                       </div>
                                       <div>
                                         <Label>URL</Label>
-                                        <Input 
+                                        <Input
                                           value={resource.url}
                                           onChange={(e) => {
                                             const updatedModules = courseData.modules.map(module => {
@@ -1014,7 +1042,7 @@ export default function CourseEditor() {
                                                   }
                                                   return res;
                                                 });
-                                                
+
                                                 return {
                                                   ...module,
                                                   resources: updatedResources
@@ -1022,7 +1050,7 @@ export default function CourseEditor() {
                                               }
                                               return module;
                                             });
-                                            
+
                                             setCourseData({
                                               ...courseData,
                                               modules: updatedModules
@@ -1033,8 +1061,8 @@ export default function CourseEditor() {
                                     </div>
                                   </CardContent>
                                   <CardFooter>
-                                    <Button 
-                                      variant="outline" 
+                                    <Button
+                                      variant="outline"
                                       size="sm"
                                       onClick={() => {
                                         const updatedModules = courseData.modules.map(module => {
@@ -1046,7 +1074,7 @@ export default function CourseEditor() {
                                           }
                                           return module;
                                         });
-                                        
+
                                         setCourseData({
                                           ...courseData,
                                           modules: updatedModules
@@ -1064,7 +1092,7 @@ export default function CourseEditor() {
                               No resources added yet
                             </div>
                           )}
-                          
+
                           <Button onClick={() => addResource(currentModule.id)}>
                             Add Resource
                           </Button>
