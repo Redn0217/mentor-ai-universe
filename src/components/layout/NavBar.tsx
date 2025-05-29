@@ -42,22 +42,22 @@ export const NavBar = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 p-4">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="fixed top-0 left-0 right-0 z-50 p-6 mb-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Desktop Split Navigation */}
-        <div className="hidden lg:flex lg:justify-between lg:gap-6">
+        <div className="hidden lg:flex lg:justify-between lg:gap-8">
           
           {/* Left Section - Logo and Navigation */}
-          <div className="bg-white/70 backdrop-blur-md border border-gray-200/50 rounded-2xl shadow-lg px-6 py-3">
-            <div className="flex items-center space-x-8">
+          <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-8 py-4">
+            <div className="flex items-center space-x-10">
               {/* Logo */}
               <Link to="/" className="flex items-center">
                 <img src="/logo.png" alt="Internsify" className="h-8 w-auto" />
               </Link>
 
               {/* Navigation Links */}
-              <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-8">
                 
                 {/* Product Dropdown */}
                 <div 
@@ -71,13 +71,13 @@ export const NavBar = () => {
                   </button>
                   
                   <div className={`absolute left-0 top-full mt-2 w-80 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform ${activeDropdown === 'product' ? 'translate-y-0' : 'translate-y-2'}`}>
-                    <div className="bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-xl shadow-lg p-6">
+                    <div className="bg-white/80 backdrop-blur-lg border border-gray-200/30 rounded-xl shadow-lg p-6">
                       <div className="space-y-1">
                         {productItems.map((item) => (
                           <Link 
                             key={item.name}
                             to={item.href} 
-                            className="block p-3 rounded-lg hover:bg-gray-50/80 transition-colors duration-200 group"
+                            className="block p-3 rounded-lg hover:bg-gray-50/60 transition-colors duration-200 group"
                           >
                             <div className="font-medium text-gray-900 group-hover:text-primary transition-colors duration-200">
                               {item.name}
@@ -104,13 +104,13 @@ export const NavBar = () => {
                   </button>
                   
                   <div className={`absolute left-0 top-full mt-2 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform ${activeDropdown === 'resources' ? 'translate-y-0' : 'translate-y-2'}`}>
-                    <div className="bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-xl shadow-lg p-6">
+                    <div className="bg-white/80 backdrop-blur-lg border border-gray-200/30 rounded-xl shadow-lg p-6">
                       <div className="space-y-1">
                         {resourceItems.map((item) => (
                           <Link 
                             key={item.name}
                             to={item.href} 
-                            className="block p-3 rounded-lg hover:bg-gray-50/80 transition-colors duration-200 group"
+                            className="block p-3 rounded-lg hover:bg-gray-50/60 transition-colors duration-200 group"
                           >
                             <div className="font-medium text-gray-900 group-hover:text-primary transition-colors duration-200">
                               {item.name}
@@ -142,8 +142,8 @@ export const NavBar = () => {
           </div>
 
           {/* Right Section - CTA Buttons */}
-          <div className="bg-white/70 backdrop-blur-md border border-gray-200/50 rounded-2xl shadow-lg px-6 py-3">
-            <div className="flex items-center space-x-3">
+          <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-8 py-4">
+            <div className="flex items-center space-x-4">
               {user ? (
                 <>
                   <Button onClick={() => navigate('/dashboard')} variant="ghost" className="font-medium text-gray-700 hover:text-gray-900">
@@ -174,14 +174,14 @@ export const NavBar = () => {
 
         {/* Mobile Navigation */}
         <div className="lg:hidden">
-          <div className="flex justify-between items-center">
-            <div className="bg-white/70 backdrop-blur-md border border-gray-200/50 rounded-2xl shadow-lg px-4 py-2">
+          <div className="flex justify-between items-center gap-4">
+            <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-4 py-3">
               <Link to="/" className="flex items-center">
                 <img src="/logo.png" alt="Internsify" className="h-8 w-auto" />
               </Link>
             </div>
 
-            <div className="bg-white/70 backdrop-blur-md border border-gray-200/50 rounded-2xl shadow-lg px-4 py-2">
+            <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-4 py-3">
               <button
                 onClick={toggleMobileMenu}
                 className="text-gray-700 hover:text-gray-900 focus:outline-none transition-colors duration-200"
@@ -198,7 +198,7 @@ export const NavBar = () => {
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="mt-4 animate-fade-in">
-              <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-2xl shadow-lg p-6 space-y-4">
+              <div className="bg-white/70 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg p-6 space-y-4">
                 
                 {/* Mobile Product Section */}
                 <div>
