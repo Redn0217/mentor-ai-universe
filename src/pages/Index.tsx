@@ -133,79 +133,105 @@ const Index = () => {
   
   return (
     <MainLayout>
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-brand-teal to-brand-orange text-white py-20 overflow-hidden" style={{
-        marginTop: '-80px',
-        paddingTop: '100px'
-      }}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
-          <div className="grid gap-8 md:grid-cols-2 items-center">
-            <div className="animate-fade-in">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              <span className="text-tech-purple">AI-Powered</span> Learning for Modern Tech Skills
+      {/* Act I: Hero Section - Shared Vision */}
+      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 pt-16 pb-24 overflow-hidden">
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <div className="animate-fade-in">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8 text-gray-900">
+              The world's most advanced <span className="bg-gradient-to-r from-brand-teal to-brand-orange bg-clip-text text-transparent">AI toolkit</span> for tech education
             </h1>
-              <p className="text-lg opacity-90 mb-8 max-w-lg">
-                Interactive learning platform with dedicated AI tutors for Python, DevOps, Cloud Computing, and more.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <GradientButton>
-                  Get Started
-                </GradientButton>
-                <InteractiveHoverButton
-                  text="Explore Technologies"
-                  className="bg-white/10 border-white text-white hover:text-primary w-auto px-6 py-3"
-                />
-              </div>
+            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+              Internsify is the first AI platform that delivers personalized tech education at scale. 
+              Use our AI tutors alongside your existing learning, or as your complete AI-powered skill development solution.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <GradientButton className="text-lg px-8 py-4">
+                Start for free
+              </GradientButton>
+              <InteractiveHoverButton
+                text="Get a demo"
+                className="text-lg px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 hover:border-primary hover:text-primary"
+              />
             </div>
-            <div className="hidden md:block">
-              <div className="relative">
-                <div className="w-full h-80 rounded-lg bg-white/10 backdrop-blur-sm p-6 shadow-xl animate-float">
-                  <div className="flex items-center mb-4">
-                    <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <div className="ml-4 text-sm opacity-70">AI Tutor Conversation</div>
+          </div>
+        </div>
+        
+        {/* Background Elements */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-brand-teal/20 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-bl from-brand-orange/20 to-transparent rounded-full blur-3xl"></div>
+        </div>
+      </section>
+
+      {/* Act II: Shared Vision & Pain Points */}
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <p className="text-xl md:text-2xl text-gray-700 leading-relaxed mb-12">
+            In tech education, we all share the same goal: to deliver personalized learning experiences that inspire every professional and graduate.
+          </p>
+          <p className="text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto">
+            Internsify offers a transformative new approach - not just to achieve that goal - but to redefine it. 
+            Our AI-powered platform is built by experienced technologists, bringing unmatched expertise in software development, 
+            DevOps practices, and artificial intelligence education.
+          </p>
+        </div>
+      </section>
+
+      {/* Act III: The Solution - Our Platform */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+              AI that empowers your tech journey
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Our AI tutors personalize instruction for every learner. Advanced coding environments and real-time feedback 
+              make learning efficient and engaging.
+            </p>
+          </div>
+          
+          {/* Visual Demo */}
+          <div className="relative mb-20">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
+              <div className="flex items-center mb-6">
+                <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <div className="ml-4 text-sm text-gray-500">AI Tutor Session</div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex">
+                  <div className="bg-gradient-to-r from-brand-teal/10 to-brand-orange/10 rounded-lg p-4 max-w-[80%]">
+                    <p className="text-gray-800">Hello! I'm your Python tutor. I see you're working on data structures. Let's start with lists and dictionaries.</p>
                   </div>
-                  <div className="space-y-4">
-                    <div className="flex">
-                      <div className="bg-primary/20 rounded-lg p-3 max-w-[80%]">
-                        <p className="text-sm">Hello! I'm your Python tutor. How can I help you today?</p>
-                      </div>
-                    </div>
-                    <div className="flex justify-end">
-                      <div className="bg-white/20 rounded-lg p-3 max-w-[80%]">
-                        <p className="text-sm">I'm having trouble with list comprehensions. Can you explain them?</p>
-                      </div>
-                    </div>
-                    <div className="flex">
-                      <div className="bg-primary/20 rounded-lg p-3 max-w-[80%]">
-                        <p className="text-sm">Sure! List comprehensions are a concise way to create lists...</p>
-                      </div>
-                    </div>
+                </div>
+                <div className="flex justify-end">
+                  <div className="bg-gray-100 rounded-lg p-4 max-w-[80%]">
+                    <p className="text-gray-800">Can you help me understand when to use lists vs dictionaries?</p>
+                  </div>
+                </div>
+                <div className="flex">
+                  <div className="bg-gradient-to-r from-brand-teal/10 to-brand-orange/10 rounded-lg p-4 max-w-[80%]">
+                    <p className="text-gray-800">Great question! Let me show you with a practical example. Lists are perfect for ordered data...</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute -right-10 top-10 w-40 h-40 rounded-full bg-white/10 backdrop-blur-sm"></div>
-          <div className="absolute left-10 bottom-10 w-32 h-32 rounded-full bg-white/5 backdrop-blur-sm"></div>
-          <div className="absolute right-1/3 bottom-10 w-64 h-64 rounded-full bg-white/5 backdrop-blur-sm"></div>
-        </div>
       </section>
 
-      {/* Technologies Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Explore Technologies</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Choose from a wide range of technology domains and start learning with your personal AI tutor.
+      {/* Act IV: Feature Breakdown */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6 text-gray-900">Complete AI-powered learning toolkit</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Everything you need to master modern technology skills, from beginner concepts to advanced implementations.
             </p>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-20">
             {technologies.map((tech) => (
               <TechnologyCard
                 key={tech.slug}
@@ -222,87 +248,103 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Why Choose Internsify?</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Our platform combines cutting-edge AI with proven learning methodologies to provide the best tech education.
-            </p>
-          </div>
-          
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div className="p-6 border rounded-lg shadow-sm bg-white">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      {/* Key Features */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-brand-teal to-brand-orange rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">AI Tutors</h3>
-              <p className="text-gray-600">
-                Personalized learning with dedicated AI tutors for each technology domain, available 24/7.
+              <h3 className="text-2xl font-bold mb-4 text-gray-900">AI Tutors</h3>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                Personalized learning with dedicated AI tutors for each technology domain, available 24/7 to guide your journey.
               </p>
             </div>
             
-            <div className="p-6 border rounded-lg shadow-sm bg-white">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m2 12 5.2-1.9a7 7 0 0 1 5.6 0L18 12"/><path d="M2 12v.5a10 10 0 0 0 5.17 8.77"/><path d="M22 12v.5a10 10 0 0 1-5.17 8.77"/><path d="M12 12v10"/><path d="m4.2 22 7.8-3.5 7.8 3.5"/></svg>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-brand-teal to-brand-orange rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="10" x="3" y="3" rx="1"/><rect width="18" height="8" x="3" y="15" rx="1"/><line x1="7" y1="7" x2="17" y2="7"/><line x1="7" y1="19" x2="17" y2="19"/></svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Hands-on Learning</h3>
-              <p className="text-gray-600">
-                Interactive projects and exercises to apply what you've learned in real-world scenarios.
+              <h3 className="text-2xl font-bold mb-4 text-gray-900">Interactive Playground</h3>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                Hands-on coding environments where you can practice, experiment, and build real projects with instant feedback.
               </p>
             </div>
             
-            <div className="p-6 border rounded-lg shadow-sm bg-white">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-brand-teal to-brand-orange rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Advanced Chatbots</h3>
-              <p className="text-gray-600">
-                Access to cutting-edge AI assistants including Grok, Co-Pilot, and Chat-GPT for research support.
-              </p>
-            </div>
-            
-            <div className="p-6 border rounded-lg shadow-sm bg-white">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Progress Tracking</h3>
-              <p className="text-gray-600">
-                Detailed analytics and feedback on your learning journey to help you improve continuously.
-              </p>
-            </div>
-            
-            <div className="p-6 border rounded-lg shadow-sm bg-white">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 22v-4"/><path d="M9 7V2h6v5"/><path d="M16 22 2 8c-1.5-1.5-1-3.5 0-5s3.5-1.5 5 0l14 14c1.5 1.5 1 3.5 0 5s-3.5 1.5-5 0z"/><path d="m8.5 11.5 5 5"/><path d="m14 6 2 2"/><path d="m10 10 2 2"/><path d="m16 12 2 2"/><path d="m9 19 2 2"/></svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Personalized Learning</h3>
-              <p className="text-gray-600">
-                Adaptive learning pathways tailored to your skill level, goals, and learning pace.
-              </p>
-            </div>
-            
-            <div className="p-6 border rounded-lg shadow-sm bg-white">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><rect width="18" height="10" x="3" y="3" rx="1"/><rect width="18" height="8" x="3" y="15" rx="1"/><line x1="7" y1="7" x2="17" y2="7"/><line x1="7" y1="19" x2="17" y2="19"/></svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Industry-Relevant</h3>
-              <p className="text-gray-600">
-                Curriculum designed by industry experts to ensure you learn the skills employers value most.
+              <h3 className="text-2xl font-bold mb-4 text-gray-900">Smart Progress Tracking</h3>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                Advanced analytics and personalized insights to track your learning progress and optimize your skill development.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Try an AI Tutor Section */}
+      {/* Act V: Credibility & Trust Signals */}
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold mb-12 text-gray-900">Built by experienced technologists</h2>
+          
+          {/* Founder/Team Section */}
+          <div className="grid gap-8 md:grid-cols-3 mb-16">
+            <div className="text-center">
+              <div className="w-24 h-24 bg-gradient-to-br from-brand-teal to-brand-orange rounded-full mx-auto mb-4 flex items-center justify-center">
+                <span className="text-white text-2xl font-bold">JS</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2 text-gray-900">John Smith</h3>
+              <p className="text-gray-600">Co-Founder, CEO</p>
+              <p className="text-sm text-gray-500 mt-2">Former Senior Engineer at Google</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-24 h-24 bg-gradient-to-br from-brand-teal to-brand-orange rounded-full mx-auto mb-4 flex items-center justify-center">
+                <span className="text-white text-2xl font-bold">AD</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2 text-gray-900">Alice Davis</h3>
+              <p className="text-gray-600">Co-Founder, CTO</p>
+              <p className="text-sm text-gray-500 mt-2">Former Principal Engineer at Microsoft</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-24 h-24 bg-gradient-to-br from-brand-teal to-brand-orange rounded-full mx-auto mb-4 flex items-center justify-center">
+                <span className="text-white text-2xl font-bold">RJ</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2 text-gray-900">Robert Johnson</h3>
+              <p className="text-gray-600">VP of Engineering</p>
+              <p className="text-sm text-gray-500 mt-2">Former Tech Lead at Amazon</p>
+            </div>
+          </div>
+          
+          {/* Testimonial */}
+          <div className="bg-gray-50 rounded-2xl p-8 mb-12">
+            <blockquote className="text-xl md:text-2xl text-gray-700 italic leading-relaxed mb-6">
+              "Internsify transformed how I approach learning new technologies. The AI tutors provide personalized guidance that's impossible to get elsewhere."
+            </blockquote>
+            <div className="flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-brand-teal to-brand-orange rounded-full mr-4 flex items-center justify-center">
+                <span className="text-white font-bold">MK</span>
+              </div>
+              <div className="text-left">
+                <p className="font-semibold text-gray-900">Michael Kim</p>
+                <p className="text-gray-600">Senior DevOps Engineer, Netflix</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive AI Tutor Demo */}
       <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Try an AI Tutor</h2>
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">Experience AI-powered learning</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Get a taste of our interactive learning experience by chatting with one of our AI tutors.
+              Get a taste of our interactive learning experience by chatting with one of our specialized AI tutors.
             </p>
           </div>
           
@@ -336,24 +378,27 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-brand-teal to-brand-orange text-white">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to Start Your Learning Journey?</h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Join thousands of tech professionals who are advancing their careers with Internsify's AI-powered learning platform.
+      {/* Act VI: Final CTA */}
+      <section className="py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
+            Ready to accelerate your tech career?
+          </h2>
+          <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+            Join thousands of professionals who are mastering cutting-edge technologies with Internsify's AI-powered learning platform.
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <GradientButton>
-              Get Started Free
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <GradientButton className="text-lg px-8 py-4">
+              Start for free
             </GradientButton>
             <Link to="/pricing">
               <InteractiveHoverButton
-                text="View Pricing"
-                className="bg-white/10 border-white text-white hover:text-primary w-auto px-6 py-3"
+                text="View pricing"
+                className="text-lg px-8 py-4 bg-white/10 border-2 border-white/20 text-white hover:bg-white hover:text-gray-900"
               />
             </Link>
           </div>
+          <p className="text-sm text-gray-400 mt-6">No credit card required • 14-day free trial</p>
         </div>
       </section>
     </MainLayout>
