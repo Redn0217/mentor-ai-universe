@@ -25,6 +25,10 @@ import Corporate from "./pages/Corporate";
 import TechnologyCourse from "./pages/TechnologyCourse";
 import CoursesList from "./pages/admin/CoursesList";
 import CourseEditor from "./pages/admin/CourseEditor";
+import Create from "./pages/Create";
+import Assess from "./pages/Assess";
+import Personalize from "./pages/Personalize";
+import Communicate from "./pages/Communicate";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +64,10 @@ const AppContent = () => {
         <Route path="/certifications" element={<Certifications />} />
         <Route path="/corporate" element={<Corporate />} />
         <Route path="/tech/:slug" element={<TechnologyCourse />} />
+        <Route path="/create" element={<Create />} />
+        <Route path="/assess" element={<Assess />} />
+        <Route path="/personalize" element={<Personalize />} />
+        <Route path="/communicate" element={<Communicate />} />
 
         {/* Admin Routes */}
         <Route element={<ProtectedRoute />}>

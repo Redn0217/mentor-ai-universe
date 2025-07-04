@@ -453,6 +453,131 @@ const Index = () => {
         </div>
       </section>
 
+      {/* New AI Tools Section */}
+      <section className="py-20 bg-background">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6 text-foreground">
+              New AI Tools, Designed to Support Great Teaching
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+              From lesson planning to family communication, our AI tools take the busywork off your plate, 
+              giving you more time for creativity, student connection, and classroom impact.
+            </p>
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+            {/* Create Card */}
+            <Link to="/create" className="group">
+              <div className="bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-900/20 dark:to-pink-800/20 rounded-2xl p-8 transition-all duration-300 hover:shadow-lg hover:scale-105 h-full">
+                <div className="flex flex-col justify-between h-full">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-4 text-foreground group-hover:text-primary transition-colors">
+                      Create
+                    </h3>
+                    <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                      Plan faster with tools that build lessons, rubrics, and warm-ups in seconds.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-primary font-semibold group-hover:text-primary/80 transition-colors">
+                      Explore tools →
+                    </span>
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Assess Card */}
+            <Link to="/assess" className="group">
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-8 transition-all duration-300 hover:shadow-lg hover:scale-105 h-full">
+                <div className="flex flex-col justify-between h-full">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-4 text-foreground group-hover:text-primary transition-colors">
+                      Assess
+                    </h3>
+                    <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                      Design quizzes, generate feedback, and track progress, without all the paperwork.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-primary font-semibold group-hover:text-primary/80 transition-colors">
+                      Explore tools →
+                    </span>
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Personalize Card */}
+            <Link to="/personalize" className="group">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-2xl p-8 transition-all duration-300 hover:shadow-lg hover:scale-105 h-full">
+                <div className="flex flex-col justify-between h-full">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-4 text-foreground group-hover:text-primary transition-colors">
+                      Personalize
+                    </h3>
+                    <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                      Differentiate instruction and support every learner with tailored content tools.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-primary font-semibold group-hover:text-primary/80 transition-colors">
+                      Explore tools →
+                    </span>
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+                        <path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"/>
+                        <path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Communicate Card */}
+            <Link to="/communicate" className="group">
+              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-2xl p-8 transition-all duration-300 hover:shadow-lg hover:scale-105 h-full">
+                <div className="flex flex-col justify-between h-full">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-4 text-foreground group-hover:text-primary transition-colors">
+                      Communicate
+                    </h3>
+                    <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                      Write clear, thoughtful messages for students, families, and colleagues, quickly.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-primary font-semibold group-hover:text-primary/80 transition-colors">
+                      Explore tools →
+                    </span>
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+                        <path d="M21.5 2 17 6.5"/>
+                        <path d="m21.5 2-5.5 5.5L14 4l-1 1-2-2-4 4v4l2 2 1-1h4l4-4-2-2 1-1 3.5 2.5Z"/>
+                        <path d="M7.5 8.5 4 12l6 6h8l-6-6Z"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Act VI: Final CTA */}
       <section className="py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
