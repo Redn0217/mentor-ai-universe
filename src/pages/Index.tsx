@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { TechnologyCard } from '@/components/technologies/TechnologyCard';
 import { TutorChat } from '@/components/tutors/TutorChat';
-import { Button } from '@/components/ui/button';
+import { GradientButton } from '@/components/ui/gradient-button';
+import { RainbowButton } from '@/components/ui/rainbow-button';
+import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link } from 'react-router-dom';
 
@@ -132,8 +134,11 @@ const Index = () => {
   return (
     <MainLayout>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-brand-teal to-brand-orange text-white py-16 overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <section className="relative bg-gradient-to-br from-brand-teal to-brand-orange text-white py-20 overflow-hidden" style={{
+        marginTop: '-80px',
+        paddingTop: '100px'
+      }}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
           <div className="grid gap-8 md:grid-cols-2 items-center">
             <div className="animate-fade-in">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
@@ -143,12 +148,13 @@ const Index = () => {
                 Interactive learning platform with dedicated AI tutors for Python, DevOps, Cloud Computing, and more.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button size="lg" className="bg-white text-primary hover:bg-white/80">
+                <GradientButton>
                   Get Started
-                </Button>
-                <Button size="lg" variant="outline" className="bg-white/10 border-white text-white hover:text-primary hover:bg-white/90">
-                  Explore Technologies
-                </Button>
+                </GradientButton>
+                <InteractiveHoverButton
+                  text="Explore Technologies"
+                  className="bg-white/10 border-white text-white hover:text-primary w-auto px-6 py-3"
+                />
               </div>
             </div>
             <div className="hidden md:block">
@@ -190,8 +196,8 @@ const Index = () => {
       </section>
 
       {/* Technologies Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Explore Technologies</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -217,8 +223,8 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Why Choose Internsify?</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -291,8 +297,8 @@ const Index = () => {
       </section>
 
       {/* Try an AI Tutor Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Try an AI Tutor</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -331,19 +337,22 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-br from-brand-teal to-brand-orange text-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="py-20 bg-gradient-to-br from-brand-teal to-brand-orange text-white">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Start Your Learning Journey?</h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto">
             Join thousands of tech professionals who are advancing their careers with Internsify's AI-powered learning platform.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" className="bg-white text-primary hover:bg-white/90">
+            <GradientButton>
               Get Started Free
-            </Button>
-            <Button size="lg" variant="outline" className="bg-white/10 border-white text-white hover:text-primary hover:bg-white/90">
-              <Link to="/pricing">View Pricing</Link>
-            </Button>
+            </GradientButton>
+            <Link to="/pricing">
+              <InteractiveHoverButton
+                text="View Pricing"
+                className="bg-white/10 border-white text-white hover:text-primary w-auto px-6 py-3"
+              />
+            </Link>
           </div>
         </div>
       </section>

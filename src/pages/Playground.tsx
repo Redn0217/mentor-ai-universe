@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 const Playground = () => {
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-12 sm:px-8 lg:px-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Coding Playground</h1>
           <p className="text-gray-600 mt-2">

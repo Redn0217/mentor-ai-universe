@@ -91,7 +91,7 @@ export default function TechnologyCourse() {
   if (isLoading) {
     return (
       <MainLayout>
-        <div className="container mx-auto py-10">
+        <div className="max-w-7xl mx-auto py-12 px-6 sm:px-8 lg:px-12">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="h-16 w-16 border-4 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
@@ -106,7 +106,7 @@ export default function TechnologyCourse() {
   if (error || !courseData) {
     return (
       <MainLayout>
-        <div className="container mx-auto py-10">
+        <div className="max-w-7xl mx-auto py-12 px-6 sm:px-8 lg:px-12">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <h2 className="text-2xl font-bold mb-4">Error Loading Course</h2>
@@ -125,7 +125,7 @@ export default function TechnologyCourse() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 py-10">
+      <div className="max-w-7xl mx-auto px-6 py-12 sm:px-8 lg:px-12">
         {/* Course Header */}
         <div className="mb-10">
           <div className="flex items-center gap-4 mb-4">

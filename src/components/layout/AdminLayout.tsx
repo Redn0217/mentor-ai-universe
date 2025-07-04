@@ -144,7 +144,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       {/* Main content */}
       <div className="flex-1 overflow-auto">
         <header className="bg-white border-b sticky top-0 z-10">
-          <div className="container mx-auto p-4">
+          <div className="max-w-7xl mx-auto px-6 py-4 sm:px-8 lg:px-12">
             <div className="flex justify-between items-center">
               <h1 className="text-xl font-bold">Admin Dashboard</h1>
               {user && (

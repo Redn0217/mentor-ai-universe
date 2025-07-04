@@ -2,6 +2,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { GradientButton } from '@/components/ui/gradient-button';
+import { RainbowButton } from '@/components/ui/rainbow-button';
+import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
 import { ChevronDown, Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -42,14 +45,14 @@ export const NavBar = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 p-6 mb-24">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="fixed top-0 left-0 right-0 z-50 p-3 mb-24">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         
         {/* Desktop Split Navigation */}
-        <div className="hidden lg:flex lg:justify-between lg:gap-8">
+        <div className="hidden lg:flex lg:justify-between lg:gap-24">
           
           {/* Left Section - Logo and Navigation */}
-          <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-8 py-4">
+          <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-4 py-2">
             <div className="flex items-center space-x-10">
               {/* Logo */}
               <Link to="/" className="flex items-center">
@@ -131,18 +134,15 @@ export const NavBar = () => {
                 </Link>
 
                 {/* AI Tutor Button */}
-                <Link 
-                  to="/playground" 
-                  className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-105 shadow-sm"
-                >
+                <RainbowButton onClick={() => navigate('/playground')}>
                   AI Tutor
-                </Link>
+                </RainbowButton>
               </div>
             </div>
           </div>
 
           {/* Right Section - CTA Buttons */}
-          <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-8 py-4">
+          <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-4 py-2">
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
@@ -157,15 +157,15 @@ export const NavBar = () => {
                 </>
               ) : (
                 <>
-                  <Button variant="ghost" className="font-medium text-gray-700 hover:text-gray-900">
-                    Get a demo
-                  </Button>
-                  <Button onClick={() => navigate('/login')} variant="ghost" className="font-medium text-gray-700 hover:text-gray-900">
-                    Log in
-                  </Button>
-                  <Button onClick={() => navigate('/signup')} className="bg-primary hover:bg-primary/90 font-medium px-6 shadow-sm">
+                  <InteractiveHoverButton text="Get a demo" className="w-auto px-4" />
+                  <InteractiveHoverButton
+                    text="Log in"
+                    className="w-auto px-4"
+                    onClick={() => navigate('/login')}
+                  />
+                  <GradientButton onClick={() => navigate('/signup')}>
                     Start for free
-                  </Button>
+                  </GradientButton>
                 </>
               )}
             </div>
@@ -175,13 +175,13 @@ export const NavBar = () => {
         {/* Mobile Navigation */}
         <div className="lg:hidden">
           <div className="flex justify-between items-center gap-4">
-            <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-4 py-3">
+            <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-3 py-2">
               <Link to="/" className="flex items-center">
                 <img src="/logo.png" alt="Internsify" className="h-8 w-auto" />
               </Link>
             </div>
 
-            <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-4 py-3">
+            <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-3 py-2">
               <button
                 onClick={toggleMobileMenu}
                 className="text-gray-700 hover:text-gray-900 focus:outline-none transition-colors duration-200"
@@ -242,15 +242,15 @@ export const NavBar = () => {
                   </>
                 ) : (
                   <>
-                    <Button variant="outline" className="w-full">
-                      Get a demo
-                    </Button>
-                    <Button onClick={() => navigate('/login')} variant="outline" className="w-full">
-                      Log in
-                    </Button>
-                    <Button onClick={() => navigate('/signup')} className="w-full">
+                    <InteractiveHoverButton text="Get a demo" className="w-full" />
+                    <InteractiveHoverButton
+                      text="Log in"
+                      className="w-full"
+                      onClick={() => navigate('/login')}
+                    />
+                    <GradientButton onClick={() => navigate('/signup')} className="w-full">
                       Start for free
-                    </Button>
+                    </GradientButton>
                   </>
                 )}
               </div>

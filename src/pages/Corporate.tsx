@@ -16,8 +16,8 @@ const Corporate = () => {
 
   return (
     <MainLayout>
-      <section className="py-16 bg-gradient-to-br from-primary/5 to-accent/5">
-        <div className="container mx-auto px-4">
+      <section className="py-20 bg-gradient-to-br from-primary/5 to-accent/5">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Enterprise Training Solutions</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

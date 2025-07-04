@@ -76,7 +76,7 @@ export default function CoursesList() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 py-10">
+      <div className="max-w-7xl mx-auto px-6 py-12 sm:px-8 lg:px-12">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold">Course Management</h1>

@@ -43,7 +43,7 @@ const Contact = () => {
 
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-6 py-20 sm:px-8 lg:px-12">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold mb-8">Contact Us</h1>
           

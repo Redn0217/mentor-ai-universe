@@ -124,8 +124,8 @@ const Pricing = () => {
 
   return (
     <MainLayout>
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Choose Your Learning Path</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -169,8 +169,8 @@ const Pricing = () => {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    onClick={() => handlePlanSelection(plan)} 
+                  <Button
+                    onClick={() => handlePlanSelection(plan)}
                     className="w-full"
                     variant={plan.highlighted ? "default" : "outline"}
                   >
