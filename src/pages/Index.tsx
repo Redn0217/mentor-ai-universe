@@ -378,6 +378,16 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Why Choose Internsify? */}
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl font-bold mb-6 text-gray-900">Why Choose Internsify?</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Our platform combines cutting-edge AI with proven learning methodologies to provide the best tech education.
+          </p>
+        </div>
+      </section>
+
       {/* Act VI: Final CTA */}
       <section className="py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
