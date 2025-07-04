@@ -158,8 +158,9 @@ const Index = () => {
         
         {/* Background Elements */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-brand-teal/20 to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-bl from-brand-orange/20 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-brand-teal/40 to-brand-teal/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-bl from-brand-orange/40 to-brand-orange/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-brand-teal/20 via-transparent to-brand-orange/20 rounded-full blur-3xl"></div>
         </div>
       </section>
 
