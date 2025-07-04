@@ -145,12 +145,12 @@ const Index = () => {
               Use our AI tutors alongside your existing learning, or as your complete AI-powered skill development solution.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <GradientButton className="text-lg px-8 py-4">
+              <GradientButton className="text-lg px-8 py-3">
                 Start for free
               </GradientButton>
               <InteractiveHoverButton
                 text="Get a demo"
-                className="text-lg px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 hover:border-primary hover:text-primary"
+                className="text-lg px-8 py-3 w-auto bg-white border-2 border-gray-200 text-gray-700 hover:border-primary hover:text-primary"
               />
             </div>
           </div>
@@ -463,13 +463,13 @@ const Index = () => {
             Join thousands of professionals who are mastering cutting-edge technologies with Internsify's AI-powered learning platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <GradientButton className="text-lg px-8 py-4">
+            <GradientButton className="text-lg px-8 py-3">
               Start for free
             </GradientButton>
             <Link to="/pricing">
               <InteractiveHoverButton
                 text="View pricing"
-                className="text-lg px-8 py-4 bg-white/10 border-2 border-white/20 text-white hover:bg-white hover:text-gray-900"
+                className="text-lg px-8 py-3 w-auto bg-white/10 border-2 border-white/20 text-white hover:bg-white hover:text-gray-900"
               />
             </Link>
           </div>
