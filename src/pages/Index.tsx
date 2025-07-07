@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { TechnologyCard } from '@/components/technologies/TechnologyCard';
 import { TutorChat } from '@/components/tutors/TutorChat';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Link } from 'react-router-dom';
+import Typewriter from 'react-typewriter-effect';
 
 const technologies = [
   {
@@ -130,18 +131,106 @@ const technologies = [
 
 const Index = () => {
   const [activeTech, setActiveTech] = useState(technologies[0]);
+  const [currentRotation, setCurrentRotation] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, rotation: 0 });
+  const [isAutoRotating, setIsAutoRotating] = useState(true);
+  const rotationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-rotation functionality
+  useEffect(() => {
+    if (isAutoRotating && !isDragging) {
+      rotationIntervalRef.current = setInterval(() => {
+        setCurrentRotation(prev => prev + 0.5); // Slower rotation: 0.5 degrees per interval
+      }, 50); // 50ms interval for smooth rotation
+    }
+
+    return () => {
+      if (rotationIntervalRef.current) {
+        clearInterval(rotationIntervalRef.current);
+      }
+    };
+  }, [isAutoRotating, isDragging]);
+
+  const handleManualRotation = (direction: 'left' | 'right') => {
+    setIsAutoRotating(false); // Pause auto-rotation
+    const rotationAmount = 360 / technologies.length; // Rotate to next/previous item
+    setCurrentRotation(prev =>
+      direction === 'left'
+        ? prev - rotationAmount
+        : prev + rotationAmount
+    );
+    // Resume auto-rotation after 3 seconds
+    setTimeout(() => setIsAutoRotating(true), 3000);
+  };
+
+  const handleCardClick = (tech: typeof technologies[0], index: number) => {
+    setActiveTech(tech);
+    setIsAutoRotating(false); // Pause auto-rotation
+    const rotationAmount = 360 / technologies.length;
+    setCurrentRotation(-index * rotationAmount); // Rotate to bring selected card to front
+    // Resume auto-rotation after 3 seconds
+    setTimeout(() => setIsAutoRotating(true), 3000);
+  };
+
+  // Mouse drag controls
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setIsAutoRotating(false); // Pause auto-rotation while dragging
+    setDragStart({ x: e.clientX, rotation: currentRotation });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const deltaX = e.clientX - dragStart.x;
+    const rotationDelta = deltaX * 0.5; // Sensitivity factor
+    setCurrentRotation(dragStart.rotation + rotationDelta);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    // Resume auto-rotation after 2 seconds of inactivity
+    setTimeout(() => setIsAutoRotating(true), 2000);
+  };
+
+  const changingTexts = [
+    "AI toolkit",
+    "AI platform",
+    "AI ecosystem",
+    "AI solution",
+    "AI framework",
+    "AI engine"
+  ];
   
   return (
     <MainLayout>
       {/* Act I: Hero Section - Shared Vision */}
-      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 pt-16 pb-24 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 pt-16 pb-24 overflow-hidden min-h-screen flex items-center justify-center">
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <div className="animate-fade-in">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8 text-gray-900">
-              The world's most advanced <span className="bg-gradient-to-r from-brand-teal to-brand-orange bg-clip-text text-transparent">AI toolkit</span> for tech education
+              The world's most advanced <span className="bg-gradient-to-r from-brand-teal to-brand-orange bg-clip-text text-transparent relative inline-block min-w-[300px]">
+                <Typewriter
+                  textStyle={{
+                    fontFamily: 'inherit',
+                    fontSize: 'inherit',
+                    fontWeight: 'inherit',
+                    color: 'transparent',
+                    background: 'linear-gradient(to right, #007c87, #f15a29)',
+                    WebkitBackgroundClip: 'text',
+                    backgroundClip: 'text',
+                  }}
+                  startDelay={500}
+                  cursorColor="#f15a29"
+                  multiText={changingTexts}
+                  multiTextDelay={3000}
+                  typeSpeed={150}
+                  multiTextLoop
+                />
+              </span> for tech education
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Internsify is the first AI platform that delivers personalized tech education at scale. 
+              Internsify is the first AI platform that delivers personalized tech education at scale.
               Use our AI tutors alongside your existing learning, or as your complete AI-powered skill development solution.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -155,12 +244,17 @@ const Index = () => {
             </div>
           </div>
         </div>
-        
-        {/* Background Elements */}
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-brand-teal/40 to-brand-teal/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-bl from-brand-orange/40 to-brand-orange/10 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-brand-teal/20 via-transparent to-brand-orange/20 rounded-full blur-3xl"></div>
+
+        {/* Enhanced Animated Background Elements - Extended to cover navbar area */}
+        <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 left-10 w-72 h-72 bg-gradient-to-br from-brand-teal/40 to-brand-teal/10 rounded-full blur-3xl animate-float"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-bl from-brand-orange/40 to-brand-orange/10 rounded-full blur-3xl animate-first"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-brand-teal/20 via-transparent to-brand-orange/20 rounded-full blur-3xl animate-second"></div>
+          <div className="absolute -top-10 right-20 w-48 h-48 bg-gradient-to-br from-brand-orange/30 to-brand-teal/20 rounded-full blur-2xl animate-third"></div>
+          <div className="absolute bottom-10 left-20 w-64 h-64 bg-gradient-to-tr from-brand-teal/30 to-brand-orange/20 rounded-full blur-2xl animate-fourth"></div>
+          <div className="absolute top-0 left-1/3 w-80 h-80 bg-gradient-to-br from-brand-teal/25 to-brand-orange/15 rounded-full blur-3xl animate-fifth"></div>
+          <div className="absolute -top-32 right-1/3 w-56 h-56 bg-gradient-to-bl from-brand-orange/35 to-brand-teal/25 rounded-full blur-2xl animate-float"></div>
+          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 w-40 h-40 bg-gradient-to-r from-brand-orange/20 to-brand-teal/30 rounded-full blur-xl animate-third"></div>
         </div>
       </section>
 
@@ -348,33 +442,116 @@ const Index = () => {
               Get a taste of our interactive learning experience by chatting with one of our specialized AI tutors.
             </p>
           </div>
-          
-          <div className="max-w-4xl mx-auto">
-            <Tabs defaultValue="python" className="w-full">
-              <TabsList className="grid grid-cols-3 md:grid-cols-9 mb-8">
-                {technologies.map((tech) => (
-                  <TabsTrigger 
-                    key={tech.slug} 
-                    value={tech.slug}
-                    onClick={() => setActiveTech(tech)}
-                    className="text-xs sm:text-sm"
-                  >
-                    {tech.title}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              
-              {technologies.map((tech) => (
-                <TabsContent key={tech.slug} value={tech.slug}>
-                  <TutorChat 
-                    tutorName={tech.tutor.name}
-                    tutorAvatar={tech.tutor.avatar}
-                    technology={tech.title}
-                    techColor={tech.color}
-                  />
-                </TabsContent>
-              ))}
-            </Tabs>
+
+          <div className="max-w-6xl mx-auto">
+            {/* 3D Rotating Carousel */}
+            <div className="relative mb-2 h-[300px] flex items-center justify-center">
+              {/* Navigation Buttons */}
+              <button
+                onClick={() => handleManualRotation('left')}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all duration-200 hover:scale-110"
+                aria-label="Rotate left"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m15 18-6-6 6-6"/>
+                </svg>
+              </button>
+
+              <button
+                onClick={() => handleManualRotation('right')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all duration-200 hover:scale-110"
+                aria-label="Rotate right"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m9 18 6-6-6-6"/>
+                </svg>
+              </button>
+
+
+
+              {/* 3D Carousel Container */}
+              <div
+                className="relative w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
+                style={{ perspective: '1500px' }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
+                <div
+                  className="relative preserve-3d"
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    transform: `rotateY(${currentRotation}deg) rotateX(-3deg)`,
+                    transition: 'transform 0.8s ease-out',
+                    width: '400px',
+                    height: '400px',
+                  }}
+                >
+                  {technologies.map((tech, index) => {
+                    const angle = (360 / technologies.length) * index;
+                    const radius = 380; // Reduced spacing between cards
+
+                    return (
+                      <div
+                        key={tech.slug}
+                        onClick={() => handleCardClick(tech, index)}
+                        className={`absolute cursor-pointer transition-all duration-300 transform hover:scale-110 ${
+                          activeTech.slug === tech.slug
+                            ? 'ring-2 ring-brand-teal shadow-2xl'
+                            : 'hover:shadow-xl'
+                        }`}
+                        style={{
+                          transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
+                          transformOrigin: 'center center',
+                          width: '180px', // Slightly wider
+                          height: '130px', // Even shorter height
+                          left: '50%',
+                          top: '50%',
+                          marginLeft: '-90px', // Adjusted for wider width
+                          marginTop: '-65px', // Adjusted for shorter height
+                        }}
+                      >
+                        <div
+                          className="w-full h-full bg-gradient-to-br from-white via-white to-gray-50 backdrop-blur-sm rounded-xl p-2 shadow-2xl border border-white/30 hover:shadow-3xl transition-all duration-300"
+                          style={{
+                            boxShadow: `0 20px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.2)`,
+                          }}
+                        >
+                          <div className="flex flex-col items-center text-center h-full justify-center">
+                            <div
+                              className="w-12 h-12 rounded-lg flex items-center justify-center mb-1 shadow-lg"
+                              style={{
+                                backgroundColor: tech.color + '20',
+                                color: tech.color,
+                                boxShadow: `0 6px 12px ${tech.color}20`
+                              }}
+                            >
+                              <div className="w-8 h-8">
+                                {tech.icon}
+                              </div>
+                            </div>
+                            <h3 className="font-bold text-gray-900 mb-0.5 text-xs leading-tight">{tech.title}</h3>
+                            <p className="text-xs text-gray-600 font-medium mb-0.5">{tech.tutor.name}</p>
+                            <p className="text-gray-600 line-clamp-2 leading-tight text-[8px]">{tech.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Active Tutor Chat */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <TutorChat
+                tutorName={activeTech.tutor.name}
+                tutorAvatar={activeTech.tutor.avatar}
+                technology={activeTech.title}
+                techColor={activeTech.color}
+              />
+            </div>
           </div>
         </div>
       </section>

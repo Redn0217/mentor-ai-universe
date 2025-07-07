@@ -21,26 +21,33 @@ interface TutorChatProps {
   techColor: string;
 }
 
-export const TutorChat = ({ 
-  tutorName, 
+export const TutorChat = ({
+  tutorName,
   tutorAvatar,
   technology,
-  techColor 
+  techColor
 }: TutorChatProps) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: `Hello! I'm ${tutorName}, your ${technology} tutor. How can I help you today?`,
-      sender: 'tutor',
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  
+
+  // Reset messages when tutor changes
+  useEffect(() => {
+    setMessages([
+      {
+        id: '1',
+        content: `Hello! I'm ${tutorName}, your ${technology} tutor. How can I help you today?`,
+        sender: 'tutor',
+        timestamp: new Date(),
+      },
+    ]);
+    setInputValue(''); // Clear input when switching tutors
+    setIsTyping(false); // Stop typing indicator
+  }, [tutorName, technology]);
+
   // Auto-scroll when new messages arrive
   useEffect(() => {
     if (scrollAreaRef.current) {

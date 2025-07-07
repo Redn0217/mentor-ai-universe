@@ -136,15 +136,90 @@ export default {
 				'rainbow-slide': {
 					'0%': { 'background-position': '0% 0%' },
 					'100%': { 'background-position': '200% 0%' }
-				}
+				},
+				// Text changing animations - smooth left to right transition
+				'slide-in-right': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateX(100%)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateX(0)'
+					}
+				},
+				'slide-out-left': {
+					'0%': {
+						opacity: '1',
+						transform: 'translateX(0)'
+					},
+					'100%': {
+						opacity: '0',
+						transform: 'translateX(-100%)'
+					}
+				},
+				'text-reveal': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateX(50px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateX(0)'
+					}
+				},
+				// Background gradient animation keyframes
+				moveHorizontal: {
+					"0%": {
+						transform: "translateX(-50%) translateY(-10%)",
+					},
+					"50%": {
+						transform: "translateX(50%) translateY(10%)",
+					},
+					"100%": {
+						transform: "translateX(-50%) translateY(-10%)",
+					},
+				},
+				moveInCircle: {
+					"0%": {
+						transform: "rotate(0deg)",
+					},
+					"50%": {
+						transform: "rotate(180deg)",
+					},
+					"100%": {
+						transform: "rotate(360deg)",
+					},
+				},
+				moveVertical: {
+					"0%": {
+						transform: "translateY(-50%)",
+					},
+					"50%": {
+						transform: "translateY(50%)",
+					},
+					"100%": {
+						transform: "translateY(-50%)",
+					},
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
-				'float': 'float 4s ease-in-out infinite',
+				'float': 'float 2s ease-in-out infinite',
 				'rainbow': 'rainbow var(--speed, 2s) infinite linear',
-				'rainbow-slide': 'rainbow-slide 3s linear infinite'
+				'rainbow-slide': 'rainbow-slide 3s linear infinite',
+				// Text changing animations - smooth transitions
+				'slide-in-right': 'slide-in-right 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+				'slide-out-left': 'slide-out-left 0.5s cubic-bezier(0.55, 0.06, 0.68, 0.19)',
+				'text-reveal': 'text-reveal 0.8s ease-out',
+				// Background gradient animations - faster speeds
+				first: "moveVertical 8s ease infinite",
+				second: "moveInCircle 6s reverse infinite",
+				third: "moveInCircle 12s linear infinite",
+				fourth: "moveHorizontal 10s ease infinite",
+				fifth: "moveInCircle 7s ease infinite",
 			}
 		}
 	},

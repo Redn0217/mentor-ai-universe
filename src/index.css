@@ -315,3 +315,71 @@
     --border-color-2: hsla(320, 50%, 90%, 0.75);
   }
 }
+
+/* Typewriter cursor blinking animation */
+@keyframes typewriter-blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.typewriter-cursor {
+  animation: typewriter-blink 1s infinite;
+}
+
+/* Hide scrollbar for horizontal scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* 3D Carousel Styles */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* 3D Carousel Animation */
+@keyframes rotate3d {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+.carousel-3d {
+  animation: rotate3d 20s linear infinite;
+}
+
+.carousel-3d:hover {
+  animation-play-state: paused;
+}
+
+/* 3D Card Effects */
+.carousel-card {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.carousel-card:hover {
+  transform: scale(1.05) translateZ(20px);
+}
+
+/* Enhanced shadows for 3D depth */
+.shadow-3xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Perspective container */
+.perspective-container {
+  perspective: 1200px;
+  perspective-origin: center center;
+}

@@ -45,7 +45,7 @@ export const NavBar = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 p-3 mb-24">
+    <header className="fixed top-0 left-0 right-0 z-[100] p-3 mb-24">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         
         {/* Desktop Split Navigation */}
@@ -73,7 +73,7 @@ export const NavBar = () => {
                     <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${activeDropdown === 'product' ? 'rotate-180' : ''}`} />
                   </button>
                   
-                  <div className={`absolute left-0 top-full mt-2 w-80 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform ${activeDropdown === 'product' ? 'translate-y-0' : 'translate-y-2'}`}>
+                  <div className={`absolute left-0 top-full mt-2 w-80 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform z-[110] ${activeDropdown === 'product' ? 'translate-y-0' : 'translate-y-2'}`}>
                     <div className="bg-white/80 backdrop-blur-lg border border-gray-200/30 rounded-xl shadow-lg p-6">
                       <div className="space-y-1">
                         {productItems.map((item) => (
@@ -106,7 +106,7 @@ export const NavBar = () => {
                     <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${activeDropdown === 'resources' ? 'rotate-180' : ''}`} />
                   </button>
                   
-                  <div className={`absolute left-0 top-full mt-2 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform ${activeDropdown === 'resources' ? 'translate-y-0' : 'translate-y-2'}`}>
+                  <div className={`absolute left-0 top-full mt-2 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform z-[110] ${activeDropdown === 'resources' ? 'translate-y-0' : 'translate-y-2'}`}>
                     <div className="bg-white/80 backdrop-blur-lg border border-gray-200/30 rounded-xl shadow-lg p-6">
                       <div className="space-y-1">
                         {resourceItems.map((item) => (
