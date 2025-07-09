@@ -26,7 +26,7 @@ export const NavBar = () => {
     setActiveDropdown(null);
   };
 
-  const productItems = [
+  const technologyItems = [
     { name: 'Python', href: '/tech/python', description: 'Learn Python programming fundamentals' },
     { name: 'DevOps', href: '/tech/devops', description: 'Master DevOps practices and tools' },
     { name: 'Cloud Computing', href: '/tech/cloud', description: 'Explore cloud platforms and services' },
@@ -62,24 +62,24 @@ export const NavBar = () => {
               {/* Navigation Links */}
               <div className="flex items-center space-x-8">
                 
-                {/* Product Dropdown */}
-                <div 
+                {/* Technologies Dropdown */}
+                <div
                   className="relative group"
-                  onMouseEnter={() => handleDropdownHover('product')}
+                  onMouseEnter={() => handleDropdownHover('technologies')}
                   onMouseLeave={handleDropdownLeave}
                 >
                   <button className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors duration-200 py-2 font-medium">
-                    <span>Product</span>
-                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${activeDropdown === 'product' ? 'rotate-180' : ''}`} />
+                    <span>Technologies</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${activeDropdown === 'technologies' ? 'rotate-180' : ''}`} />
                   </button>
-                  
-                  <div className={`absolute left-0 top-full mt-2 w-80 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform z-[110] ${activeDropdown === 'product' ? 'translate-y-0' : 'translate-y-2'}`}>
+
+                  <div className={`absolute left-0 top-full mt-2 w-80 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform z-[110] ${activeDropdown === 'technologies' ? 'translate-y-0' : 'translate-y-2'}`}>
                     <div className="bg-white/80 backdrop-blur-lg border border-gray-200/30 rounded-xl shadow-lg p-6">
                       <div className="space-y-1">
-                        {productItems.map((item) => (
-                          <Link 
+                        {technologyItems.map((item) => (
+                          <Link
                             key={item.name}
-                            to={item.href} 
+                            to={item.href}
                             className="block p-3 rounded-lg hover:bg-gray-50/60 transition-colors duration-200 group"
                           >
                             <div className="font-medium text-gray-900 group-hover:text-primary transition-colors duration-200">
@@ -200,11 +200,11 @@ export const NavBar = () => {
             <div className="mt-4 animate-fade-in">
               <div className="bg-white/70 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg p-6 space-y-4">
                 
-                {/* Mobile Product Section */}
+                {/* Mobile Technologies Section */}
                 <div>
-                  <div className="font-medium text-gray-900 mb-3">Product</div>
+                  <div className="font-medium text-gray-900 mb-3">Technologies</div>
                   <div className="space-y-2">
-                    {productItems.slice(0, 4).map((item) => (
+                    {technologyItems.slice(0, 4).map((item) => (
                       <Link key={item.name} to={item.href} className="block text-sm text-gray-600 hover:text-primary transition-colors duration-200 py-1">
                         {item.name}
                       </Link>
