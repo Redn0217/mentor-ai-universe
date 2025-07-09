@@ -36,6 +36,7 @@ export const NavBar = () => {
   ];
 
   const resourceItems = [
+    { name: 'AI Interviewer', href: '/ai-interviewer', description: 'Practice with AI-powered interviews' },
     { name: 'Playground', href: '/playground', description: 'Interactive coding environment' },
     { name: 'Certifications', href: '/certifications', description: 'Industry recognized certificates' },
     { name: 'About', href: '/about', description: 'Learn more about our platform' },
