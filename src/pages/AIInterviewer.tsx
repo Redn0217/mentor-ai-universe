@@ -1,6 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Mic, 
   MicOff, 
@@ -10,681 +8,1006 @@ import {
   Upload, 
   FileText, 
   Code, 
-  Download, 
-  CheckCircle, 
-  Clock, 
+  MessageSquare, 
   User, 
   Brain, 
-  MessageSquare, 
-  BarChart3,
-  Radar,
+  Target, 
+  CheckCircle, 
+  Clock, 
+  BarChart3, 
+  Download,
   ChevronRight,
   ChevronDown,
+  Settings,
   Volume2,
-  Edit3,
+  Activity,
+  TrendingUp,
+  TrendingDown,
+  Zap,
+  Shield,
+  Globe,
+  Headphones,
+  MonitorSpeaker,
+  Signal,
+  Wifi,
+  Database,
+  Server,
+  Bell,
+  Filter,
+  Search,
+  Calendar,
+  Timer,
   Eye,
-  Settings
+  AlertTriangle,
+  CheckSquare,
+  XCircle,
+  Users,
+  Award,
+  Briefcase,
+  LineChart,
+  PieChart,
+  MoreHorizontal
 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import { Avatar } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
-interface Role {
-  id: string;
+interface StageData {
+  id: number;
   title: string;
-  description: string;
+  status: 'completed' | 'current' | 'pending';
   icon: React.ReactNode;
 }
 
-interface TranscriptEntry {
+interface TranscriptMessage {
   id: string;
   speaker: 'ai' | 'candidate';
-  text: string;
+  message: string;
   timestamp: string;
 }
 
-interface ResumeSection {
-  id: string;
+interface SkillScore {
+  skill: string;
+  score: number;
+  maxScore: number;
+}
+
+interface MetricCard {
   title: string;
-  content: string;
-  highlighted: boolean;
+  value: string;
+  change: number;
+  trend: 'up' | 'down' | 'neutral';
+  icon: React.ReactNode;
+  color: string;
 }
 
-interface AnalyticsData {
-  overallScore: number;
-  skills: { name: string; score: number }[];
-  strengths: string[];
-  improvements: string[];
+interface ActivityItem {
+  id: string;
+  type: 'question' | 'answer' | 'analysis' | 'system';
+  message: string;
+  timestamp: string;
+  status: 'success' | 'warning' | 'info';
 }
 
-export default function AIInterviewer() {
-  const [currentStage, setCurrentStage] = useState(0);
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
-  const [showNotepad, setShowNotepad] = useState(false);
-  const [notepadContent, setNotepadContent] = useState('');
-  const [resumeUploaded, setResumeUploaded] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+interface SystemMetric {
+  label: string;
+  value: number;
+  maxValue: number;
+  status: 'good' | 'warning' | 'critical';
+}
 
-  const stages = [
-    { id: 0, title: 'Role Selection', icon: <User className="w-4 h-4" /> },
-    { id: 1, title: 'Resume Upload', icon: <FileText className="w-4 h-4" /> },
-    { id: 2, title: 'Warm-up', icon: <MessageSquare className="w-4 h-4" /> },
-    { id: 3, title: 'Knowledge Assessment', icon: <Brain className="w-4 h-4" /> },
-    { id: 4, title: 'Deep Dive', icon: <Eye className="w-4 h-4" /> },
-    { id: 5, title: 'Follow-up', icon: <Edit3 className="w-4 h-4" /> },
-    { id: 6, title: 'Analytics', icon: <BarChart3 className="w-4 h-4" /> }
-  ];
-
-  const roles: Role[] = [
-    {
-      id: 'frontend',
-      title: 'Frontend Developer',
-      description: 'React, TypeScript, CSS, UI/UX',
-      icon: <Code className="w-6 h-6" />
-    },
-    {
-      id: 'backend',
-      title: 'Backend Developer',
-      description: 'Node.js, Python, Databases, APIs',
-      icon: <Settings className="w-6 h-6" />
-    },
-    {
-      id: 'fullstack',
-      title: 'Full Stack Developer',
-      description: 'Frontend + Backend + DevOps',
-      icon: <Brain className="w-6 h-6" />
-    },
-    {
-      id: 'devops',
-      title: 'DevOps Engineer',
-      description: 'CI/CD, Cloud, Infrastructure as Code',
-      icon: <Radar className="w-6 h-6" />
-    },
-    {
-      id: 'data-scientist',
-      title: 'Data Scientist',
-      description: 'Machine Learning, Statistics, Python',
-      icon: <BarChart3 className="w-6 h-6" />
-    },
-    {
-      id: 'ux-designer',
-      title: 'UX Designer',
-      description: 'User Research, Wireframing, Prototyping',
-      icon: <Eye className="w-6 h-6" />
-    }
-  ];
-
-  const sampleTranscript: TranscriptEntry[] = [
+const AIInterviewerDashboard: React.FC = () => {
+  const [currentStage, setCurrentStage] = useState(3);
+  const [isRecording, setIsRecording] = useState(true);
+  const [showNotepad, setShowNotepad] = useState(true);
+  const [notepadContent, setNotepadContent] = useState('// Real-time code analysis\nfunction fibonacci(n) {\n  if (n <= 1) return n;\n  return fibonacci(n-1) + fibonacci(n-2);\n}\n\n// AI Suggestion: Consider memoization for optimization');
+  const [isSystemMonitoring, setIsSystemMonitoring] = useState(true);
+  const [transcript, setTranscript] = useState<TranscriptMessage[]>([
     {
       id: '1',
       speaker: 'ai',
-      text: 'Hello! Welcome to your interview. Let\'s start with a simple question - can you tell me about yourself?',
-      timestamp: '10:30:15'
+      message: 'Hello! Welcome to your AI interview. Let\'s start with some basic questions to get you comfortable.',
+      timestamp: '10:30 AM'
     },
     {
       id: '2',
       speaker: 'candidate',
-      text: 'Hi! I\'m a frontend developer with 3 years of experience in React and TypeScript...',
-      timestamp: '10:30:45'
+      message: 'Thank you, I\'m ready to begin.',
+      timestamp: '10:30 AM'
+    },
+    {
+      id: '3',
+      speaker: 'ai',
+      message: 'Can you walk me through your approach to solving complex algorithm problems?',
+      timestamp: '10:32 AM'
+    }
+  ]);
+
+  const stages: StageData[] = [
+    { id: 1, title: 'Role Selection', status: 'completed', icon: <Target className="w-4 h-4" /> },
+    { id: 2, title: 'Resume Upload', status: 'completed', icon: <Upload className="w-4 h-4" /> },
+    { id: 3, title: 'Warm-up', status: 'current', icon: <MessageSquare className="w-4 h-4" /> },
+    { id: 4, title: 'Knowledge Assessment', status: 'pending', icon: <Brain className="w-4 h-4" /> },
+    { id: 5, title: 'Deep Dive', status: 'pending', icon: <FileText className="w-4 h-4" /> },
+    { id: 6, title: 'Follow-up', status: 'pending', icon: <User className="w-4 h-4" /> },
+    { id: 7, title: 'Analytics', status: 'pending', icon: <BarChart3 className="w-4 h-4" /> }
+  ];
+
+  const skillScores: SkillScore[] = [
+    { skill: 'Technical Knowledge', score: 85, maxScore: 100 },
+    { skill: 'Communication', score: 92, maxScore: 100 },
+    { skill: 'Problem Solving', score: 78, maxScore: 100 },
+    { skill: 'Leadership', score: 88, maxScore: 100 }
+  ];
+
+  const metricsCards: MetricCard[] = [
+    {
+      title: 'Response Quality',
+      value: '94%',
+      change: +12,
+      trend: 'up',
+      icon: <Award className="w-4 h-4" />,
+      color: 'text-emerald-600'
+    },
+    {
+      title: 'Confidence Score',
+      value: '87',
+      change: +5,
+      trend: 'up',
+      icon: <TrendingUp className="w-4 h-4" />,
+      color: 'text-blue-600'
+    },
+    {
+      title: 'Processing Time',
+      value: '1.2s',
+      change: -8,
+      trend: 'down',
+      icon: <Zap className="w-4 h-4" />,
+      color: 'text-orange-600'
+    },
+    {
+      title: 'Active Sessions',
+      value: '247',
+      change: +23,
+      trend: 'up',
+      icon: <Users className="w-4 h-4" />,
+      color: 'text-purple-600'
     }
   ];
 
-  const resumeSections: ResumeSection[] = [
+  const activityFeed: ActivityItem[] = [
     {
       id: '1',
-      title: 'Experience',
-      content: 'Frontend Developer at TechCorp (2021-2024)\n• Built responsive web applications using React\n• Implemented TypeScript for better code quality',
-      highlighted: false
+      type: 'analysis',
+      message: 'AI analyzed code complexity: O(n²) detected',
+      timestamp: '2 min ago',
+      status: 'warning'
     },
     {
       id: '2',
-      title: 'Skills',
-      content: 'React, TypeScript, JavaScript, CSS, HTML, Git, Node.js',
-      highlighted: true
+      type: 'answer',
+      message: 'Candidate completed technical question #4',
+      timestamp: '3 min ago',
+      status: 'success'
+    },
+    {
+      id: '3',
+      type: 'system',
+      message: 'Voice recognition accuracy: 98.5%',
+      timestamp: '5 min ago',
+      status: 'info'
+    },
+    {
+      id: '4',
+      type: 'question',
+      message: 'Advanced algorithm question triggered',
+      timestamp: '7 min ago',
+      status: 'info'
+    },
+    {
+      id: '5',
+      type: 'analysis',
+      message: 'Real-time sentiment analysis: Confident tone detected',
+      timestamp: '8 min ago',
+      status: 'success'
     }
   ];
 
-  const analyticsData: AnalyticsData = {
-    overallScore: 85,
-    skills: [
-      { name: 'React', score: 90 },
-      { name: 'TypeScript', score: 85 },
-      { name: 'Problem Solving', score: 80 },
-      { name: 'Communication', score: 88 }
-    ],
-    strengths: ['Strong technical knowledge', 'Clear communication', 'Good problem-solving approach'],
-    improvements: ['Could improve algorithm complexity understanding', 'More experience with testing frameworks needed']
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setUploadProgress(0);
-      const interval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setResumeUploaded(true);
-            return 100;
-          }
-          return prev + 10;
-        });
-      }, 200);
-    }
-  };
+  const systemMetrics: SystemMetric[] = [
+    { label: 'AI Processing', value: 87, maxValue: 100, status: 'good' },
+    { label: 'Memory Usage', value: 64, maxValue: 100, status: 'good' },
+    { label: 'Network Latency', value: 23, maxValue: 100, status: 'warning' },
+    { label: 'Voice Quality', value: 95, maxValue: 100, status: 'good' }
+  ];
 
   const toggleRecording = () => {
     setIsRecording(!isRecording);
-    if (!isRecording) {
-      setTranscript(sampleTranscript);
-    }
   };
 
   const nextStage = () => {
-    if (currentStage < stages.length - 1) {
+    if (currentStage < stages.length) {
       setCurrentStage(currentStage + 1);
-    }
-  };
-
-  const prevStage = () => {
-    if (currentStage > 0) {
-      setCurrentStage(currentStage - 1);
     }
   };
 
   const renderStageContent = () => {
     switch (currentStage) {
-      case 0: // Role Selection
+      case 1:
         return (
           <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">Select Your Role</h2>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-foreground mb-2">Select Your Role</h2>
               <p className="text-muted-foreground">Choose the position you're interviewing for</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
-              {roles.map((role) => (
-                <motion.div
-                  key={role.id}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Card 
-                    className={`p-6 cursor-pointer transition-all ${
-                      selectedRole === role.id 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-border hover:border-primary/50'
-                    }`}
-                    onClick={() => setSelectedRole(role.id)}
-                  >
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="text-primary">{role.icon}</div>
-                      <h3 className="font-semibold text-foreground">{role.title}</h3>
-                      <p className="text-sm text-muted-foreground text-center">{role.description}</p>
-                      {selectedRole === role.id && (
-                        <CheckCircle className="w-5 h-5 text-primary" />
-                      )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {['Frontend Developer', 'Backend Developer', 'Full Stack Developer', 'Data Scientist', 'Product Manager', 'UI/UX Designer'].map((role) => (
+                <Card key={role} className="cursor-pointer hover:border-orange-500 transition-colors group hover:shadow-lg">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <Code className="w-6 h-6 text-orange-600" />
                     </div>
-                  </Card>
-                </motion.div>
+                    <h3 className="font-semibold text-foreground">{role}</h3>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>
         );
 
-      case 1: // Resume Upload
+      case 2:
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-foreground">Upload Your Resume</h2>
-              <Card className="p-8">
-                <div 
-                  className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-foreground font-medium mb-2">Drag or click to upload</p>
-                  <p className="text-sm text-muted-foreground">PDF, DOC, or DOCX files</p>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                </div>
-                {uploadProgress > 0 && uploadProgress < 100 && (
-                  <div className="mt-4">
-                    <Progress value={uploadProgress} className="w-full" />
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-foreground mb-2">Upload Your Resume</h2>
+              <p className="text-muted-foreground">Upload your resume for personalized questions</p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="border-dashed border-2 border-orange-200 hover:border-orange-400 transition-colors">
+                <CardContent className="p-8 text-center">
+                  <Upload className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="font-semibold text-foreground mb-2">Drag & Drop</h3>
+                  <p className="text-muted-foreground mb-4">or click to browse files</p>
+                  <Button variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50">
+                    Browse Files
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-orange-500" />
+                    Resume Preview
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold">John Doe</h4>
+                      <p className="text-sm text-muted-foreground">Senior Frontend Developer</p>
+                    </div>
+                    <Separator />
+                    <div>
+                      <h5 className="font-medium mb-2">Experience</h5>
+                      <p className="text-sm text-muted-foreground">5+ years in React, TypeScript, Node.js</p>
+                    </div>
                   </div>
-                )}
-                {resumeUploaded && (
-                  <div className="mt-4 flex items-center space-x-2 text-green-600">
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Resume uploaded successfully!</span>
-                  </div>
-                )}
+                </CardContent>
               </Card>
             </div>
-            {resumeUploaded && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-foreground">Resume Preview</h3>
-                <Card className="p-4 space-y-4">
-                  {resumeSections.map((section) => (
-                    <div key={section.id} className="space-y-2">
-                      <h4 className="font-medium text-foreground">{section.title}</h4>
-                      <div className="text-sm text-muted-foreground whitespace-pre-line">
-                        {section.content}
-                      </div>
-                      <Separator />
-                    </div>
-                  ))}
-                </Card>
-              </div>
-            )}
           </div>
         );
 
-      case 2: // Warm-up
+      case 3:
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <Avatar className="w-12 h-12 bg-primary">
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Brain className="w-6 h-6 text-primary-foreground" />
-                  </div>
-                </Avatar>
-                <div>
-                  <h3 className="font-semibold text-foreground">AI Interviewer</h3>
-                  <p className="text-sm text-muted-foreground">Let's get started with some warm-up questions</p>
-                </div>
-              </div>
-              <Card className="p-6">
-                <div className="space-y-4">
-                  <div className="bg-primary/10 p-4 rounded-lg">
-                    <p className="text-foreground">
-                      "Hello! Welcome to your interview. I'm excited to learn more about you. 
-                      Let's start with a simple question - can you tell me about yourself and 
-                      what interests you about this role?"
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-foreground mb-2">AI Interview Session</h2>
+              <p className="text-muted-foreground">Real-time conversation with advanced AI analysis</p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="border-orange-100 shadow-lg">
+                <CardHeader className="border-b border-orange-50 bg-gradient-to-r from-orange-50 to-transparent">
+                  <CardTitle className="flex items-center gap-2">
+                    <Avatar className="w-10 h-10 border-2 border-orange-200">
+                      <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-600 text-white font-bold">AI</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <span className="text-lg">AI Interviewer Pro</span>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        Processing voice...
+                      </div>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-6 rounded-xl border border-orange-200">
+                    <p className="text-foreground font-medium leading-relaxed">
+                      "Can you walk me through your approach to solving complex algorithm problems? I'm particularly interested in your thought process and optimization strategies."
                     </p>
                   </div>
-                  <div className="flex items-center justify-center space-x-4">
+                  <div className="mt-6 flex items-center gap-4">
                     <Button
                       onClick={toggleRecording}
-                      variant={isRecording ? "destructive" : "default"}
-                      size="lg"
-                      className="rounded-full"
+                      className={`relative overflow-hidden ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-orange-500 hover:bg-orange-600'} shadow-lg`}
                     >
-                      {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                      {isRecording ? <MicOff className="w-4 h-4 mr-2" /> : <Mic className="w-4 h-4 mr-2" />}
+                      {isRecording ? 'Stop Recording' : 'Start Recording'}
+                      {isRecording && (
+                        <div className="absolute inset-0 bg-red-400 opacity-30 animate-pulse"></div>
+                      )}
                     </Button>
                     {isRecording && (
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                        <span className="text-sm text-muted-foreground">Recording...</span>
+                      <div className="flex items-center gap-2 text-red-600">
+                        <div className="w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+                        <span className="text-sm font-medium">Live Recording</span>
                       </div>
                     )}
                   </div>
-                </div>
+                </CardContent>
               </Card>
-            </div>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">Live Transcript</h3>
-              <Card className="p-4 h-96 overflow-y-auto">
-                <div className="space-y-3">
-                  {transcript.map((entry) => (
-                    <div key={entry.id} className={`flex ${entry.speaker === 'ai' ? 'justify-start' : 'justify-end'}`}>
-                      <div className={`max-w-xs p-3 rounded-lg ${
-                        entry.speaker === 'ai' 
-                          ? 'bg-muted text-foreground' 
-                          : 'bg-primary text-primary-foreground'
-                      }`}>
-                        <p className="text-sm">{entry.text}</p>
-                        <p className="text-xs opacity-70 mt-1">{entry.timestamp}</p>
-                      </div>
+              
+              <Card className="border-blue-100">
+                <CardHeader className="border-b border-blue-50">
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Volume2 className="w-5 h-5 text-blue-500" />
+                      <span>Live Transcript & Analysis</span>
                     </div>
-                  ))}
-                </div>
+                    <Badge variant="outline" className="border-blue-200 text-blue-700">
+                      Real-time
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-80">
+                    <div className="space-y-4 pr-4">
+                      {transcript.map((msg, index) => (
+                        <div key={msg.id} className={`flex ${msg.speaker === 'ai' ? 'justify-start' : 'justify-end'}`}>
+                          <div className={`max-w-[85%] p-4 rounded-xl shadow-sm border ${
+                            msg.speaker === 'ai' 
+                              ? 'bg-orange-50 border-orange-100 text-foreground' 
+                              : 'bg-blue-50 border-blue-100 text-foreground'
+                          }`}>
+                            <p className="text-sm leading-relaxed">{msg.message}</p>
+                            <div className="flex items-center justify-between mt-2">
+                              <span className="text-xs text-muted-foreground">{msg.timestamp}</span>
+                              {msg.speaker === 'candidate' && (
+                                <Badge variant="outline" className="text-xs border-green-200 text-green-700">
+                                  Analyzed
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      {isRecording && (
+                        <div className="flex justify-end animate-pulse">
+                          <div className="max-w-[85%] p-4 rounded-xl bg-blue-50 border border-blue-100">
+                            <p className="text-sm text-blue-600">Speaking...</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
               </Card>
             </div>
           </div>
         );
 
-      case 3: // Knowledge Assessment
+      case 7:
         return (
           <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">Technical Assessment</h2>
-              <p className="text-muted-foreground">Let's test your technical knowledge</p>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-foreground mb-2">Advanced Analytics Dashboard</h2>
+              <p className="text-muted-foreground">Comprehensive performance analysis and insights</p>
             </div>
-            <Card className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-foreground">Question 1 of 5</h3>
-                  <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">5:00</span>
-                  </div>
-                </div>
-                <div className="bg-muted p-4 rounded-lg">
-                  <p className="text-foreground">
-                    "Can you explain the difference between `useState` and `useEffect` in React? 
-                    When would you use each one?"
-                  </p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <Button
-                    onClick={() => setShowNotepad(!showNotepad)}
-                    variant="outline"
-                  >
-                    <Code className="w-4 h-4 mr-2" />
-                    {showNotepad ? 'Hide' : 'Show'} Notepad
-                  </Button>
-                  <Button onClick={toggleRecording} variant={isRecording ? "destructive" : "default"}>
-                    {isRecording ? <MicOff className="w-4 h-4 mr-2" /> : <Mic className="w-4 h-4 mr-2" />}
-                    {isRecording ? 'Stop Recording' : 'Start Recording'}
-                  </Button>
-                </div>
-                {showNotepad && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                  >
-                    <Card className="p-4">
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-foreground">Code/Notes Editor</h4>
-                        <Textarea
-                          value={notepadContent}
-                          onChange={(e) => setNotepadContent(e.target.value)}
-                          placeholder="Write your code or notes here..."
-                          className="min-h-32 font-mono"
-                        />
-                        <Button size="sm" variant="outline">
-                          <Brain className="w-4 h-4 mr-2" />
-                          Analyze with AI
-                        </Button>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="border-emerald-100">
+                <CardHeader className="border-b border-emerald-50">
+                  <CardTitle className="flex items-center gap-2">
+                    <LineChart className="w-5 h-5 text-emerald-500" />
+                    Skill Assessment Matrix
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  {skillScores.map((skill) => (
+                    <div key={skill.skill}>
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-sm font-medium">{skill.skill}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">{skill.score}/{skill.maxScore}</span>
+                          <Badge variant="outline" className={
+                            skill.score >= 90 ? "border-green-200 text-green-700" :
+                            skill.score >= 80 ? "border-blue-200 text-blue-700" :
+                            "border-orange-200 text-orange-700"
+                          }>
+                            {skill.score >= 90 ? "Excellent" : skill.score >= 80 ? "Good" : "Average"}
+                          </Badge>
+                        </div>
                       </div>
-                    </Card>
-                  </motion.div>
-                )}
-              </div>
-            </Card>
-          </div>
-        );
-
-      case 4: // Deep Dive
-        return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold text-foreground">Resume Deep Dive</h2>
-              <Card className="p-4">
-                <div className="space-y-4">
-                  {resumeSections.map((section) => (
-                    <div 
-                      key={section.id} 
-                      className={`p-3 rounded-lg transition-all ${
-                        section.highlighted 
-                          ? 'bg-primary/10 border border-primary' 
-                          : 'bg-muted'
-                      }`}
-                    >
-                      <h4 className="font-medium text-foreground mb-2">{section.title}</h4>
-                      <div className="text-sm text-muted-foreground whitespace-pre-line">
-                        {section.content}
-                      </div>
+                      <Progress value={(skill.score / skill.maxScore) * 100} className="h-3" />
                     </div>
                   ))}
-                </div>
+                </CardContent>
               </Card>
-            </div>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">Follow-up Questions</h3>
-              <Card className="p-4">
-                <div className="space-y-4">
-                  <div className="bg-primary/10 p-4 rounded-lg">
-                    <p className="text-foreground">
-                      "I see you have experience with React and TypeScript. Can you walk me through 
-                      a challenging project where you used these technologies? What obstacles did you face?"
-                    </p>
+              
+              <Card className="border-purple-100">
+                <CardHeader className="border-b border-purple-50">
+                  <CardTitle className="flex items-center gap-2">
+                    <PieChart className="w-5 h-5 text-purple-500" />
+                    Performance Overview
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="text-center mb-6">
+                    <div className="relative inline-block">
+                      <div className="text-6xl font-bold text-orange-500 mb-2">85%</div>
+                      <Badge variant="outline" className="border-orange-200 text-orange-700 absolute -top-2 -right-4">
+                        A-
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground">Overall Interview Score</p>
                   </div>
-                  <Button onClick={toggleRecording} variant={isRecording ? "destructive" : "default"}>
-                    {isRecording ? <MicOff className="w-4 h-4 mr-2" /> : <Mic className="w-4 h-4 mr-2" />}
-                    {isRecording ? 'Stop Recording' : 'Start Recording'}
-                  </Button>
-                </div>
-              </Card>
-            </div>
-          </div>
-        );
-
-      case 5: // Follow-up
-        return (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">Clarification & Follow-up</h2>
-              <p className="text-muted-foreground">Let's clarify a few points from our conversation</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { topic: 'React Hooks', question: 'Can you elaborate on useEffect dependencies?' },
-                { topic: 'TypeScript', question: 'How do you handle type safety in large projects?' }
-              ].map((item, index) => (
-                <Card key={index} className="p-4">
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <div className="text-lg font-bold text-green-700">92%</div>
+                      <div className="text-xs text-green-600">Communication</div>
+                    </div>
+                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                      <div className="text-lg font-bold text-blue-700">87%</div>
+                      <div className="text-xs text-blue-600">Problem Solving</div>
+                    </div>
+                  </div>
                   <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="secondary">{item.topic}</Badge>
-                      <span className="text-xs text-muted-foreground">Flagged for clarification</span>
-                    </div>
-                    <p className="text-sm text-foreground">{item.question}</p>
-                    <Button size="sm" variant="outline">
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Add Clarification
-                    </Button>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800 w-full py-2">
+                      <CheckCircle className="w-3 h-3 mr-2" />
+                      Strong Technical Foundation
+                    </Badge>
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-800 w-full py-2">
+                      <Award className="w-3 h-3 mr-2" />
+                      Excellent Communication
+                    </Badge>
+                    <Badge variant="secondary" className="bg-orange-100 text-orange-800 w-full py-2">
+                      <Brain className="w-3 h-3 mr-2" />
+                      Advanced Problem Solving
+                    </Badge>
                   </div>
-                </Card>
-              ))}
+                </CardContent>
+              </Card>
             </div>
-          </div>
-        );
-
-      case 6: // Analytics
-        return (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">Interview Analytics</h2>
-              <p className="text-muted-foreground">Here's your comprehensive performance report</p>
-            </div>
-            <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="skills">Skills</TabsTrigger>
-                <TabsTrigger value="feedback">Feedback</TabsTrigger>
-              </TabsList>
-              <TabsContent value="overview" className="space-y-4">
-                <Card className="p-6">
-                  <div className="text-center space-y-4">
-                    <div className="text-4xl font-bold text-primary">{analyticsData.overallScore}%</div>
-                    <p className="text-lg font-semibold text-foreground">Overall Score</p>
-                    <Progress value={analyticsData.overallScore} className="w-full" />
-                  </div>
-                </Card>
-              </TabsContent>
-              <TabsContent value="skills" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {analyticsData.skills.map((skill) => (
-                    <Card key={skill.name} className="p-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium text-foreground">{skill.name}</span>
-                          <span className="text-sm text-muted-foreground">{skill.score}%</span>
-                        </div>
-                        <Progress value={skill.score} className="w-full" />
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-              <TabsContent value="feedback" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="p-4">
-                    <h3 className="font-semibold text-foreground mb-3 text-green-600">Strengths</h3>
-                    <div className="space-y-2">
-                      {analyticsData.strengths.map((strength, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          <span className="text-sm text-foreground">{strength}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                  <Card className="p-4">
-                    <h3 className="font-semibold text-foreground mb-3 text-orange-600">Areas for Improvement</h3>
-                    <div className="space-y-2">
-                      {analyticsData.improvements.map((improvement, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                          <Clock className="w-4 h-4 text-orange-600" />
-                          <span className="text-sm text-foreground">{improvement}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </div>
-                <div className="flex justify-center">
-                  <Button>
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Full Report
-                  </Button>
-                </div>
-              </TabsContent>
-            </Tabs>
           </div>
         );
 
       default:
-        return null;
+        return (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <Brain className="w-8 h-8 text-orange-500" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Stage {currentStage} - In Progress</h2>
+            <p className="text-muted-foreground">AI is preparing advanced assessment content...</p>
+          </div>
+        );
     }
   };
 
   return (
-    <MainLayout>
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Brain className="w-8 h-8 text-primary" />
-                <div>
-                  <h1 className="text-xl font-bold text-foreground">AI Interviewer</h1>
-                  <p className="text-sm text-muted-foreground">Intelligent Interview Assistant</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Badge variant="outline">Candidate: John Doe</Badge>
-                <div className="flex items-center space-x-2">
-                  <Volume2 className="w-4 h-4 text-muted-foreground" />
-                  <Progress value={75} className="w-16" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-12 gap-6">
-            {/* Sidebar Progress Tracker */}
-            <div className="col-span-12 lg:col-span-3">
-              <Card className="p-4 sticky top-6">
-                <h3 className="font-semibold text-foreground mb-4">Interview Progress</h3>
-                <div className="space-y-3">
-                  {stages.map((stage, index) => (
-                    <div
-                      key={stage.id}
-                      className={`flex items-center space-x-3 p-2 rounded-lg transition-all cursor-pointer ${
-                        currentStage === index
-                          ? 'bg-primary text-primary-foreground'
-                          : currentStage > index
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'text-muted-foreground hover:bg-muted'
-                      }`}
-                      onClick={() => setCurrentStage(index)}
-                    >
-                      <div className={`p-1 rounded ${
-                        currentStage === index
-                          ? 'bg-primary-foreground text-primary'
-                          : currentStage > index
-                          ? 'bg-green-600 text-white'
-                          : 'bg-muted'
-                      }`}>
-                        {currentStage > index ? <CheckCircle className="w-4 h-4" /> : stage.icon}
-                      </div>
-                      <span className="text-sm font-medium">{stage.title}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6">
-                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                    <span>Progress</span>
-                    <span>{Math.round(((currentStage + 1) / stages.length) * 100)}%</span>
+    <div className="min-h-screen bg-background">
+      {/* Advanced Dashboard Header */}
+      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Brain className="w-6 h-6 text-white" />
                   </div>
-                  <Progress value={((currentStage + 1) / stages.length) * 100} className="w-full" />
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background animate-pulse"></div>
                 </div>
-              </Card>
-            </div>
-
-            {/* Main Content */}
-            <div className="col-span-12 lg:col-span-9">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentStage}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {renderStageContent()}
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Navigation Controls */}
-              <div className="flex justify-between items-center mt-8 pt-6 border-t border-border">
-                <Button
-                  onClick={prevStage}
-                  disabled={currentStage === 0}
-                  variant="outline"
-                >
-                  Previous
-                </Button>
-                <div className="flex space-x-2">
-                  <Button variant="outline">
-                    <Pause className="w-4 h-4 mr-2" />
-                    Pause Interview
-                  </Button>
-                  <Button
-                    onClick={nextStage}
-                    disabled={
-                      (currentStage === 0 && !selectedRole) ||
-                      (currentStage === 1 && !resumeUploaded) ||
-                      currentStage === stages.length - 1
-                    }
-                  >
-                    {currentStage === stages.length - 1 ? 'Complete' : 'Next'}
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
+                <div>
+                  <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+                    AI Interviewer Pro
+                    <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700 border-orange-200">
+                      v2.0
+                    </Badge>
+                  </h1>
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Signal className="w-3 h-3 text-green-500" />
+                    Enterprise Interview Platform • Live Session
+                  </p>
                 </div>
               </div>
+              
+              {/* Real-time Status Indicators */}
+              <div className="hidden lg:flex items-center gap-4 pl-6 border-l border-border">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-muted-foreground">AI Active</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Headphones className="w-4 h-4 text-orange-500" />
+                  <span className="text-xs text-muted-foreground">Audio: 98.5%</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Database className="w-4 h-4 text-blue-500" />
+                  <span className="text-xs text-muted-foreground">Latency: 23ms</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              {/* Metrics Summary */}
+              <div className="hidden md:flex items-center gap-4 px-4 py-2 bg-orange-50 rounded-lg border border-orange-100">
+                <div className="text-center">
+                  <div className="text-sm font-semibold text-orange-700">94%</div>
+                  <div className="text-xs text-orange-600">Quality</div>
+                </div>
+                <Separator orientation="vertical" className="h-8" />
+                <div className="text-center">
+                  <div className="text-sm font-semibold text-orange-700">15:32</div>
+                  <div className="text-xs text-orange-600">Duration</div>
+                </div>
+              </div>
+              
+              <Badge variant="outline" className="border-orange-200 text-orange-700 px-3 py-1">
+                <User className="w-3 h-3 mr-2" />
+                John Doe
+                <div className="w-2 h-2 bg-green-500 rounded-full ml-2"></div>
+              </Badge>
+              
+              <Button variant="outline" size="sm" className="relative">
+                <Bell className="w-4 h-4" />
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+              </Button>
+              
+              <Button variant="outline" size="sm">
+                <Settings className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </div>
+      </header>
+
+      <div className="container mx-auto px-6 py-6">
+        {/* Advanced Metrics Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {metricsCards.map((metric, index) => (
+            <Card key={index} className="relative overflow-hidden group hover:shadow-lg transition-all duration-200">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className={`p-2 rounded-lg bg-opacity-10 ${metric.color.replace('text-', 'bg-')}`}>
+                    <div className={metric.color}>{metric.icon}</div>
+                  </div>
+                  <div className={`flex items-center gap-1 text-xs ${
+                    metric.trend === 'up' ? 'text-green-600' : 
+                    metric.trend === 'down' ? 'text-red-600' : 'text-gray-600'
+                  }`}>
+                    {metric.trend === 'up' ? <TrendingUp className="w-3 h-3" /> : 
+                     metric.trend === 'down' ? <TrendingDown className="w-3 h-3" /> : 
+                     <Activity className="w-3 h-3" />}
+                    {metric.change > 0 ? '+' : ''}{metric.change}%
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{metric.title}</h3>
+                  <p className="text-2xl font-bold text-foreground">{metric.value}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Advanced Sidebar - Progress Tracker & System Monitoring */}
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="border-orange-100 shadow-sm">
+              <CardHeader className="border-b border-orange-50 bg-gradient-to-r from-orange-50 to-transparent">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-orange-500" />
+                  Interview Progress
+                  <Badge variant="outline" className="ml-auto text-xs border-orange-200 text-orange-700">
+                    Stage {currentStage}/7
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {stages.map((stage, index) => (
+                    <div key={stage.id} className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        stage.status === 'completed' 
+                          ? 'bg-green-100 text-green-600' 
+                          : stage.status === 'current'
+                          ? 'bg-orange-100 text-orange-600'
+                          : 'bg-gray-100 text-gray-400'
+                      }`}>
+                        {stage.status === 'completed' ? (
+                          <CheckCircle className="w-4 h-4" />
+                        ) : (
+                          stage.icon
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className={`text-sm font-medium ${
+                          stage.status === 'current' ? 'text-orange-600' : 'text-foreground'
+                        }`}>
+                          {stage.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground capitalize">{stage.status}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Separator className="my-4" />
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Progress</span>
+                    <span>{Math.round((currentStage / stages.length) * 100)}%</span>
+                  </div>
+                  <Progress value={(currentStage / stages.length) * 100} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Advanced Voice Controls */}
+            <Card className="border-orange-100">
+              <CardHeader className="border-b border-orange-50">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <MonitorSpeaker className="w-5 h-5 text-orange-500" />
+                  Voice Controls
+                  <div className="ml-auto flex items-center gap-1">
+                    <Volume2 className="w-3 h-3 text-orange-500" />
+                    <div className="w-12 bg-orange-100 h-1 rounded">
+                      <div className="bg-orange-500 h-1 rounded w-8"></div>
+                    </div>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="relative">
+                  <Button
+                    onClick={toggleRecording}
+                    className={`w-full relative overflow-hidden ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-orange-500 hover:bg-orange-600'}`}
+                  >
+                    {isRecording ? <MicOff className="w-4 h-4 mr-2" /> : <Mic className="w-4 h-4 mr-2" />}
+                    {isRecording ? 'Stop Recording' : 'Start Recording'}
+                    {isRecording && (
+                      <div className="absolute inset-0 bg-red-400 opacity-30 animate-pulse"></div>
+                    )}
+                  </Button>
+                  {isRecording && (
+                    <div className="absolute -top-1 -right-1">
+                      <div className="w-3 h-3 bg-red-400 rounded-full animate-ping"></div>
+                    </div>
+                  )}
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button variant="outline" size="sm" className="border-orange-200 hover:bg-orange-50">
+                    <Pause className="w-3 h-3" />
+                  </Button>
+                  <Button variant="outline" size="sm" className="border-orange-200 hover:bg-orange-50">
+                    <SkipForward className="w-3 h-3" />
+                  </Button>
+                  <Button variant="outline" size="sm" className="border-orange-200 hover:bg-orange-50">
+                    <Volume2 className="w-3 h-3" />
+                  </Button>
+                </div>
+                
+                {/* Real-time audio visualization */}
+                <div className="space-y-2">
+                  <div className="text-xs text-muted-foreground">Audio Levels</div>
+                  <div className="flex items-center gap-1 h-8">
+                    {[...Array(12)].map((_, i) => (
+                      <div
+                        key={i}
+                        className={`flex-1 rounded-sm transition-all duration-150 ${
+                          isRecording && i < 8
+                            ? 'bg-orange-500'
+                            : 'bg-gray-200'
+                        }`}
+                        style={{
+                          height: isRecording ? `${Math.random() * 100 + 10}%` : '20%',
+                          animationDelay: `${i * 50}ms`
+                        }}
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* System Monitoring */}
+            <Card className="border-blue-100">
+              <CardHeader className="border-b border-blue-50">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Server className="w-5 h-5 text-blue-500" />
+                  System Health
+                  <Badge variant="outline" className="ml-auto text-xs border-green-200 text-green-700">
+                    Optimal
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {systemMetrics.map((metric, index) => (
+                  <div key={index} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">{metric.label}</span>
+                      <span className={`font-medium ${
+                        metric.status === 'good' ? 'text-green-600' :
+                        metric.status === 'warning' ? 'text-orange-600' :
+                        'text-red-600'
+                      }`}>{metric.value}%</span>
+                    </div>
+                    <div className="w-full bg-gray-100 h-1 rounded">
+                      <div 
+                        className={`h-1 rounded transition-all duration-500 ${
+                          metric.status === 'good' ? 'bg-green-500' :
+                          metric.status === 'warning' ? 'bg-orange-500' :
+                          'bg-red-500'
+                        }`}
+                        style={{ width: `${metric.value}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            <Card className="min-h-[600px] shadow-lg border-slate-100">
+              <CardContent className="p-6">
+                {renderStageContent()}
+              </CardContent>
+            </Card>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between mt-6">
+              <Button variant="outline" disabled={currentStage === 1} className="border-slate-200">
+                Previous Stage
+              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowNotepad(!showNotepad)}
+                  className="border-orange-200 text-orange-700 hover:bg-orange-50"
+                >
+                  <Code className="w-4 h-4 mr-2" />
+                  {showNotepad ? 'Hide' : 'Show'} AI Assistant
+                </Button>
+                <Button onClick={nextStage} className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg">
+                  {currentStage === stages.length ? 'Complete Interview' : 'Continue to Next Stage'}
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Advanced Right Panel - Activity Feed & Tools */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Advanced Code Editor & AI Assistant */}
+            {showNotepad && (
+              <Card className="border-slate-200 shadow-lg">
+                <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-transparent">
+                  <CardTitle className="flex items-center justify-between text-lg">
+                    <div className="flex items-center gap-2">
+                      <Code className="w-5 h-5 text-slate-600" />
+                      <span>AI Code Assistant</span>
+                      <Badge variant="outline" className="text-xs border-green-200 text-green-700">
+                        Active
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" className="text-xs">
+                        <Filter className="w-3 h-3 mr-1" />
+                        Format
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowNotepad(false)}
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="relative">
+                    {/* Code Editor Header */}
+                    <div className="flex items-center justify-between p-3 bg-slate-50 border-b border-slate-100">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <FileText className="w-3 h-3" />
+                        solution.js
+                        <Badge variant="outline" className="text-xs border-orange-200 text-orange-700">
+                          Modified
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        <span className="text-xs text-muted-foreground">Auto-save</span>
+                      </div>
+                    </div>
+                    
+                    <Textarea
+                      value={notepadContent}
+                      onChange={(e) => setNotepadContent(e.target.value)}
+                      className="min-h-[250px] font-mono text-sm border-0 resize-none focus-visible:ring-0 bg-slate-50/50"
+                      placeholder="// Write your code here...\n// AI will provide real-time suggestions"
+                    />
+                    
+                    {/* AI Analysis Panel */}
+                    <div className="p-3 bg-orange-50 border-t border-orange-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Brain className="w-4 h-4 text-orange-600" />
+                        <span className="text-sm font-medium text-orange-700">AI Analysis</span>
+                        <Badge variant="outline" className="text-xs border-orange-200 text-orange-700 ml-auto">
+                          Complexity: O(n²)
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-orange-600 mb-3">Consider memoization for optimization. Current solution has exponential time complexity.</p>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-xs">
+                          <Brain className="w-3 h-3 mr-1" />
+                          Optimize
+                        </Button>
+                        <Button variant="outline" size="sm" className="border-orange-200 text-orange-700 hover:bg-orange-50 text-xs">
+                          <CheckSquare className="w-3 h-3 mr-1" />
+                          Test
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Real-time Activity Feed */}
+            <Card className="border-purple-100">
+              <CardHeader className="border-b border-purple-50">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-purple-500" />
+                  Live Activity
+                  <Badge variant="outline" className="ml-auto text-xs border-purple-200 text-purple-700">
+                    {activityFeed.length} events
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-48">
+                  <div className="space-y-3">
+                    {activityFeed.map((activity) => (
+                      <div key={activity.id} className="flex items-start gap-3 group">
+                        <div className={`w-2 h-2 rounded-full mt-2 ${
+                          activity.status === 'success' ? 'bg-green-500' :
+                          activity.status === 'warning' ? 'bg-orange-500' :
+                          'bg-blue-500'
+                        } group-hover:scale-125 transition-transform`}></div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-foreground leading-relaxed">{activity.message}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{activity.timestamp}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+            
+            {/* Enhanced Session Stats */}
+            <Card className="border-emerald-100">
+              <CardHeader className="border-b border-emerald-50">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <LineChart className="w-5 h-5 text-emerald-500" />
+                  Session Analytics
+                  <Button variant="ghost" size="sm" className="ml-auto p-1">
+                    <Eye className="w-3 h-3" />
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                    <div className="text-lg font-bold text-emerald-700">15:32</div>
+                    <div className="text-xs text-emerald-600">Duration</div>
+                  </div>
+                  <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <div className="text-lg font-bold text-blue-700">8/12</div>
+                    <div className="text-xs text-blue-600">Questions</div>
+                  </div>
+                  <div className="text-center p-3 bg-orange-50 rounded-lg border border-orange-100">
+                    <div className="text-lg font-bold text-orange-700">94%</div>
+                    <div className="text-xs text-orange-600">Accuracy</div>
+                  </div>
+                  <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-100">
+                    <div className="text-lg font-bold text-purple-700">A+</div>
+                    <div className="text-xs text-purple-600">Grade</div>
+                  </div>
+                </div>
+                
+                {/* Mini Progress Indicators */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Interview Progress</span>
+                    <span className="font-medium">{Math.round((currentStage / 7) * 100)}%</span>
+                  </div>
+                  <Progress value={(currentStage / 7) * 100} className="h-1" />
+                  
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Response Quality</span>
+                    <span className="font-medium text-green-600">High</span>
+                  </div>
+                  <Progress value={87} className="h-1" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Advanced Quick Actions */}
+            <Card className="border-slate-100">
+              <CardHeader className="border-b border-slate-50">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-slate-500" />
+                  Quick Actions
+                  <Button variant="ghost" size="sm" className="ml-auto p-1">
+                    <MoreHorizontal className="w-3 h-3" />
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                    <Download className="w-3 h-3 mr-1" />
+                    Export
+                  </Button>
+                  <Button variant="outline" size="sm" className="border-blue-200 text-blue-700 hover:bg-blue-50">
+                    <Eye className="w-3 h-3 mr-1" />
+                    Review
+                  </Button>
+                  <Button variant="outline" size="sm" className="border-orange-200 text-orange-700 hover:bg-orange-50">
+                    <Pause className="w-3 h-3 mr-1" />
+                    Pause
+                  </Button>
+                  <Button variant="outline" size="sm" className="border-purple-200 text-purple-700 hover:bg-purple-50">
+                    <Brain className="w-3 h-3 mr-1" />
+                    Analyze
+                  </Button>
+                </div>
+                
+                <Separator className="my-3" />
+                
+                <Button variant="outline" className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
+                  <XCircle className="w-4 h-4 mr-2" />
+                  End Interview
+                </Button>
+                
+                <div className="pt-2 space-y-2">
+                  <Button variant="ghost" size="sm" className="w-full justify-start text-xs">
+                    <Shield className="w-3 h-3 mr-2" />
+                    Security Settings
+                  </Button>
+                  <Button variant="ghost" size="sm" className="w-full justify-start text-xs">
+                    <Globe className="w-3 h-3 mr-2" />
+                    Share Session
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
-    </MainLayout>
+    </div>
   );
-}
+};
+
+export default AIInterviewerDashboard;
