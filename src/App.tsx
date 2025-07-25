@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { ScrollToTop } from "./components/ScrollToTop";
 import { useEffect } from "react";
 import { migrateDataToSupabase } from "./utils/migrateData";
 
@@ -30,6 +31,8 @@ import Assess from "./pages/Assess";
 import Personalize from "./pages/Personalize";
 import Communicate from "./pages/Communicate";
 import AIInterviewer from "./pages/AIInterviewer";
+import AnimatedSphereTest from "./pages/AnimatedSphereTest";
+import WebGLContextTest from "./pages/WebGLContextTest";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +57,7 @@ const AppContent = () => {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/about" element={<About />} />
@@ -70,6 +74,8 @@ const AppContent = () => {
         <Route path="/personalize" element={<Personalize />} />
         <Route path="/communicate" element={<Communicate />} />
         <Route path="/ai-interviewer" element={<AIInterviewer />} />
+        <Route path="/sphere-test" element={<AnimatedSphereTest />} />
+        <Route path="/webgl-context-test" element={<WebGLContextTest />} />
 
         {/* Admin Routes */}
         <Route element={<ProtectedRoute />}>

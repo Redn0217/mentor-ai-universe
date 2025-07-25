@@ -35,7 +35,7 @@ export const NavBar = () => {
     { name: 'AI & Machine Learning', href: '/tech/ai', description: 'Artificial intelligence and ML' },
   ];
 
-  const resourceItems = [
+  const platformItems = [
     { name: 'AI Interviewer', href: '/ai-interviewer', description: 'Practice with AI-powered interviews' },
     { name: 'Playground', href: '/playground', description: 'Interactive coding environment' },
     { name: 'Certifications', href: '/certifications', description: 'Industry recognized certificates' },
@@ -43,6 +43,15 @@ export const NavBar = () => {
     { name: 'Contact', href: '/contact', description: 'Get in touch with our team' },
     { name: 'Pricing', href: '/pricing', description: 'Choose the right plan for you' },
     { name: 'Corporate', href: '/corporate', description: 'Enterprise solutions' },
+  ];
+
+  const resourceItems = [
+    { name: 'Documentation', href: '/docs', description: 'Complete guides and API reference' },
+    { name: 'Tutorials', href: '/tutorials', description: 'Step-by-step learning materials' },
+    { name: 'Blog', href: '/blog', description: 'Latest insights and updates' },
+    { name: 'Community', href: '/community', description: 'Join our developer community' },
+    { name: 'Support', href: '/support', description: 'Get help when you need it' },
+    { name: 'Changelog', href: '/changelog', description: 'Latest features and updates' },
   ];
 
   return (
@@ -57,7 +66,7 @@ export const NavBar = () => {
             <div className="flex items-center space-x-10">
               {/* Logo */}
               <Link to="/" className="flex items-center">
-                <img src="/logo.png" alt="Internsify" className="h-8 w-auto" />
+                <img src="/logo.png" alt="Internsify" className="h-10 w-auto" />
               </Link>
 
               {/* Navigation Links */}
@@ -96,24 +105,24 @@ export const NavBar = () => {
                   </div>
                 </div>
 
-                {/* Resources Dropdown */}
-                <div 
+                {/* Platform Dropdown */}
+                <div
                   className="relative group"
-                  onMouseEnter={() => handleDropdownHover('resources')}
+                  onMouseEnter={() => handleDropdownHover('platform')}
                   onMouseLeave={handleDropdownLeave}
                 >
                   <button className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors duration-200 py-2 font-medium">
-                    <span>Resources</span>
-                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${activeDropdown === 'resources' ? 'rotate-180' : ''}`} />
+                    <span>Platform</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${activeDropdown === 'platform' ? 'rotate-180' : ''}`} />
                   </button>
-                  
-                  <div className={`absolute left-0 top-full mt-2 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform z-[110] ${activeDropdown === 'resources' ? 'translate-y-0' : 'translate-y-2'}`}>
+
+                  <div className={`absolute left-0 top-full mt-2 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform z-[110] ${activeDropdown === 'platform' ? 'translate-y-0' : 'translate-y-2'}`}>
                     <div className="bg-white/80 backdrop-blur-lg border border-gray-200/30 rounded-xl shadow-lg p-6">
                       <div className="space-y-1">
-                        {resourceItems.map((item) => (
-                          <Link 
+                        {platformItems.map((item) => (
+                          <Link
                             key={item.name}
-                            to={item.href} 
+                            to={item.href}
                             className="block p-3 rounded-lg hover:bg-gray-50/60 transition-colors duration-200 group"
                           >
                             <div className="font-medium text-gray-900 group-hover:text-primary transition-colors duration-200">
@@ -129,10 +138,38 @@ export const NavBar = () => {
                   </div>
                 </div>
 
-                {/* Changelog Link */}
-                <Link to="/changelog" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 font-medium">
-                  Changelog
-                </Link>
+                {/* Resources Dropdown */}
+                <div
+                  className="relative group"
+                  onMouseEnter={() => handleDropdownHover('resources')}
+                  onMouseLeave={handleDropdownLeave}
+                >
+                  <button className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors duration-200 py-2 font-medium">
+                    <span>Resources</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${activeDropdown === 'resources' ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <div className={`absolute left-0 top-full mt-2 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform z-[110] ${activeDropdown === 'resources' ? 'translate-y-0' : 'translate-y-2'}`}>
+                    <div className="bg-white/80 backdrop-blur-lg border border-gray-200/30 rounded-xl shadow-lg p-6">
+                      <div className="space-y-1">
+                        {resourceItems.map((item) => (
+                          <Link
+                            key={item.name}
+                            to={item.href}
+                            className="block p-3 rounded-lg hover:bg-gray-50/60 transition-colors duration-200 group"
+                          >
+                            <div className="font-medium text-gray-900 group-hover:text-primary transition-colors duration-200">
+                              {item.name}
+                            </div>
+                            <div className="text-sm text-gray-500 mt-1">
+                              {item.description}
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {/* AI Tutor Button */}
                 <RainbowButton onClick={() => navigate('/playground')}>
@@ -178,7 +215,7 @@ export const NavBar = () => {
           <div className="flex justify-between items-center gap-4">
             <div className="bg-white/60 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg px-3 py-2">
               <Link to="/" className="flex items-center">
-                <img src="/logo.png" alt="Internsify" className="h-8 w-auto" />
+                <img src="/logo.png" alt="Internsify" className="h-10 w-auto" />
               </Link>
             </div>
 
@@ -213,6 +250,18 @@ export const NavBar = () => {
                   </div>
                 </div>
 
+                {/* Mobile Platform Section */}
+                <div>
+                  <div className="font-medium text-gray-900 mb-3">Platform</div>
+                  <div className="space-y-2">
+                    {platformItems.slice(0, 4).map((item) => (
+                      <Link key={item.name} to={item.href} className="block text-sm text-gray-600 hover:text-primary transition-colors duration-200 py-1">
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Mobile Resources Section */}
                 <div>
                   <div className="font-medium text-gray-900 mb-3">Resources</div>
@@ -224,10 +273,6 @@ export const NavBar = () => {
                     ))}
                   </div>
                 </div>
-
-                <Link to="/changelog" className="block text-gray-700 hover:text-primary transition-colors duration-200 font-medium py-2">
-                  Changelog
-                </Link>
 
                 {/* Mobile Auth Buttons */}
                 {user ? (

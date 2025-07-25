@@ -5,6 +5,7 @@ import { TutorChat } from '@/components/tutors/TutorChat';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
+import { FeaturesDemo } from '@/components/ui/features-demo';
 
 import { Link } from 'react-router-dom';
 import Typewriter from 'react-typewriter-effect';
@@ -265,9 +266,9 @@ const Index = () => {
             In tech education, we all share the same goal: to deliver personalized learning experiences that inspire every professional and graduate.
           </p>
           <p className="text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto">
-            Internsify offers a transformative new approach - not just to achieve that goal - but to redefine it. 
-            Our AI-powered platform is built by experienced technologists, bringing unmatched expertise in software development, 
-            DevOps practices, and artificial intelligence education.
+            Internsify offers a transformative new approach - not just to achieve that goal - but to redefine it.
+            Our AI-powered platform combines cutting-edge artificial intelligence with proven educational methodologies,
+            delivering personalized learning experiences that adapt to each student's unique needs and learning style.
           </p>
         </div>
       </section>
@@ -380,58 +381,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Act V: Credibility & Trust Signals */}
-      <section className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-12 text-gray-900">Built by experienced technologists</h2>
-          
-          {/* Founder/Team Section */}
-          <div className="grid gap-8 md:grid-cols-3 mb-16">
-            <div className="text-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-brand-teal to-brand-orange rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">JS</span>
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">John Smith</h3>
-              <p className="text-gray-600">Co-Founder, CEO</p>
-              <p className="text-sm text-gray-500 mt-2">Former Senior Engineer at Google</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-brand-teal to-brand-orange rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">AD</span>
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Alice Davis</h3>
-              <p className="text-gray-600">Co-Founder, CTO</p>
-              <p className="text-sm text-gray-500 mt-2">Former Principal Engineer at Microsoft</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-brand-teal to-brand-orange rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">RJ</span>
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Robert Johnson</h3>
-              <p className="text-gray-600">VP of Engineering</p>
-              <p className="text-sm text-gray-500 mt-2">Former Tech Lead at Amazon</p>
-            </div>
-          </div>
-          
-          {/* Testimonial */}
-          <div className="bg-gray-50 rounded-2xl p-8 mb-12">
-            <blockquote className="text-xl md:text-2xl text-gray-700 italic leading-relaxed mb-6">
-              "Internsify transformed how I approach learning new technologies. The AI tutors provide personalized guidance that's impossible to get elsewhere."
-            </blockquote>
-            <div className="flex items-center justify-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-brand-teal to-brand-orange rounded-full mr-4 flex items-center justify-center">
-                <span className="text-white font-bold">MK</span>
-              </div>
-              <div className="text-left">
-                <p className="font-semibold text-gray-900">Michael Kim</p>
-                <p className="text-gray-600">Senior DevOps Engineer, Netflix</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Act V: AI Features Showcase */}
+      <FeaturesDemo />
 
       {/* Interactive AI Tutor Demo */}
       <section className="py-20 bg-gray-50">

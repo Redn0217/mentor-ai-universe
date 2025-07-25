@@ -26,14 +26,14 @@ const InteractiveHoverButton = React.forwardRef<
       <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 via-transparent to-transparent opacity-0 group-hover:opacity-80 transition-opacity duration-300" />
 
       {/* Initial text */}
-      <span className="relative z-10 inline-block px-3 py-1.5 text-xs transition-all duration-300 group-hover:translate-x-12 group-hover:opacity-0">
+      <span className="relative z-10 inline-block px-3 py-1.5 text-sm transition-all duration-300 group-hover:translate-x-12 group-hover:opacity-0">
         {text}
       </span>
 
       {/* Hover state with text and arrow */}
       <div className="absolute inset-0 z-20 flex items-center justify-center gap-0.5 text-white opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 translate-x-12">
-        <span className="text-xs font-medium">{text}</span>
-        <ArrowRight className="h-2.5 w-2.5 flex-shrink-0" />
+        <span className="text-sm font-medium">{text}</span>
+        <ArrowRight className="h-3 w-3 flex-shrink-0" />
       </div>
 
       {/* Animated background dot */}
