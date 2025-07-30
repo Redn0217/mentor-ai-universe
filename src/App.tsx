@@ -30,9 +30,9 @@ import Create from "./pages/Create";
 import Assess from "./pages/Assess";
 import Personalize from "./pages/Personalize";
 import Communicate from "./pages/Communicate";
-import AIInterviewer from "./pages/AIInterviewer";
-import AnimatedSphereTest from "./pages/AnimatedSphereTest";
-import WebGLContextTest from "./pages/WebGLContextTest";
+
+
+
 
 const queryClient = new QueryClient();
 
@@ -73,9 +73,9 @@ const AppContent = () => {
         <Route path="/assess" element={<Assess />} />
         <Route path="/personalize" element={<Personalize />} />
         <Route path="/communicate" element={<Communicate />} />
-        <Route path="/ai-interviewer" element={<AIInterviewer />} />
-        <Route path="/sphere-test" element={<AnimatedSphereTest />} />
-        <Route path="/webgl-context-test" element={<WebGLContextTest />} />
+
+
+
 
         {/* Admin Routes */}
         <Route element={<ProtectedRoute />}>

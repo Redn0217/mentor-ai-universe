@@ -3,7 +3,6 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { TechnologyCard } from '@/components/technologies/TechnologyCard';
 import { TutorChat } from '@/components/tutors/TutorChat';
 import { GradientButton } from '@/components/ui/gradient-button';
-import { RainbowButton } from '@/components/ui/rainbow-button';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
 import { FeaturesDemo } from '@/components/ui/features-demo';
 
@@ -235,13 +234,17 @@ const Index = () => {
               Use our AI tutors alongside your existing learning, or as your complete AI-powered skill development solution.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <GradientButton className="text-lg px-8 py-3">
-                Start for free
-              </GradientButton>
-              <InteractiveHoverButton
-                text="Get a demo"
-                className="text-lg px-8 py-3 w-auto bg-white border-2 border-gray-200 text-gray-700 hover:border-primary hover:text-primary"
-              />
+              <Link to="/signup">
+                <GradientButton className="text-lg px-8 py-4 w-auto">
+                  Start for free
+                </GradientButton>
+              </Link>
+              <Link to="/contact">
+                <InteractiveHoverButton
+                  text="Get a demo"
+                  className="text-lg px-8 py-3 w-auto bg-white border-2 border-gray-200 text-gray-700 hover:border-primary hover:text-primary"
+                />
+              </Link>
             </div>
           </div>
         </div>
@@ -716,9 +719,11 @@ const Index = () => {
             Join thousands of professionals who are mastering cutting-edge technologies with Internsify's AI-powered learning platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <GradientButton className="text-lg px-8 py-3">
-              Start for free
-            </GradientButton>
+            <Link to="/signup">
+              <GradientButton className="text-lg px-8 py-4 w-auto">
+                Start for free
+              </GradientButton>
+            </Link>
             <Link to="/pricing">
               <InteractiveHoverButton
                 text="View pricing"

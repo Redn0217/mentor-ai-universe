@@ -36,7 +36,7 @@ export const NavBar = () => {
   ];
 
   const platformItems = [
-    { name: 'AI Interviewer', href: '/ai-interviewer', description: 'Practice with AI-powered interviews' },
+
     { name: 'Playground', href: '/playground', description: 'Interactive coding environment' },
     { name: 'Certifications', href: '/certifications', description: 'Industry recognized certificates' },
     { name: 'About', href: '/about', description: 'Learn more about our platform' },
@@ -195,7 +195,11 @@ export const NavBar = () => {
                 </>
               ) : (
                 <>
-                  <InteractiveHoverButton text="Get a demo" className="w-auto px-4" />
+                  <InteractiveHoverButton
+                    text="Get a demo"
+                    className="w-auto px-4"
+                    onClick={() => navigate('/contact')}
+                  />
                   <InteractiveHoverButton
                     text="Log in"
                     className="w-auto px-4"
@@ -288,7 +292,11 @@ export const NavBar = () => {
                   </>
                 ) : (
                   <>
-                    <InteractiveHoverButton text="Get a demo" className="w-full" />
+                    <InteractiveHoverButton
+                      text="Get a demo"
+                      className="w-full"
+                      onClick={() => navigate('/contact')}
+                    />
                     <InteractiveHoverButton
                       text="Log in"
                       className="w-full"
