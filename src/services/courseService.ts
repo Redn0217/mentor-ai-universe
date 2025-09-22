@@ -1,245 +1,492 @@
 
 import { supabase } from '@/lib/supabase';
+import type {
+  Course,
+  Module,
+  Lesson,
+  Exercise,
+  Resource,
+  CourseListItem,
+  DatabaseCourse,
+  DatabaseModule,
+  DatabaseLesson,
+  DatabaseExercise,
+  DatabaseResource
+} from '@/types/database';
 
-export type Course = {
-  id: string;
-  slug: string;
-  title: string;
-  description: string;
-  icon: string;
-  color: string;
-  modules: Module[];
-  tutor: {
-    name: string;
-    avatar: string;
-  };
-  lastUpdated: string;
-};
+// Legacy types for backward compatibility
+export type { Course, Module, Lesson, Exercise, Resource };
 
-export type Module = {
-  id: string;
-  title: string;
-  description: string;
-  lessons: Lesson[];
-  exercises: Exercise[];
-  resources: Resource[];
-};
-
-export type Lesson = {
-  id: string;
-  title: string;
-  content: string;
-  duration: number;
-};
-
-export type Exercise = {
-  id: string;
-  title: string;
-  description: string;
-  difficulty: string;
-  estimatedTime: number;
-};
-
-export type Resource = {
-  id: string;
-  title: string;
-  type: string;
-  url: string;
-};
-
-// Function to get all courses (simplified for list view)
-export const getCourses = async (): Promise<Partial<Course>[]> => {
+// Function to get all courses (updated for new structure)
+export const getCourses = async (): Promise<CourseListItem[]> => {
   try {
+    // Try new relational structure first
     const { data, error } = await supabase
       .from('courses')
-      .select('id, slug, title, description, color, last_updated');
+      .select(`
+        id,
+        slug,
+        title,
+        description,
+        short_description,
+        color,
+        difficulty_level,
+        estimated_duration_hours,
+        tags,
+        is_featured,
+        tutor_name,
+        tutor_avatar,
+        updated_at
+      `)
+      .eq('is_published', true)
+      .order('updated_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching courses from Supabase:', error);
-      console.warn('Falling back to local data');
+      console.error('Error fetching courses from Supabase (new structure):', error);
 
-      // Return sample data as fallback
-      return [
-        {
-          id: "python",
-          slug: "python",
-          title: "Python",
-          description: "Learn Python programming from basics to advanced concepts with practical exercises.",
-          color: "#3776AB",
-          lastUpdated: "2023-05-15",
-          modules: [] as Module[],
+      // Try old structure as fallback
+      const { data: oldData, error: oldError } = await supabase
+        .from('courses')
+        .select('id, slug, title, description, color, last_updated');
+
+      if (oldError) {
+        console.error('Error fetching courses from old structure:', error);
+        console.warn('Falling back to local data');
+        return getFallbackCourses();
+      }
+
+      // Convert old structure to new format
+      return oldData.map(course => ({
+        id: course.id,
+        slug: course.slug,
+        title: course.title,
+        description: course.description,
+        short_description: course.description?.substring(0, 150),
+        color: course.color,
+        difficulty_level: 'beginner' as const,
+        estimated_duration_hours: 10,
+        tags: [],
+        is_featured: false,
+        tutor: {
+          name: 'Course Instructor',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor'
         },
-        {
-          id: "javascript",
-          slug: "javascript",
-          title: "JavaScript",
-          description: "Master modern JavaScript with practical web development projects.",
-          color: "#F7DF1E",
-          lastUpdated: "2023-06-10",
-          modules: [] as Module[],
-        }
-      ];
+        modules_count: 0,
+        lessons_count: 0,
+        exercises_count: 0,
+        updated_at: course.last_updated || new Date().toISOString()
+      }));
     }
 
-    return data.map(course => ({
-      ...course,
-      lastUpdated: course.last_updated,
-      modules: [] as Module[], // Fix: Use empty array instead of number
-    }));
+    // Get counts for each course
+    const coursesWithCounts = await Promise.all(
+      data.map(async (course) => {
+        const counts = await getCourseCounts(course.id);
+        return {
+          id: course.id,
+          slug: course.slug,
+          title: course.title,
+          description: course.description,
+          short_description: course.short_description,
+          color: course.color,
+          difficulty_level: course.difficulty_level,
+          estimated_duration_hours: course.estimated_duration_hours,
+          tags: course.tags || [],
+          is_featured: course.is_featured,
+          tutor: {
+            name: course.tutor_name || 'Course Instructor',
+            avatar: course.tutor_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor'
+          },
+          ...counts,
+          updated_at: course.updated_at
+        };
+      })
+    );
+
+    return coursesWithCounts;
   } catch (error) {
     console.error('Error in getCourses:', error);
     console.warn('Falling back to local data');
-
-    // Return sample data as fallback
-    return [
-      {
-        id: "python",
-        slug: "python",
-        title: "Python",
-        description: "Learn Python programming from basics to advanced concepts with practical exercises.",
-        color: "#3776AB",
-        lastUpdated: "2023-05-15",
-        modules: [] as Module[],
-      }
-    ];
+    return getFallbackCourses();
   }
 };
 
-// Function to get a specific course by slug
+// Helper function to get course counts
+const getCourseCounts = async (courseId: string) => {
+  try {
+    const [modulesResult, lessonsResult, exercisesResult] = await Promise.all([
+      supabase
+        .from('modules')
+        .select('id', { count: 'exact' })
+        .eq('course_id', courseId)
+        .eq('is_published', true),
+
+      supabase
+        .from('lessons')
+        .select('id', { count: 'exact' })
+        .in('module_id',
+          supabase.from('modules').select('id').eq('course_id', courseId).eq('is_published', true)
+        )
+        .eq('is_published', true),
+
+      supabase
+        .from('exercises')
+        .select('id', { count: 'exact' })
+        .or(`module_id.in.(${courseId}),lesson_id.in.(${courseId})`)
+        .eq('is_published', true)
+    ]);
+
+    return {
+      modules_count: modulesResult.count || 0,
+      lessons_count: lessonsResult.count || 0,
+      exercises_count: exercisesResult.count || 0
+    };
+  } catch (error) {
+    console.error('Error fetching course counts:', error);
+    return {
+      modules_count: 0,
+      lessons_count: 0,
+      exercises_count: 0
+    };
+  }
+};
+
+// Fallback courses data
+const getFallbackCourses = (): CourseListItem[] => [
+  {
+    id: "python",
+    slug: "python",
+    title: "Python Programming",
+    description: "Learn Python programming from basics to advanced concepts with practical exercises.",
+    short_description: "Complete Python programming course from beginner to advanced level",
+    color: "#3776AB",
+    difficulty_level: "beginner",
+    estimated_duration_hours: 40,
+    tags: ["python", "programming", "beginner"],
+    is_featured: true,
+    tutor: {
+      name: "Dr. Ana Python",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana"
+    },
+    modules_count: 2,
+    lessons_count: 6,
+    exercises_count: 3,
+    updated_at: "2023-05-15T00:00:00Z"
+  },
+  {
+    id: "javascript",
+    slug: "javascript",
+    title: "JavaScript Fundamentals",
+    description: "Master modern JavaScript with practical web development projects.",
+    short_description: "Learn JavaScript from basics to advanced concepts",
+    color: "#F7DF1E",
+    difficulty_level: "beginner",
+    estimated_duration_hours: 35,
+    tags: ["javascript", "web-development", "programming"],
+    is_featured: false,
+    tutor: {
+      name: "John Script",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John"
+    },
+    modules_count: 3,
+    lessons_count: 8,
+    exercises_count: 5,
+    updated_at: "2023-06-10T00:00:00Z"
+  }
+];
+
+// Function to get a specific course by slug (updated for new structure)
 export const getCourse = async (slug: string): Promise<Course | null> => {
   try {
-    const { data, error } = await supabase
+    // Try new relational structure first
+    const { data: course, error: courseError } = await supabase
       .from('courses')
       .select('*')
       .eq('slug', slug)
+      .eq('is_published', true)
       .single();
 
-    if (error) {
-      console.error(`Error fetching course with slug ${slug} from Supabase:`, error);
-      console.warn('Falling back to local data');
+    if (courseError) {
+      console.error(`Error fetching course with slug ${slug} from new structure:`, courseError);
 
-      // Return sample data as fallback based on the requested slug
-      if (slug === 'python') {
-        return {
-          id: "python",
-          slug: "python",
-          title: "Python",
-          description: "Learn Python programming from basics to advanced concepts with practical exercises.",
-          icon: "code",
-          color: "#3776AB",
-          modules: [
-            {
-              id: "module1",
-              title: "Getting Started",
-              description: "Learn the basics and set up your development environment.",
-              lessons: [
-                {
-                  id: "lesson1",
-                  title: "Introduction",
-                  content: "Overview of the course and what you will learn.",
-                  duration: 15
-                }
-              ],
-              exercises: [],
-              resources: []
-            }
-          ],
-          tutor: {
-            name: "Dr. Ana Python",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana"
-          },
-          lastUpdated: "2023-05-15"
-        };
-      } else if (slug === 'javascript') {
-        return {
-          id: "javascript",
-          slug: "javascript",
-          title: "JavaScript",
-          description: "Master modern JavaScript with practical web development projects.",
-          icon: "code",
-          color: "#F7DF1E",
-          modules: [
-            {
-              id: "module1",
-              title: "JavaScript Fundamentals",
-              description: "Learn the core concepts of JavaScript programming.",
-              lessons: [
-                {
-                  id: "lesson1",
-                  title: "Introduction to JavaScript",
-                  content: "Overview of JavaScript and its role in web development.",
-                  duration: 20
-                }
-              ],
-              exercises: [],
-              resources: []
-            }
-          ],
-          tutor: {
-            name: "John Script",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John"
-          },
-          lastUpdated: "2023-06-10"
-        };
+      // Try old structure as fallback
+      const { data: oldCourse, error: oldError } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+
+      if (oldError) {
+        console.error(`Error fetching course with slug ${slug} from old structure:`, oldError);
+        console.warn('Falling back to local data');
+        return getFallbackCourse(slug);
       }
 
-      // For any other slug, return null
-      return null;
+      // Convert old structure to new format
+      return convertOldCourseFormat(oldCourse);
     }
 
-    // If we have data from Supabase, make sure to convert last_updated to lastUpdated
-    if (data.last_updated && !data.lastUpdated) {
-      data.lastUpdated = data.last_updated;
+    // Get modules with lessons and exercises for new structure
+    const { data: modules, error: modulesError } = await supabase
+      .from('modules')
+      .select(`
+        *,
+        lessons:lessons(
+          *,
+          exercises:exercises(*)
+        ),
+        exercises:exercises(*)
+      `)
+      .eq('course_id', course.id)
+      .eq('is_published', true)
+      .order('order_index');
+
+    if (modulesError) {
+      console.error('Error fetching modules:', modulesError);
+      return getFallbackCourse(slug);
     }
 
-    return data;
+    // Get course-level resources
+    const { data: courseResources, error: resourcesError } = await supabase
+      .from('resources')
+      .select('*')
+      .eq('course_id', course.id)
+      .order('created_at');
+
+    if (resourcesError) {
+      console.error('Error fetching course resources:', resourcesError);
+    }
+
+    // Transform the data structure
+    const transformedCourse: Course = {
+      id: course.id,
+      slug: course.slug,
+      title: course.title,
+      description: course.description,
+      short_description: course.short_description,
+      icon: course.icon,
+      color: course.color,
+      difficulty_level: course.difficulty_level,
+      estimated_duration_hours: course.estimated_duration_hours,
+      prerequisites: course.prerequisites || [],
+      learning_objectives: course.learning_objectives || [],
+      tags: course.tags || [],
+      is_published: course.is_published,
+      is_featured: course.is_featured,
+      tutor: {
+        name: course.tutor_name || 'Course Instructor',
+        avatar: course.tutor_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor',
+        bio: course.tutor_bio
+      },
+      modules: (modules || []).map(module => ({
+        id: module.id,
+        title: module.title,
+        description: module.description,
+        slug: module.slug,
+        order_index: module.order_index,
+        estimated_duration_minutes: module.estimated_duration_minutes,
+        difficulty_level: module.difficulty_level,
+        learning_objectives: module.learning_objectives || [],
+        prerequisites: module.prerequisites || [],
+        is_published: module.is_published,
+        lessons: (module.lessons || [])
+          .filter((lesson: any) => lesson.is_published)
+          .sort((a: any, b: any) => a.order_index - b.order_index)
+          .map((lesson: any) => ({
+            id: lesson.id,
+            title: lesson.title,
+            description: lesson.description,
+            slug: lesson.slug,
+            order_index: lesson.order_index,
+            content: lesson.content,
+            content_type: lesson.content_type,
+            estimated_duration_minutes: lesson.estimated_duration_minutes,
+            difficulty_level: lesson.difficulty_level,
+            learning_objectives: lesson.learning_objectives || [],
+            key_concepts: lesson.key_concepts || [],
+            code_examples: lesson.code_examples || [],
+            video_url: lesson.video_url,
+            video_duration_seconds: lesson.video_duration_seconds,
+            is_published: lesson.is_published,
+            exercises: (lesson.exercises || [])
+              .filter((exercise: any) => exercise.is_published)
+              .sort((a: any, b: any) => a.order_index - b.order_index),
+            created_at: lesson.created_at,
+            updated_at: lesson.updated_at
+          })),
+        exercises: (module.exercises || [])
+          .filter((exercise: any) => exercise.is_published)
+          .sort((a: any, b: any) => a.order_index - b.order_index),
+        resources: [],
+        created_at: module.created_at,
+        updated_at: module.updated_at
+      })),
+      created_at: course.created_at,
+      updated_at: course.updated_at
+    };
+
+    return transformedCourse;
   } catch (error) {
     console.error(`Error in getCourse for slug ${slug}:`, error);
     console.warn('Falling back to local data');
-
-    // Return a generic sample course as fallback
-    return {
-      id: slug,
-      slug: slug,
-      title: slug.charAt(0).toUpperCase() + slug.slice(1),
-      description: `Learn ${slug} from basics to advanced concepts.`,
-      icon: "code",
-      color: "#3776AB",
-      modules: [
-        {
-          id: "module1",
-          title: "Getting Started",
-          description: "Introduction to the basics.",
-          lessons: [
-            {
-              id: "lesson1",
-              title: "Introduction",
-              content: "Overview of the course.",
-              duration: 15
-            }
-          ],
-          exercises: [],
-          resources: []
-        }
-      ],
-      tutor: {
-        name: "Course Instructor",
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${slug}`
-      },
-      lastUpdated: new Date().toISOString().split('T')[0]
-    };
+    return getFallbackCourse(slug);
   }
 };
 
-// Function to create a new course
-export const createCourse = async (course: Course): Promise<Course> => {
+// Helper function to convert old course format
+const convertOldCourseFormat = (oldCourse: any): Course => {
+  return {
+    id: oldCourse.id,
+    slug: oldCourse.slug,
+    title: oldCourse.title,
+    description: oldCourse.description,
+    short_description: oldCourse.description?.substring(0, 150),
+    icon: oldCourse.icon || 'code',
+    color: oldCourse.color,
+    difficulty_level: 'beginner',
+    estimated_duration_hours: 10,
+    prerequisites: [],
+    learning_objectives: [],
+    tags: [],
+    is_published: true,
+    is_featured: false,
+    tutor: oldCourse.tutor || {
+      name: 'Course Instructor',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor'
+    },
+    modules: Array.isArray(oldCourse.modules) ? oldCourse.modules.map((module: any, index: number) => ({
+      id: module.id || `module-${index}`,
+      title: module.title,
+      description: module.description,
+      slug: module.title?.toLowerCase().replace(/\s+/g, '-') || `module-${index}`,
+      order_index: index + 1,
+      estimated_duration_minutes: 60,
+      difficulty_level: 'beginner',
+      learning_objectives: [],
+      prerequisites: [],
+      is_published: true,
+      lessons: Array.isArray(module.lessons) ? module.lessons.map((lesson: any, lessonIndex: number) => ({
+        id: lesson.id || `lesson-${lessonIndex}`,
+        title: lesson.title,
+        description: lesson.description || '',
+        slug: lesson.title?.toLowerCase().replace(/\s+/g, '-') || `lesson-${lessonIndex}`,
+        order_index: lessonIndex + 1,
+        content: lesson.content || '',
+        content_type: 'markdown',
+        estimated_duration_minutes: lesson.duration || 15,
+        difficulty_level: 'beginner',
+        learning_objectives: [],
+        key_concepts: [],
+        code_examples: [],
+        is_published: true,
+        exercises: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })) : [],
+      exercises: Array.isArray(module.exercises) ? module.exercises : [],
+      resources: Array.isArray(module.resources) ? module.resources : [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    })) : [],
+    created_at: oldCourse.created_at || new Date().toISOString(),
+    updated_at: oldCourse.updated_at || new Date().toISOString()
+  };
+};
+
+// Helper function to get fallback course
+const getFallbackCourse = (slug: string): Course | null => {
+  const fallbackCourses: { [key: string]: Course } = {
+    python: {
+      id: "python",
+      slug: "python",
+      title: "Python Programming",
+      description: "Learn Python programming from basics to advanced concepts with practical exercises.",
+      short_description: "Complete Python programming course from beginner to advanced level",
+      icon: "code",
+      color: "#3776AB",
+      difficulty_level: "beginner",
+      estimated_duration_hours: 40,
+      prerequisites: [],
+      learning_objectives: [
+        "Understand Python syntax and basic programming concepts",
+        "Work with Python data types and structures",
+        "Implement control flow and functions"
+      ],
+      tags: ["python", "programming", "beginner"],
+      is_published: true,
+      is_featured: true,
+      tutor: {
+        name: "Dr. Ana Python",
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana",
+        bio: "Senior Python Developer with 10+ years of experience"
+      },
+      modules: [
+        {
+          id: "module1",
+          title: "Python Fundamentals",
+          description: "Get started with Python programming basics",
+          slug: "python-fundamentals",
+          order_index: 1,
+          estimated_duration_minutes: 180,
+          difficulty_level: "beginner",
+          learning_objectives: ["Set up Python development environment"],
+          prerequisites: [],
+          is_published: true,
+          lessons: [
+            {
+              id: "lesson1",
+              title: "Python Introduction",
+              description: "What is Python and why use it?",
+              slug: "python-introduction",
+              order_index: 1,
+              content: "# Python Introduction\n\nPython is a popular programming language...",
+              content_type: "markdown",
+              estimated_duration_minutes: 15,
+              difficulty_level: "beginner",
+              learning_objectives: [],
+              key_concepts: ["Python history", "Use cases"],
+              code_examples: [],
+              is_published: true,
+              exercises: [],
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }
+          ],
+          exercises: [],
+          resources: [],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+  };
+
+  return fallbackCourses[slug] || null;
+};
+
+// Function to create a new course (updated for new structure)
+export const createCourse = async (course: Partial<Course>): Promise<Course> => {
   try {
-    // Convert lastUpdated field to last_updated for Supabase
     const courseData = {
-      ...course,
-      last_updated: course.lastUpdated,
+      slug: course.slug,
+      title: course.title,
+      description: course.description,
+      short_description: course.short_description,
+      icon: course.icon || 'code',
+      color: course.color || '#3776AB',
+      difficulty_level: course.difficulty_level || 'beginner',
+      estimated_duration_hours: course.estimated_duration_hours || 0,
+      prerequisites: course.prerequisites || [],
+      learning_objectives: course.learning_objectives || [],
+      tags: course.tags || [],
+      is_published: course.is_published || false,
+      is_featured: course.is_featured || false,
+      tutor_name: course.tutor?.name || 'Course Instructor',
+      tutor_avatar: course.tutor?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor',
+      tutor_bio: course.tutor?.bio
     };
-    delete courseData.lastUpdated; // Remove the original lastUpdated field
 
     const { data, error } = await supabase
       .from('courses')
@@ -255,7 +502,12 @@ export const createCourse = async (course: Course): Promise<Course> => {
     // Convert back to our app format
     return {
       ...data,
-      lastUpdated: data.last_updated,
+      tutor: {
+        name: data.tutor_name,
+        avatar: data.tutor_avatar,
+        bio: data.tutor_bio
+      },
+      modules: []
     };
   } catch (error) {
     console.error('Error in createCourse:', error);
@@ -263,20 +515,32 @@ export const createCourse = async (course: Course): Promise<Course> => {
   }
 };
 
-// Function to update an existing course
-export const updateCourse = async (course: Course): Promise<Course> => {
+// Function to update an existing course (updated for new structure)
+export const updateCourse = async (slug: string, course: Partial<Course>): Promise<Course> => {
   try {
-    // Convert lastUpdated field to last_updated for Supabase
     const courseData = {
-      ...course,
-      last_updated: course.lastUpdated,
+      title: course.title,
+      description: course.description,
+      short_description: course.short_description,
+      icon: course.icon,
+      color: course.color,
+      difficulty_level: course.difficulty_level,
+      estimated_duration_hours: course.estimated_duration_hours,
+      prerequisites: course.prerequisites,
+      learning_objectives: course.learning_objectives,
+      tags: course.tags,
+      is_published: course.is_published,
+      is_featured: course.is_featured,
+      tutor_name: course.tutor?.name,
+      tutor_avatar: course.tutor?.avatar,
+      tutor_bio: course.tutor?.bio,
+      updated_at: new Date().toISOString()
     };
-    delete courseData.lastUpdated; // Remove the original lastUpdated field
 
     const { data, error } = await supabase
       .from('courses')
       .update(courseData)
-      .eq('slug', course.slug)
+      .eq('slug', slug)
       .select()
       .single();
 
@@ -288,7 +552,12 @@ export const updateCourse = async (course: Course): Promise<Course> => {
     // Convert back to our app format
     return {
       ...data,
-      lastUpdated: data.last_updated,
+      tutor: {
+        name: data.tutor_name,
+        avatar: data.tutor_avatar,
+        bio: data.tutor_bio
+      },
+      modules: [] // Modules would need to be fetched separately
     };
   } catch (error) {
     console.error('Error in updateCourse:', error);
@@ -296,7 +565,7 @@ export const updateCourse = async (course: Course): Promise<Course> => {
   }
 };
 
-// Function to delete a course
+// Function to delete a course (updated for new structure)
 export const deleteCourse = async (slug: string): Promise<boolean> => {
   try {
     const { error } = await supabase
@@ -316,92 +585,71 @@ export const deleteCourse = async (slug: string): Promise<boolean> => {
   }
 };
 
-// Function to migrate courses data from JSON to Supabase
-export const migrateCoursesToSupabase = async (coursesData: Course[]): Promise<void> => {
+// Function to get user progress for a course
+export const getUserCourseProgress = async (userId: string, courseId: string) => {
   try {
-    console.log('Starting migration of courses to Supabase...');
-
-    // First, check if migration is needed by checking if courses exist
-    console.log('Checking if courses already exist in Supabase...');
-
-    // Use a simpler query to check if courses exist
-    const { data, error: countError } = await supabase
-      .from('courses')
-      .select('id')
-      .limit(5);  // Just get a few records to check
-
-    if (countError) {
-      console.error('Error checking if courses exist:', countError);
-      // Don't throw here, we'll try to continue with the migration
-      console.log('Continuing with migration despite error...');
-    } else if (data && data.length > 0) {
-      console.log(`Courses already exist in Supabase (${data.length} found), skipping migration`);
-      return;
-    } else {
-      console.log('No existing courses found, proceeding with migration');
-    }
-
-    if (!coursesData || coursesData.length === 0) {
-      console.warn('No courses data provided for migration');
-      return;
-    }
-
-    console.log(`Preparing to migrate ${coursesData.length} courses to Supabase...`);
-
-    // Convert each course to the format expected by Supabase
-    const supabaseCoursesData = coursesData.map(course => {
-      // Create a new object with the correct field names for Supabase
-      const supabaseCourse = {
-        ...course,
-        last_updated: course.lastUpdated,
-      };
-      // Remove the lastUpdated field to avoid duplicate fields
-      delete supabaseCourse.lastUpdated;
-      return supabaseCourse;
+    const { data, error } = await supabase.rpc('get_user_course_progress', {
+      user_uuid: userId,
+      course_uuid: courseId
     });
 
-    // Log the first course data for debugging
-    console.log('Sample course data for migration:', JSON.stringify(supabaseCoursesData[0], null, 2));
+    if (error) {
+      console.error('Error fetching user course progress:', error);
+      return {
+        total_lessons: 0,
+        completed_lessons: 0,
+        total_exercises: 0,
+        completed_exercises: 0,
+        progress_percentage: 0
+      };
+    }
 
-    // Insert all courses
-    console.log('Inserting courses into Supabase...');
-    const { error } = await supabase
-      .from('courses')
-      .insert(supabaseCoursesData);
+    return data;
+  } catch (error) {
+    console.error('Error in getUserCourseProgress:', error);
+    return {
+      total_lessons: 0,
+      completed_lessons: 0,
+      total_exercises: 0,
+      completed_exercises: 0,
+      progress_percentage: 0
+    };
+  }
+};
+
+// Function to track user progress
+export const trackUserProgress = async (
+  userId: string,
+  progressData: {
+    course_id?: string;
+    module_id?: string;
+    lesson_id?: string;
+    exercise_id?: string;
+    progress_type: string;
+    completion_percentage?: number;
+    time_spent_minutes?: number;
+  }
+) => {
+  try {
+    const { data, error } = await supabase
+      .from('user_progress')
+      .upsert([{
+        user_id: userId,
+        ...progressData,
+        last_accessed_at: new Date().toISOString(),
+        completed_at: progressData.completion_percentage === 100 ? new Date().toISOString() : null
+      }])
+      .select()
+      .single();
 
     if (error) {
-      console.error('Error migrating courses to Supabase:', error);
-
-      // Try inserting one by one if bulk insert fails
-      console.log('Attempting to insert courses one by one...');
-      let successCount = 0;
-
-      for (const course of supabaseCoursesData) {
-        try {
-          const { error: singleInsertError } = await supabase
-            .from('courses')
-            .insert([course]);
-
-          if (singleInsertError) {
-            console.error(`Error inserting course ${course.id}:`, singleInsertError);
-          } else {
-            successCount++;
-          }
-        } catch (err) {
-          console.error(`Exception inserting course ${course.id}:`, err);
-        }
-      }
-
-      if (successCount > 0) {
-        console.log(`Successfully migrated ${successCount} out of ${supabaseCoursesData.length} courses`);
-      } else {
-        throw new Error('Failed to migrate any courses');
-      }
-    } else {
-      console.log(`Successfully migrated all ${supabaseCoursesData.length} courses to Supabase`);
+      console.error('Error tracking user progress:', error);
+      throw error;
     }
+
+    return data;
   } catch (error) {
-    console.error('Error in migrateCoursesToSupabase:', error);
+    console.error('Error in trackUserProgress:', error);
     throw error;
   }
 };

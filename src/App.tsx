@@ -9,7 +9,6 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { useEffect } from "react";
-import { migrateDataToSupabase } from "./utils/migrateData";
 
 // Page imports
 import Index from "./pages/Index";
@@ -38,21 +37,9 @@ const queryClient = new QueryClient();
 
 const AppContent = () => {
   useEffect(() => {
-    // Attempt to migrate data when the app starts
-    const attemptMigration = async () => {
-      try {
-        console.log("Attempting to migrate data to Supabase...");
-        await migrateDataToSupabase();
-        console.log("Data migration process completed");
-      } catch (error) {
-        // This should not happen anymore since we've made migrateDataToSupabase
-        // handle errors internally, but just in case:
-        console.error("Unexpected error during data migration:", error);
-        // Silently fail - the app can still function with the API
-      }
-    };
-
-    attemptMigration();
+    // Database migration is now handled through SQL scripts
+    // The new hierarchical database structure is already in place
+    console.log("Application starting with new database structure");
   }, []);
 
   return (

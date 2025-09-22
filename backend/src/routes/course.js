@@ -5,6 +5,96 @@ const fs = require('fs').promises;
 const path = require('path');
 const { supabase, checkSupabaseConnection } = require('../lib/supabase');
 
+// Helper function to get course with full hierarchy
+const getCourseWithHierarchy = async (courseSlug) => {
+  try {
+    const { data, error } = await supabase
+      .from('courses')
+      .select(`
+        *,
+        modules:modules(
+          *,
+          lessons:lessons(
+            *,
+            exercises:exercises(*)
+          ),
+          exercises:exercises(*)
+        )
+      `)
+      .eq('slug', courseSlug)
+      .single();
+
+    if (error) {
+      console.error('Error fetching course hierarchy:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Exception fetching course hierarchy:', error);
+    return null;
+  }
+};
+
+// Helper function to get courses with counts
+const getCoursesWithCounts = async () => {
+  try {
+    // Get courses with related data
+    const { data, error } = await supabase
+      .from('courses')
+      .select(`
+        id,
+        slug,
+        title,
+        description,
+        short_description,
+        color,
+        difficulty_level,
+        estimated_duration_hours,
+        tags,
+        is_featured,
+        tutor_name,
+        tutor_avatar,
+        updated_at,
+        modules:modules(
+          id,
+          lessons:lessons(id),
+          exercises:exercises(id)
+        )
+      `);
+
+    if (error) {
+      console.error('Error fetching courses with counts:', error);
+      return null;
+    }
+
+    // Transform the data to include counts
+    return data.map(course => ({
+      id: course.id,
+      slug: course.slug,
+      title: course.title,
+      description: course.description,
+      short_description: course.short_description,
+      color: course.color,
+      difficulty_level: course.difficulty_level,
+      estimated_duration_hours: course.estimated_duration_hours,
+      tags: course.tags || [],
+      is_featured: course.is_featured,
+      tutor: {
+        name: course.tutor_name || 'Course Instructor',
+        avatar: course.tutor_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor'
+      },
+      modules_count: course.modules?.length || 0,
+      lessons_count: course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 0,
+      exercises_count: course.modules?.reduce((total, module) => total + (module.exercises?.length || 0), 0) || 0,
+      updated_at: course.updated_at
+    }));
+  } catch (error) {
+    console.error('Exception fetching courses with counts:', error);
+    return null;
+  }
+};
+
 // Path to the mock data file (fallback)
 const dataPath = path.join(__dirname, '../data/courses.json');
 console.log('Data file path:', dataPath);
@@ -150,14 +240,24 @@ const initializeData = async () => {
   await createDefaultCoursesIfNeeded();
 };
 
-// Read all courses
+// Read all courses (updated for new structure)
 const readCourses = async () => {
   try {
-    // First try to get data from Supabase
+    // First try to get data from Supabase with new structure
     const isConnected = await checkSupabaseConnection();
 
     if (isConnected) {
-      console.log('Reading courses from Supabase...');
+      console.log('Reading courses from Supabase (new structure)...');
+
+      // Try new structure first
+      const coursesWithCounts = await getCoursesWithCounts();
+      if (coursesWithCounts && coursesWithCounts.length > 0) {
+        console.log(`Found ${coursesWithCounts.length} courses in new structure`);
+        return coursesWithCounts;
+      }
+
+      // Fallback to old structure if new doesn't exist
+      console.log('Trying old structure...');
       const { data, error } = await supabase
         .from('courses')
         .select('*');
@@ -166,10 +266,17 @@ const readCourses = async () => {
         console.error('Error fetching courses from Supabase:', error);
         // Fall back to local file
       } else if (data && data.length > 0) {
-        console.log(`Found ${data.length} courses in Supabase`);
-        // Convert from Supabase format to app format
+        console.log(`Found ${data.length} courses in old structure`);
+        // Convert from old Supabase format to app format
         return data.map(course => ({
-          ...course,
+          id: course.id,
+          slug: course.slug,
+          title: course.title,
+          description: course.description,
+          color: course.color,
+          modules_count: Array.isArray(course.modules) ? course.modules.length : 0,
+          tutor: course.tutor || { name: 'Course Instructor', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor' },
+          updated_at: course.last_updated || course.updated_at || new Date().toISOString(),
           lastUpdated: course.last_updated || course.lastUpdated,
         }));
       } else {
@@ -183,7 +290,19 @@ const readCourses = async () => {
       const data = await fs.readFile(dataPath, 'utf8');
       const courses = JSON.parse(data);
       console.log(`Found ${courses.length} courses in local file:`, courses.map(c => c.slug).join(', '));
-      return courses;
+
+      // Convert local file format to new API format
+      return courses.map(course => ({
+        id: course.id,
+        slug: course.slug,
+        title: course.title,
+        description: course.description,
+        color: course.color,
+        modules_count: Array.isArray(course.modules) ? course.modules.length : 0,
+        tutor: course.tutor || { name: 'Course Instructor', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor' },
+        updated_at: course.lastUpdated || new Date().toISOString(),
+        lastUpdated: course.lastUpdated || new Date().toISOString().split('T')[0]
+      }));
     } catch (fileError) {
       console.error('Error reading local file:', fileError);
       return [];
@@ -194,11 +313,100 @@ const readCourses = async () => {
   }
 };
 
-// Read single course by slug
+// Read single course by slug (updated for new structure)
 const readCourse = async (slug) => {
   try {
+    const isConnected = await checkSupabaseConnection();
+
+    if (isConnected) {
+      console.log(`Reading course ${slug} from Supabase (new structure)...`);
+
+      // Try new hierarchical structure first
+      const hierarchicalCourse = await getCourseWithHierarchy(slug);
+      if (hierarchicalCourse) {
+        console.log(`Found course ${slug} in new structure`);
+
+        return {
+          id: hierarchicalCourse.id,
+          slug: hierarchicalCourse.slug,
+          title: hierarchicalCourse.title,
+          description: hierarchicalCourse.description,
+          short_description: hierarchicalCourse.short_description,
+          icon: hierarchicalCourse.icon || 'code',
+          color: hierarchicalCourse.color,
+          difficulty_level: hierarchicalCourse.difficulty_level,
+          estimated_duration_hours: hierarchicalCourse.estimated_duration_hours,
+          learning_objectives: hierarchicalCourse.learning_objectives || [],
+          tags: hierarchicalCourse.tags || [],
+          modules: (hierarchicalCourse.modules || []).map(module => ({
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            slug: module.slug,
+            order_index: module.order_index,
+            estimated_duration_minutes: module.estimated_duration_minutes,
+            difficulty_level: module.difficulty_level,
+            learning_objectives: module.learning_objectives || [],
+            lessons: (module.lessons || []).map(lesson => ({
+              id: lesson.id,
+              title: lesson.title,
+              description: lesson.description,
+              slug: lesson.slug,
+              content: lesson.content,
+              content_type: lesson.content_type,
+              order_index: lesson.order_index,
+              estimated_duration_minutes: lesson.estimated_duration_minutes,
+              difficulty_level: lesson.difficulty_level,
+              learning_objectives: lesson.learning_objectives || [],
+              key_concepts: lesson.key_concepts || [],
+              code_examples: lesson.code_examples || [],
+              exercises: lesson.exercises || []
+            })),
+            exercises: module.exercises || [],
+            resources: []
+          })),
+          tutor: {
+            name: hierarchicalCourse.tutor_name || 'Course Instructor',
+            avatar: hierarchicalCourse.tutor_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor',
+            bio: hierarchicalCourse.tutor_bio
+          },
+          lastUpdated: hierarchicalCourse.updated_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+          created_at: hierarchicalCourse.created_at,
+          updated_at: hierarchicalCourse.updated_at
+        };
+      }
+
+      // Fallback to old structure
+      console.log(`Trying old structure for course ${slug}...`);
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+
+      if (error) {
+        console.error(`Error fetching course ${slug} from Supabase:`, error);
+      } else if (data) {
+        console.log(`Found course ${slug} in old structure`);
+        return {
+          ...data,
+          lastUpdated: data.last_updated || data.lastUpdated,
+        };
+      }
+    }
+
+    // Fall back to local file
+    console.log(`Reading course ${slug} from local file...`);
     const courses = await readCourses();
-    return courses.find(course => course.slug === slug);
+    const course = courses.find(course => course.slug === slug);
+
+    if (course) {
+      console.log(`Found course ${slug} in local file`);
+      return course;
+    }
+
+    console.log(`Course ${slug} not found`);
+    return null;
   } catch (error) {
     console.error(`Error reading course with slug ${slug}:`, error);
     return null;
@@ -256,24 +464,39 @@ initializeData().catch(error => {
   console.error('Failed to initialize courses data:', error);
 });
 
-// GET all courses (simplified for list view)
+// GET all courses (updated for new structure)
 router.get('/', async (req, res) => {
   try {
     const courses = await readCourses();
 
-    // Return simplified course list for admin view
+    // Return course list with proper structure
     const courseList = courses.map(course => ({
       id: course.id,
       slug: course.slug,
       title: course.title,
       description: course.description,
+      short_description: course.short_description,
       color: course.color,
-      modules: course.modules.length,
-      lastUpdated: course.lastUpdated || new Date().toISOString().split('T')[0]
+      difficulty_level: course.difficulty_level,
+      estimated_duration_hours: course.estimated_duration_hours,
+      tags: course.tags || [],
+      is_featured: course.is_featured || false,
+      tutor: course.tutor || {
+        name: 'Course Instructor',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor'
+      },
+      modules_count: course.modules_count || (Array.isArray(course.modules) ? course.modules.length : 0),
+      lessons_count: course.lessons_count || 0,
+      exercises_count: course.exercises_count || 0,
+      updated_at: course.updated_at || course.lastUpdated || new Date().toISOString(),
+      // Keep backward compatibility
+      modules: course.modules_count || (Array.isArray(course.modules) ? course.modules.length : 0),
+      lastUpdated: course.lastUpdated || course.updated_at?.split('T')[0] || new Date().toISOString().split('T')[0]
     }));
 
     res.json(courseList);
   } catch (error) {
+    console.error('Error in GET /courses:', error);
     res.status(500).json({ error: 'Failed to fetch courses' });
   }
 });
