@@ -22,8 +22,8 @@ export const Footer = () => {
           <div>
             <h4 className="text-sm font-semibold text-gray-600 tracking-wider uppercase">Technologies</h4>
             <ul className="mt-4 space-y-2">
-              <li><Link to="/tech/python" className="text-sm text-gray-600 hover:text-primary">Python</Link></li>
-              <li><Link to="/tech/devops" className="text-sm text-gray-600 hover:text-primary">DevOps</Link></li>
+              <li><Link to="/course/python" className="text-sm text-gray-600 hover:text-primary">Python</Link></li>
+              <li><Link to="/course/devops" className="text-sm text-gray-600 hover:text-primary">DevOps</Link></li>
               <li><Link to="/tech/cloud" className="text-sm text-gray-600 hover:text-primary">Cloud Computing</Link></li>
               <li><Link to="/tech/linux" className="text-sm text-gray-600 hover:text-primary">Linux</Link></li>
               <li><Link to="/tech/networking" className="text-sm text-gray-600 hover:text-primary">Networking</Link></li>

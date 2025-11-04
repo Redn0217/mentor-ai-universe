@@ -29,6 +29,8 @@ import Create from "./pages/Create";
 import Assess from "./pages/Assess";
 import Personalize from "./pages/Personalize";
 import Communicate from "./pages/Communicate";
+import EnhancedCoursePage from "./components/course/EnhancedCoursePage";
+import ModulePage from "./pages/ModulePage";
 
 
 
@@ -56,6 +58,8 @@ const AppContent = () => {
         <Route path="/certifications" element={<Certifications />} />
         <Route path="/corporate" element={<Corporate />} />
         <Route path="/tech/:slug" element={<TechnologyCourse />} />
+        <Route path="/course/:courseSlug" element={<EnhancedCoursePage />} />
+        <Route path="/course/:courseSlug/module/:moduleId" element={<ModulePage />} />
         <Route path="/create" element={<Create />} />
         <Route path="/assess" element={<Assess />} />
         <Route path="/personalize" element={<Personalize />} />

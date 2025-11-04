@@ -162,12 +162,57 @@ export const deleteCourse = async (slug: string): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/api/courses/${slug}`, {
       method: 'DELETE',
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to delete course');
     }
   } catch (error) {
     console.error(`Error deleting course ${slug}:`, error);
+    throw error;
+  }
+};
+
+// Fetch course with full hierarchy (modules, lessons, exercises)
+export const getCourseWithHierarchy = async (slug: string): Promise<Course> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/courses/${slug}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch course with hierarchy');
+    }
+    const data = await response.json();
+
+    // Transform the response to match the Course interface with full hierarchy
+    return {
+      ...data,
+      // Ensure tutor is properly structured
+      tutor: data.tutor || {
+        name: data.tutor_name || 'Course Instructor',
+        avatar: data.tutor_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor',
+        bio: data.tutor_bio
+      },
+      // Ensure modules is an array with lessons and exercises
+      modules: Array.isArray(data.modules) ? data.modules.map((module: any) => ({
+        ...module,
+        lessons: Array.isArray(module.lessons) ? module.lessons.map((lesson: any) => ({
+          ...lesson,
+          exercises: Array.isArray(lesson.exercises) ? lesson.exercises : []
+        })) : [],
+        exercises: Array.isArray(module.exercises) ? module.exercises : []
+      })) : [],
+      // Handle backward compatibility
+      short_description: data.short_description || data.description?.substring(0, 150),
+      difficulty_level: data.difficulty_level || 'beginner',
+      estimated_duration_hours: data.estimated_duration_hours || 10,
+      prerequisites: data.prerequisites || [],
+      learning_objectives: data.learning_objectives || [],
+      tags: data.tags || [],
+      is_published: data.is_published !== undefined ? data.is_published : true,
+      is_featured: data.is_featured || false,
+      created_at: data.created_at || new Date().toISOString(),
+      updated_at: data.updated_at || data.lastUpdated || new Date().toISOString()
+    };
+  } catch (error) {
+    console.error(`Error fetching course with hierarchy ${slug}:`, error);
     throw error;
   }
 };

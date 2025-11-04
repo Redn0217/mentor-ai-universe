@@ -27,8 +27,8 @@ export const NavBar = () => {
   };
 
   const technologyItems = [
-    { name: 'Python', href: '/tech/python', description: 'Learn Python programming fundamentals' },
-    { name: 'DevOps', href: '/tech/devops', description: 'Master DevOps practices and tools' },
+    { name: 'Python', href: '/course/python', description: 'Learn Python programming fundamentals' },
+    { name: 'DevOps', href: '/course/devops', description: 'Master DevOps practices and tools' },
     { name: 'Cloud Computing', href: '/tech/cloud', description: 'Explore cloud platforms and services' },
     { name: 'Linux', href: '/tech/linux', description: 'Command line and system administration' },
     { name: 'Networking', href: '/tech/networking', description: 'Network protocols and configurations' },

@@ -152,7 +152,7 @@ export default function CoursesList() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => navigate(`/tech/${course.slug}`)}
+                              onClick={() => navigate(`/course/${course.slug}`)}
                             >
                               View
                             </Button>

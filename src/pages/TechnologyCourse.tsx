@@ -1,17 +1,21 @@
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
 import { TutorChat } from '@/components/tutors/TutorChat';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchCourse, CourseData } from '@/services/apiService';
+import { progressService, ModuleProgress } from '@/services/progressService';
+import ExerciseViewer from '@/components/course/ExerciseViewer';
+import { Clock, BookOpen, Trophy, Star, Users, PlayCircle } from 'lucide-react';
 
 // Define the interface for module content
 interface Module {
@@ -35,8 +39,14 @@ interface Exercise {
   id: string;
   title: string;
   description: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  estimatedTime: number;
+  instructions: string;
+  starter_code?: string;
+  solution_code?: string;
+  hints: string[];
+  difficulty_level: 'beginner' | 'intermediate' | 'advanced';
+  estimated_time_minutes: number;
+  points: number;
+  tags: string[];
 }
 
 interface Resource {
@@ -48,10 +58,12 @@ interface Resource {
 
 export default function TechnologyCourse() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
   const [activeModule, setActiveModule] = useState<string | null>(null);
-  const [userProgress, setUserProgress] = useState<Record<string, number>>({});
+  const [moduleProgress, setModuleProgress] = useState<Record<string, ModuleProgress>>({});
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
   const { data: courseData, isLoading, error } = useQuery({
     queryKey: ['course', slug],
@@ -64,14 +76,20 @@ export default function TechnologyCourse() {
     if (courseData?.modules && courseData.modules.length > 0) {
       setActiveModule(courseData.modules[0].id);
 
-      // Simulate fetching user progress data
-      const mockProgress: Record<string, number> = {};
-      courseData.modules.forEach(module => {
-        mockProgress[module.id] = Math.floor(Math.random() * 100);
-      });
-      setUserProgress(mockProgress);
+      // Fetch real progress data if user is logged in
+      if (user && courseData) {
+        const fetchProgress = async () => {
+          try {
+            const progress = await progressService.getModuleProgress(user.id, courseData.id);
+            setModuleProgress(progress);
+          } catch (error) {
+            console.error('Error fetching progress:', error);
+          }
+        };
+        fetchProgress();
+      }
     }
-  }, [courseData]);
+  }, [courseData, user]);
 
   const handleEnrollCourse = () => {
     toast({
@@ -80,12 +98,86 @@ export default function TechnologyCourse() {
     });
   };
 
-  const handleStartModule = (moduleId: string) => {
+  const handleStartModule = async (moduleId: string) => {
     setActiveModule(moduleId);
+
+    // Track module start
+    if (user && courseData) {
+      try {
+        await progressService.trackProgress({
+          user_id: user.id,
+          course_id: courseData.id,
+          module_id: moduleId,
+          progress_type: 'module_started',
+          completion_percentage: 0,
+          time_spent_minutes: 0
+        });
+      } catch (error) {
+        console.error('Error tracking module start:', error);
+      }
+    }
+
     toast({
       title: "Module Started",
       description: "Good luck with your learning journey!",
     });
+  };
+
+  const handleStartExercise = (exercise: Exercise) => {
+    setSelectedExercise(exercise);
+  };
+
+  const handleExerciseComplete = async (exerciseId: string) => {
+    // Refresh progress data
+    if (user && courseData) {
+      try {
+        const progress = await progressService.getModuleProgress(user.id, courseData.id);
+        setModuleProgress(progress);
+      } catch (error) {
+        console.error('Error refreshing progress:', error);
+      }
+    }
+    // Don't close modal here - let the completion modal handle navigation
+  };
+
+  const handleContinueToNext = () => {
+    setSelectedExercise(null);
+    // Navigate to next module or back to course overview
+    // This could be enhanced to navigate to the next module
+    // For now, just close the exercise
+  };
+
+  // Get navigation context for exercises
+  const getExerciseNavigationInfo = (currentModuleId: string, exerciseId: string) => {
+    if (!courseData?.modules) return { hasNextLesson: false, hasNextModule: false };
+
+    const currentModuleIndex = courseData.modules.findIndex((m: any) => m.id === currentModuleId);
+    const currentModule = courseData.modules[currentModuleIndex];
+
+    // Check if there are more lessons in current module
+    const hasMoreLessonsInModule = currentModule?.lessons && currentModule.lessons.length > 1;
+
+    // Check if there are more modules
+    const hasNextModule = currentModuleIndex < courseData.modules.length - 1;
+    const nextModule = hasNextModule ? courseData.modules[currentModuleIndex + 1] : null;
+
+    return {
+      hasNextLesson: hasMoreLessonsInModule,
+      hasNextModule,
+      nextModuleTitle: nextModule?.title
+    };
+  };
+
+  const calculateModuleProgress = (module: Module) => {
+    if (!user || !moduleProgress[module.id]) {
+      return 0;
+    }
+
+    const progress = moduleProgress[module.id];
+    const totalItems = (module.lessons?.length || 0) + (module.exercises?.length || 0);
+    const completedItems = progress.completed_lessons + progress.completed_exercises;
+
+    return totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
   };
 
   if (isLoading) {
@@ -178,23 +270,23 @@ export default function TechnologyCourse() {
                       <div className="mt-2">
                         <div className="flex justify-between text-xs mb-1">
                           <span>Progress</span>
-                          <span>{userProgress[module.id] || 0}%</span>
+                          <span>{calculateModuleProgress(module)}%</span>
                         </div>
-                        <Progress value={userProgress[module.id] || 0} className="h-2" />
+                        <Progress value={calculateModuleProgress(module)} className="h-2" />
                       </div>
                     )}
                   </CardContent>
                   <CardFooter>
                     <Button
                       size="sm"
-                      variant={userProgress[module.id] > 0 ? "outline" : "default"}
+                      variant={calculateModuleProgress(module) > 0 ? "outline" : "default"}
                       className="w-full"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleStartModule(module.id);
                       }}
                     >
-                      {userProgress[module.id] > 0 ? "Continue" : "Start"}
+                      {calculateModuleProgress(module) > 0 ? "Continue" : "Start"}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -291,7 +383,9 @@ export default function TechnologyCourse() {
                         </CardHeader>
                         <CardContent>
                           <p className="mb-4">{exercise.description}</p>
-                          <Button>Start Exercise</Button>
+                          <Button onClick={() => handleStartExercise(exercise)}>
+                            Start Exercise
+                          </Button>
                         </CardContent>
                       </Card>
                     ))}
@@ -329,6 +423,21 @@ export default function TechnologyCourse() {
           </div>
         </div>
       </div>
+
+      {/* Exercise Viewer Modal */}
+      {selectedExercise && courseData && (
+        <div className="fixed inset-0 z-50 bg-white">
+          <ExerciseViewer
+            exercise={selectedExercise}
+            courseId={courseData.id}
+            moduleId={activeModule || ''}
+            onBack={() => setSelectedExercise(null)}
+            onComplete={handleExerciseComplete}
+            onContinueToNext={handleContinueToNext}
+            {...getExerciseNavigationInfo(activeModule || '', selectedExercise.id)}
+          />
+        </div>
+      )}
     </MainLayout>
   );
 }

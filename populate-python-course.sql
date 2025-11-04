@@ -15,8 +15,26 @@ DECLARE
     lesson5_id UUID;
     lesson6_id UUID;
 BEGIN
-    -- Insert the Python course
-    INSERT INTO public.courses_v2 (
+    -- First, delete existing Python course data to avoid conflicts
+    DELETE FROM public.exercises WHERE lesson_id IN (
+        SELECT l.id FROM lessons l
+        JOIN modules m ON l.module_id = m.id
+        JOIN courses c ON m.course_id = c.id
+        WHERE c.slug = 'python'
+    );
+
+    DELETE FROM public.lessons WHERE module_id IN (
+        SELECT m.id FROM modules m
+        JOIN courses c ON m.course_id = c.id
+        WHERE c.slug = 'python'
+    );
+
+    DELETE FROM public.modules WHERE course_id IN (
+        SELECT id FROM courses WHERE slug = 'python'
+    );
+
+    -- Update or insert the Python course
+    INSERT INTO public.courses (
         slug,
         title,
         description,
@@ -57,7 +75,26 @@ BEGIN
         'Dr. Ana Python',
         'https://api.dicebear.com/7.x/avataaars/svg?seed=Ana',
         'Senior Python Developer with 10+ years of experience in software development and education.'
-    ) RETURNING id INTO course_id;
+    )
+    ON CONFLICT (slug)
+    DO UPDATE SET
+        title = EXCLUDED.title,
+        description = EXCLUDED.description,
+        short_description = EXCLUDED.short_description,
+        icon = EXCLUDED.icon,
+        color = EXCLUDED.color,
+        difficulty_level = EXCLUDED.difficulty_level,
+        estimated_duration_hours = EXCLUDED.estimated_duration_hours,
+        prerequisites = EXCLUDED.prerequisites,
+        learning_objectives = EXCLUDED.learning_objectives,
+        tags = EXCLUDED.tags,
+        is_published = EXCLUDED.is_published,
+        is_featured = EXCLUDED.is_featured,
+        tutor_name = EXCLUDED.tutor_name,
+        tutor_avatar = EXCLUDED.tutor_avatar,
+        tutor_bio = EXCLUDED.tutor_bio,
+        updated_at = NOW()
+    RETURNING id INTO course_id;
 
     -- Insert Module 1: Python Fundamentals
     INSERT INTO public.modules (
