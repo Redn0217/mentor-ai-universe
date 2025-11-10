@@ -11,6 +11,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { hasAdminRole } from '@/lib/adminAuth';
+import { LessonEditorModal } from '@/components/admin/LessonEditorModal';
+import { Edit } from 'lucide-react';
+import { updateLesson as updateLessonAPI, createLesson as createLessonAPI } from '@/services/apiService';
 
 import {
   Table,
@@ -79,6 +83,8 @@ export default function CourseEditor() {
   const [courseData, setCourseData] = useState<CourseData | null>(null);
   const [activeModule, setActiveModule] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
 
   // Fetch course data
   const { data, isLoading, error } = useQuery({
@@ -114,9 +120,9 @@ export default function CourseEditor() {
     }
   }, [data]);
 
-  // Check if user is admin (simplified check - in real app, use proper role-based auth)
+  // Check if user is admin
   useEffect(() => {
-    if (user && user.email !== "hadaa914@gmail.com") {
+    if (user && !hasAdminRole(user)) {
       toast({
         title: "Access Denied",
         description: "You don't have permission to access this page.",
@@ -205,44 +211,66 @@ export default function CourseEditor() {
   };
 
   // Add lesson to current module
-  const addLesson = (moduleId: string) => {
-    if (courseData) {
+  const addLesson = async (moduleId: string) => {
+    if (courseData && slug) {
       const currentModule = courseData.modules.find(m => m.id === moduleId);
       if (currentModule) {
-        const newLessonId = `lesson${currentModule.lessons.length + 1}`;
-        const newLesson: Lesson = {
-          id: newLessonId,
-          title: 'New Lesson',
-          content: 'Lesson content goes here',
-          duration: 15
-        };
+        try {
+          // Call API to create lesson in database
+          const savedLesson = await createLessonAPI(slug, moduleId, {
+            title: 'New Lesson',
+            content: 'Lesson content goes here',
+            description: '',
+            duration: 15,
+            estimated_duration_minutes: 15,
+            order_index: currentModule.lessons.length
+          });
 
-        const updatedModules = courseData.modules.map(module => {
-          if (module.id === moduleId) {
-            return {
-              ...module,
-              lessons: [...module.lessons, newLesson]
-            };
-          }
-          return module;
-        });
+          // Update local state with the saved lesson
+          const newLesson: Lesson = {
+            id: savedLesson.id,
+            title: savedLesson.title,
+            content: savedLesson.content || '',
+            description: savedLesson.description,
+            duration: savedLesson.estimated_duration_minutes || 15,
+            videoUrl: savedLesson.video_url
+          };
 
-        setCourseData({
-          ...courseData,
-          modules: updatedModules
-        });
+          const updatedModules = courseData.modules.map(module => {
+            if (module.id === moduleId) {
+              return {
+                ...module,
+                lessons: [...module.lessons, newLesson]
+              };
+            }
+            return module;
+          });
 
-        toast({
-          title: "Lesson added",
-          description: "New lesson has been added to the module.",
-        });
+          setCourseData({
+            ...courseData,
+            modules: updatedModules
+          });
+
+          toast({
+            title: "Lesson added",
+            description: "New lesson has been saved to the database.",
+          });
+        } catch (error) {
+          console.error('Error adding lesson:', error);
+          toast({
+            title: "Error",
+            description: "Failed to add lesson. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     }
   };
 
-  // Update lesson in current module
-  const updateLesson = (moduleId: string, lessonId: string, field: string, value: string | number) => {
-    if (courseData) {
+  // Update lesson in current module (for inline editing)
+  const updateLesson = async (moduleId: string, lessonId: string, field: string, value: string | number) => {
+    if (courseData && slug) {
+      // First update local state for immediate UI feedback
       const updatedModules = courseData.modules.map(module => {
         if (module.id === moduleId) {
           const updatedLessons = module.lessons.map(lesson => {
@@ -264,6 +292,24 @@ export default function CourseEditor() {
         ...courseData,
         modules: updatedModules
       });
+
+      // Then save to database
+      try {
+        const module = courseData.modules.find(m => m.id === moduleId);
+        const lesson = module?.lessons.find(l => l.id === lessonId);
+
+        if (lesson) {
+          await updateLessonAPI(slug, moduleId, lessonId, {
+            ...lesson,
+            [field]: value,
+            duration: field === 'duration' ? value : lesson.duration,
+            estimated_duration_minutes: field === 'duration' ? value : lesson.duration
+          });
+        }
+      } catch (error) {
+        console.error('Error saving lesson update:', error);
+        // Optionally show a toast notification
+      }
     }
   };
 
@@ -289,6 +335,73 @@ export default function CourseEditor() {
         title: "Lesson deleted",
         description: "The lesson has been removed from the module.",
       });
+    }
+  };
+
+  // Open lesson editor
+  const openLessonEditor = (moduleId: string, lessonId: string) => {
+    if (courseData) {
+      const module = courseData.modules.find(m => m.id === moduleId);
+      if (module) {
+        const lesson = module.lessons.find(l => l.id === lessonId);
+        if (lesson) {
+          setEditingLesson(lesson);
+          setIsLessonModalOpen(true);
+        }
+      }
+    }
+  };
+
+  // Save edited lesson
+  const saveEditedLesson = async (editedLesson: Lesson) => {
+    if (courseData && activeModule && slug) {
+      try {
+        // Call API to update lesson in database
+        await updateLessonAPI(slug, activeModule, editedLesson.id, {
+          title: editedLesson.title,
+          content: editedLesson.content,
+          description: editedLesson.description,
+          duration: editedLesson.duration,
+          estimated_duration_minutes: editedLesson.duration,
+          videoUrl: editedLesson.videoUrl,
+          video_url: editedLesson.videoUrl
+        });
+
+        // Update local state
+        const updatedModules = courseData.modules.map(module => {
+          if (module.id === activeModule) {
+            const updatedLessons = module.lessons.map(lesson => {
+              if (lesson.id === editedLesson.id) {
+                return editedLesson;
+              }
+              return lesson;
+            });
+
+            return {
+              ...module,
+              lessons: updatedLessons
+            };
+          }
+          return module;
+        });
+
+        setCourseData({
+          ...courseData,
+          modules: updatedModules
+        });
+
+        toast({
+          title: "Lesson saved",
+          description: "The lesson has been saved to the database successfully.",
+        });
+      } catch (error) {
+        console.error('Error saving lesson:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save lesson. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -409,7 +522,7 @@ export default function CourseEditor() {
             <p className="text-gray-600">Edit course content for {courseData.title}</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate(`/tech/${slug}`)}>
+            <Button variant="outline" onClick={() => navigate(`/course/${slug}`)}>
               Preview Course
             </Button>
             <Button onClick={handleSave} disabled={mutation.isPending}>
@@ -607,7 +720,7 @@ export default function CourseEditor() {
                                 <TableRow>
                                   <TableHead>Title</TableHead>
                                   <TableHead>Duration</TableHead>
-                                  <TableHead className="w-[100px]">Actions</TableHead>
+                                  <TableHead className="w-[180px]">Actions</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
@@ -627,13 +740,23 @@ export default function CourseEditor() {
                                       />
                                     </TableCell>
                                     <TableCell>
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => deleteLesson(currentModule.id, lesson.id)}
-                                      >
-                                        Delete
-                                      </Button>
+                                      <div className="flex gap-2">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => openLessonEditor(currentModule.id, lesson.id)}
+                                        >
+                                          <Edit className="w-4 h-4 mr-1" />
+                                          Edit
+                                        </Button>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => deleteLesson(currentModule.id, lesson.id)}
+                                        >
+                                          Delete
+                                        </Button>
+                                      </div>
                                     </TableCell>
                                   </TableRow>
                                 ))}
@@ -982,6 +1105,17 @@ export default function CourseEditor() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Lesson Editor Modal */}
+      <LessonEditorModal
+        lesson={editingLesson}
+        isOpen={isLessonModalOpen}
+        onClose={() => {
+          setIsLessonModalOpen(false);
+          setEditingLesson(null);
+        }}
+        onSave={saveEditedLesson}
+      />
     </MainLayout>
   );
 }

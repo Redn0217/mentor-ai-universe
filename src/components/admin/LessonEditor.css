@@ -1,0 +1,110 @@
+/* Custom styles for the lesson editor */
+
+/* Style the Quill editor */
+.lesson-editor .ql-container {
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+/* Style code blocks with colorful syntax highlighting */
+.lesson-editor .ql-editor pre.ql-syntax {
+  background-color: #282c34 !important;
+  padding: 16px !important;
+  border-radius: 8px !important;
+  overflow-x: auto !important;
+  font-family: 'Courier New', Courier, monospace !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  border: 1px solid #3e4451 !important;
+}
+
+/* Ensure syntax highlighting colors show through */
+.lesson-editor .ql-editor pre.ql-syntax code {
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+}
+
+/* Style inline code */
+.lesson-editor .ql-editor code {
+  background-color: #e0e7ff !important;
+  color: #1e3a5f !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-family: 'Courier New', Courier, monospace !important;
+  font-size: 14px !important;
+}
+
+/* Improve toolbar appearance */
+.lesson-editor .ql-toolbar {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px 8px 0 0 !important;
+  background-color: #f8fafc !important;
+}
+
+.lesson-editor .ql-container {
+  border: 1px solid #e2e8f0 !important;
+  border-top: none !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
+/* Style headings in the editor */
+.lesson-editor .ql-editor h1 {
+  font-size: 2em !important;
+  font-weight: bold !important;
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+}
+
+.lesson-editor .ql-editor h2 {
+  font-size: 1.5em !important;
+  font-weight: bold !important;
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+}
+
+.lesson-editor .ql-editor h3 {
+  font-size: 1.25em !important;
+  font-weight: bold !important;
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+}
+
+.lesson-editor .ql-editor h4 {
+  font-size: 1.1em !important;
+  font-weight: bold !important;
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+}
+
+/* Style lists */
+.lesson-editor .ql-editor ul,
+.lesson-editor .ql-editor ol {
+  padding-left: 1.5em !important;
+  margin-bottom: 1em !important;
+}
+
+/* Style links */
+.lesson-editor .ql-editor a {
+  color: #3b82f6 !important;
+  text-decoration: underline !important;
+}
+
+/* Improve editor focus state */
+.lesson-editor .ql-container.ql-snow {
+  border-color: #e2e8f0 !important;
+}
+
+.lesson-editor .ql-editor:focus {
+  outline: none !important;
+}
+
+/* Make the editor scrollable */
+.lesson-editor .ql-editor {
+  min-height: 400px !important;
+  max-height: 400px !important;
+  overflow-y: auto !important;
+}
+

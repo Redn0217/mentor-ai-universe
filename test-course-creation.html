@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Course Creation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.secondary {
+            background: #2196F3;
+        }
+        button.secondary:hover {
+            background: #0b7dda;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Course Creation & Database Connection</h1>
+        
+        <div class="section">
+            <h2>1. Check Database Status</h2>
+            <button onclick="checkDatabaseStatus()">Check Database Connection</button>
+            <div id="dbStatus"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. Create Test Course</h2>
+            <label>Course Title:</label>
+            <input type="text" id="courseTitle" value="Test Course" placeholder="Enter course title">
+            
+            <label>Course Description:</label>
+            <input type="text" id="courseDesc" value="This is a test course created via API" placeholder="Enter description">
+            
+            <label>Color (hex):</label>
+            <input type="text" id="courseColor" value="#FF5733" placeholder="#FF5733">
+            
+            <button onclick="createTestCourse()">Create Course</button>
+            <div id="createResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. View All Courses</h2>
+            <button class="secondary" onclick="getAllCourses()">Get All Courses</button>
+            <div id="coursesResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>4. Complete Test Flow</h2>
+            <button onclick="runCompleteTest()">Run Complete Test</button>
+            <div id="completeTestResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3003/api/courses';
+
+        async function checkDatabaseStatus() {
+            const resultDiv = document.getElementById('dbStatus');
+            resultDiv.innerHTML = '<div class="result info">Checking database connection...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/db-status`);
+                const data = await response.json();
+                
+                const isConnected = data.status === 'connected';
+                const resultClass = isConnected ? 'success' : 'error';
+                
+                resultDiv.innerHTML = `
+                    <div class="result ${resultClass}">
+                        <strong>Database Status:</strong> ${data.status.toUpperCase()}<br>
+                        <strong>Database Type:</strong> ${data.database}<br>
+                        <strong>Courses Count:</strong> ${data.coursesCount}<br>
+                        <strong>Courses:</strong><br>
+                        ${JSON.stringify(data.courses, null, 2)}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function createTestCourse() {
+            const resultDiv = document.getElementById('createResult');
+            const title = document.getElementById('courseTitle').value;
+            const description = document.getElementById('courseDesc').value;
+            const color = document.getElementById('courseColor').value;
+            
+            resultDiv.innerHTML = '<div class="result info">Creating course...</div>';
+            
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        description: description,
+                        color: color,
+                        difficulty_level: 'beginner',
+                        estimated_duration_hours: 10
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <strong>✅ Course Created Successfully!</strong><br>
+                            <strong>ID:</strong> ${data.id}<br>
+                            <strong>Slug:</strong> ${data.slug}<br>
+                            <strong>Title:</strong> ${data.title}<br>
+                            <strong>Full Response:</strong><br>
+                            ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <strong>❌ Failed to Create Course</strong><br>
+                            ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function getAllCourses() {
+            const resultDiv = document.getElementById('coursesResult');
+            resultDiv.innerHTML = '<div class="result info">Fetching courses...</div>';
+            
+            try {
+                const response = await fetch(API_BASE);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <strong>Total Courses:</strong> ${data.length}<br><br>
+                        ${data.map(course => `
+                            <strong>${course.title}</strong> (${course.slug})<br>
+                            - Modules: ${course.modules_count || 0}<br>
+                            - Updated: ${course.updated_at || course.lastUpdated}<br>
+                        `).join('<br>')}
+                        <br><br>
+                        <strong>Full Response:</strong><br>
+                        ${JSON.stringify(data, null, 2)}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function runCompleteTest() {
+            const resultDiv = document.getElementById('completeTestResult');
+            resultDiv.innerHTML = '<div class="result info">Running complete test...</div>';
+            
+            let log = '';
+            
+            try {
+                // Step 1: Check database status
+                log += '📊 Step 1: Checking database status...\n';
+                const statusResponse = await fetch(`${API_BASE}/db-status`);
+                const statusData = await statusResponse.json();
+                log += `✅ Database: ${statusData.database} (${statusData.status})\n`;
+                log += `✅ Current courses count: ${statusData.coursesCount}\n\n`;
+                
+                // Step 2: Create a test course
+                log += '📝 Step 2: Creating test course...\n';
+                const timestamp = Date.now();
+                const createResponse = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: `Test Course ${timestamp}`,
+                        description: 'Automated test course',
+                        color: '#' + Math.floor(Math.random()*16777215).toString(16)
+                    })
+                });
+                const createData = await createResponse.json();
+                
+                if (createResponse.ok) {
+                    log += `✅ Course created: ${createData.title} (${createData.slug})\n`;
+                    log += `✅ Course ID: ${createData.id}\n\n`;
+                } else {
+                    log += `❌ Failed to create course: ${createData.error}\n\n`;
+                }
+                
+                // Step 3: Verify course appears in list
+                log += '🔍 Step 3: Verifying course in database...\n';
+                const listResponse = await fetch(API_BASE);
+                const listData = await listResponse.json();
+                log += `✅ Total courses now: ${listData.length}\n`;
+                
+                const foundCourse = listData.find(c => c.slug === createData.slug);
+                if (foundCourse) {
+                    log += `✅ Course found in database!\n`;
+                    log += `   Title: ${foundCourse.title}\n`;
+                    log += `   Slug: ${foundCourse.slug}\n\n`;
+                } else {
+                    log += `❌ Course NOT found in database!\n\n`;
+                }
+                
+                // Step 4: Check database status again
+                log += '📊 Step 4: Final database check...\n';
+                const finalStatusResponse = await fetch(`${API_BASE}/db-status`);
+                const finalStatusData = await finalStatusResponse.json();
+                log += `✅ Final courses count: ${finalStatusData.coursesCount}\n`;
+                log += `✅ Database type: ${finalStatusData.database}\n\n`;
+                
+                log += '🎉 TEST COMPLETE!\n';
+                log += foundCourse ? '✅ All tests passed!' : '❌ Course not found in database!';
+                
+                resultDiv.innerHTML = `<div class="result ${foundCourse ? 'success' : 'error'}">${log}</div>`;
+                
+            } catch (error) {
+                log += `\n❌ Error: ${error.message}`;
+                resultDiv.innerHTML = `<div class="result error">${log}</div>`;
+            }
+        }
+
+        // Auto-check database status on page load
+        window.onload = () => {
+            checkDatabaseStatus();
+        };
+    </script>
+</body>
+</html>
+

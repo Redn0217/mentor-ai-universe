@@ -1,0 +1,140 @@
+/* Styles for displaying lesson content (student view) */
+
+/* Import highlight.js theme for colorful syntax highlighting */
+@import 'highlight.js/styles/atom-one-dark.css';
+
+/* Style code blocks with colorful syntax highlighting */
+.lesson-content .ql-editor pre.ql-syntax,
+.lesson-content pre.ql-syntax {
+  background-color: #282c34 !important;
+  padding: 16px !important;
+  border-radius: 8px !important;
+  overflow-x: auto !important;
+  font-family: 'Courier New', Courier, monospace !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  border: 1px solid #3e4451 !important;
+  margin: 16px 0 !important;
+}
+
+/* Ensure syntax highlighting colors show through */
+.lesson-content .ql-editor pre.ql-syntax code,
+.lesson-content pre.ql-syntax code {
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+}
+
+/* Style inline code */
+.lesson-content .ql-editor code,
+.lesson-content code {
+  background-color: #e0e7ff !important;
+  color: #1e3a5f !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-family: 'Courier New', Courier, monospace !important;
+  font-size: 14px !important;
+}
+
+/* Style headings */
+.lesson-content .ql-editor h1,
+.lesson-content h1 {
+  font-size: 2em !important;
+  font-weight: bold !important;
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+  color: #1a202c !important;
+}
+
+.lesson-content .ql-editor h2,
+.lesson-content h2 {
+  font-size: 1.5em !important;
+  font-weight: bold !important;
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+  color: #1a202c !important;
+}
+
+.lesson-content .ql-editor h3,
+.lesson-content h3 {
+  font-size: 1.25em !important;
+  font-weight: bold !important;
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+  color: #1a202c !important;
+}
+
+.lesson-content .ql-editor h4,
+.lesson-content h4 {
+  font-size: 1.1em !important;
+  font-weight: bold !important;
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+  color: #1a202c !important;
+}
+
+/* Style paragraphs */
+.lesson-content .ql-editor p,
+.lesson-content p {
+  margin-bottom: 1em !important;
+  line-height: 1.6 !important;
+  color: #374151 !important;
+}
+
+/* Style lists */
+.lesson-content .ql-editor ul,
+.lesson-content .ql-editor ol,
+.lesson-content ul,
+.lesson-content ol {
+  padding-left: 1.5em !important;
+  margin-bottom: 1em !important;
+}
+
+.lesson-content .ql-editor li,
+.lesson-content li {
+  margin-bottom: 0.5em !important;
+  line-height: 1.6 !important;
+}
+
+/* Style links */
+.lesson-content .ql-editor a,
+.lesson-content a {
+  color: #3b82f6 !important;
+  text-decoration: underline !important;
+}
+
+.lesson-content .ql-editor a:hover,
+.lesson-content a:hover {
+  color: #2563eb !important;
+}
+
+/* Style bold, italic, underline */
+.lesson-content .ql-editor strong,
+.lesson-content strong {
+  font-weight: bold !important;
+}
+
+.lesson-content .ql-editor em,
+.lesson-content em {
+  font-style: italic !important;
+}
+
+.lesson-content .ql-editor u,
+.lesson-content u {
+  text-decoration: underline !important;
+}
+
+/* Remove default Quill editor padding when displaying */
+.lesson-content .ql-editor {
+  padding: 0 !important;
+}
+
+/* Ensure proper spacing */
+.lesson-content .ql-editor > *:first-child {
+  margin-top: 0 !important;
+}
+
+.lesson-content .ql-editor > *:last-child {
+  margin-bottom: 0 !important;
+}
+

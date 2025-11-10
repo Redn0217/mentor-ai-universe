@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { hasAdminRole } from '@/lib/adminAuth';
 
 export const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -105,6 +106,14 @@ export const NavBar = () => {
                   </div>
                 </div>
 
+                {/* Courses Link */}
+                <Link
+                  to="/courses"
+                  className="text-gray-700 hover:text-gray-900 transition-colors duration-200 py-2 font-medium"
+                >
+                  Courses
+                </Link>
+
                 {/* Platform Dropdown */}
                 <div
                   className="relative group"
@@ -187,8 +196,13 @@ export const NavBar = () => {
                   <Button onClick={() => navigate('/dashboard')} variant="ghost" className="font-medium text-gray-700 hover:text-gray-900">
                     Dashboard
                   </Button>
-                  {user.email === "admin@example.com" && (
-                    <Button onClick={() => navigate('/admin/courses')} variant="ghost" className="font-medium text-gray-700 hover:text-gray-900">
+                  {hasAdminRole(user) && (
+                    <Button
+                      onClick={() => navigate('/admin')}
+                      variant="ghost"
+                      className="font-medium text-blue-600 hover:text-blue-700 flex items-center gap-2"
+                    >
+                      <Shield className="h-4 w-4" />
                       Admin
                     </Button>
                   )}
@@ -242,6 +256,13 @@ export const NavBar = () => {
             <div className="mt-4 animate-fade-in">
               <div className="bg-white/70 backdrop-blur-lg border border-gray-200/30 rounded-2xl shadow-lg p-6 space-y-4">
                 
+                {/* Mobile Courses Link */}
+                <div>
+                  <Link to="/courses" className="block font-medium text-gray-900 hover:text-primary transition-colors duration-200 py-2">
+                    📚 All Courses
+                  </Link>
+                </div>
+
                 {/* Mobile Technologies Section */}
                 <div>
                   <div className="font-medium text-gray-900 mb-3">Technologies</div>
@@ -284,9 +305,14 @@ export const NavBar = () => {
                     <Button onClick={() => navigate('/dashboard')} variant="outline" className="w-full">
                       Dashboard
                     </Button>
-                    {user.email === "admin@example.com" && (
-                      <Button onClick={() => navigate('/admin/courses')} variant="outline" className="w-full">
-                        Admin
+                    {hasAdminRole(user) && (
+                      <Button
+                        onClick={() => navigate('/admin')}
+                        variant="outline"
+                        className="w-full flex items-center justify-center gap-2 text-blue-600 border-blue-600 hover:bg-blue-50"
+                      >
+                        <Shield className="h-4 w-4" />
+                        Admin Panel
                       </Button>
                     )}
                   </>

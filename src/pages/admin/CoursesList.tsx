@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { hasAdminRole } from '@/lib/adminAuth';
 import {
   Card,
   CardContent,
@@ -23,16 +24,19 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { fetchCourses, deleteCourse } from '@/services/apiService';
+import { AICourseGeneratorModal } from '@/components/admin/AICourseGeneratorModal';
+import { Sparkles } from 'lucide-react';
 
 export default function CoursesList() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAIModal, setShowAIModal] = useState(false);
 
-  // Check if user is admin (simplified check - in real app, use proper role-based auth)
+  // Check if user is admin
   useEffect(() => {
-    if (user && user.email !== "hadaa914@gmail.com") {
+    if (user && !hasAdminRole(user)) {
       toast({
         title: "Access Denied",
         description: "You don't have permission to access this page.",
@@ -89,6 +93,13 @@ export default function CoursesList() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            <Button
+              onClick={() => setShowAIModal(true)}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Create with AI
+            </Button>
             <Button onClick={() => navigate('/admin/courses/new')}>
               Add New Course
             </Button>
@@ -182,6 +193,12 @@ export default function CoursesList() {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Course Generator Modal */}
+      <AICourseGeneratorModal
+        open={showAIModal}
+        onOpenChange={setShowAIModal}
+      />
     </MainLayout>
   );
 }

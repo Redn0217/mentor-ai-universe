@@ -1,29 +1,39 @@
 const { createClient } = require('@supabase/supabase-js');
 const { config } = require('../config/env');
 
-// Create a Supabase client
+// Create a Supabase client with service role key for backend operations
+// This bypasses Row Level Security (RLS) policies
 const supabase = createClient(
   config.supabaseUrl,
-  config.supabaseAnonKey,
+  config.supabaseServiceRoleKey || config.supabaseAnonKey, // Use service role key if available
   {
     auth: {
       persistSession: false,
+      autoRefreshToken: false,
     },
   }
 );
 
+console.log('🔑 Supabase client initialized with:', config.supabaseServiceRoleKey ? 'SERVICE_ROLE_KEY (bypasses RLS)' : 'ANON_KEY (RLS enabled)');
+
 // Function to check if Supabase is connected
 const checkSupabaseConnection = async () => {
   try {
-    const { error } = await supabase.auth.getSession();
+    // Test connection by querying the courses table
+    const { data, error } = await supabase
+      .from('courses')
+      .select('id')
+      .limit(1);
+
     if (error) {
-      console.error('Error connecting to Supabase:', error);
+      console.error('❌ Supabase connection error:', error.message);
       return false;
     }
-    console.log('Successfully connected to Supabase');
+
+    console.log('✅ Supabase connected successfully');
     return true;
   } catch (error) {
-    console.error('Exception connecting to Supabase:', error);
+    console.error('❌ Exception connecting to Supabase:', error.message);
     return false;
   }
 };
