@@ -26,71 +26,8 @@ const Certifications = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const certifications: Certification[] = [
-    {
-      id: 'python-dev',
-      title: 'Python Developer',
-      description: 'Master Python programming from basics to advanced concepts',
-      level: 'beginner',
-      price: 99,
-      duration: '3 months',
-      modules: 12,
-      requirements: [
-        'Complete all Python modules',
-        'Build 3 projects',
-        'Pass the final assessment with 80% or higher'
-      ],
-      icon: <Code className="h-10 w-10" />
-    },
-    {
-      id: 'devops',
-      title: 'DevOps Professional',
-      description: 'Learn CI/CD, containerization, and cloud deployment',
-      level: 'intermediate',
-      price: 149,
-      duration: '4 months',
-      modules: 15,
-      requirements: [
-        'Complete all DevOps modules',
-        'Set up a CI/CD pipeline',
-        'Deploy applications to cloud platforms',
-        'Pass the final assessment with 80% or higher'
-      ],
-      icon: <FileCheck className="h-10 w-10" />
-    },
-    {
-      id: 'ai-engineer',
-      title: 'AI Engineer',
-      description: 'Develop skills in machine learning and artificial intelligence',
-      level: 'advanced',
-      price: 199,
-      duration: '6 months',
-      modules: 20,
-      requirements: [
-        'Complete all AI & ML modules',
-        'Build a machine learning model',
-        'Complete a capstone project',
-        'Pass the final assessment with 80% or higher'
-      ],
-      icon: <Star className="h-10 w-10" />
-    },
-    {
-      id: 'cloud-architect',
-      title: 'Cloud Architect',
-      description: 'Design and implement scalable cloud solutions',
-      level: 'advanced',
-      price: 249,
-      duration: '5 months',
-      modules: 18,
-      requirements: [
-        'Complete all Cloud Computing modules',
-        'Design a multi-tier cloud architecture',
-        'Implement security best practices',
-        'Pass the final assessment with 80% or higher'
-      ],
-      icon: <FileText className="h-10 w-10" />
-    },
-  ];
+  // TODO: Fetch certifications from database
+  const certifications: Certification[] = [];
 
   const getLevelColor = (level: string) => {
     switch (level) {
@@ -142,63 +79,75 @@ const Certifications = () => {
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
-            {certifications.map((cert) => (
-              <Card key={cert.id} className="flex flex-col">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="bg-primary/10 p-3 rounded-lg text-primary">
-                        {cert.icon}
+          {certifications.length > 0 ? (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
+              {certifications.map((cert) => (
+                <Card key={cert.id} className="flex flex-col">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-primary/10 p-3 rounded-lg text-primary">
+                          {cert.icon}
+                        </div>
+                        <div>
+                          <CardTitle>{cert.title}</CardTitle>
+                          <Badge className={`mt-2 ${getLevelColor(cert.level)}`}>
+                            {cert.level}
+                          </Badge>
+                        </div>
                       </div>
-                      <div>
-                        <CardTitle>{cert.title}</CardTitle>
-                        <Badge className={`mt-2 ${getLevelColor(cert.level)}`}>
-                          {cert.level}
-                        </Badge>
+                      <div className="text-right">
+                        <div className="text-xl font-bold">${cert.price}</div>
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Clock className="h-4 w-4" />
+                          {cert.duration}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xl font-bold">${cert.price}</div>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        {cert.duration}
+                  </CardHeader>
+                  <CardContent className="flex-grow">
+                    <p className="mb-4">{cert.description}</p>
+                    <div className="bg-muted p-3 rounded mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-semibold">{cert.modules} Modules</span>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Complete structured learning path with hands-on projects
                       </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <p className="mb-4">{cert.description}</p>
-                  <div className="bg-muted p-3 rounded mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-semibold">{cert.modules} Modules</span>
+                    <div className="mb-4">
+                      <h4 className="font-semibold mb-2">Requirements:</h4>
+                      <ul className="space-y-1">
+                        {cert.requirements.map((req, index) => (
+                          <li key={index} className="text-sm flex items-start gap-2">
+                            <span className="text-primary">•</span>
+                            <span>{req}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Complete structured learning path with hands-on projects
-                    </div>
-                  </div>
-                  <div className="mb-4">
-                    <h4 className="font-semibold mb-2">Requirements:</h4>
-                    <ul className="space-y-1">
-                      {cert.requirements.map((req, index) => (
-                        <li key={index} className="text-sm flex items-start gap-2">
-                          <span className="text-primary">•</span>
-                          <span>{req}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button onClick={() => handleEnroll(cert)} className="w-full">
-                    <Award className="mr-2 h-4 w-4" />
-                    Enroll Now
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button onClick={() => handleEnroll(cert)} className="w-full">
+                      <Award className="mr-2 h-4 w-4" />
+                      Enroll Now
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="p-12 text-center">
+              <div className="flex flex-col items-center">
+                <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-4">
+                  <Award className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-medium mb-2">No Certifications Available</h3>
+                <p className="text-muted-foreground max-w-md">Certification programs are currently being developed. Check back soon for exciting opportunities to validate your skills!</p>
+              </div>
+            </Card>
+          )}
 
           <div className="mt-16 bg-gray-50 p-8 rounded-lg">
             <div className="grid md:grid-cols-2 gap-8">

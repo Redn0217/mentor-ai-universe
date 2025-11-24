@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
-import { ChevronDown, Menu, X, Shield } from 'lucide-react';
+import { ChevronDown, Menu, X, Shield, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { hasAdminRole } from '@/lib/adminAuth';
 
@@ -46,14 +46,8 @@ export const NavBar = () => {
     { name: 'Corporate', href: '/corporate', description: 'Enterprise solutions' },
   ];
 
-  const resourceItems = [
-    { name: 'Documentation', href: '/docs', description: 'Complete guides and API reference' },
-    { name: 'Tutorials', href: '/tutorials', description: 'Step-by-step learning materials' },
-    { name: 'Blog', href: '/blog', description: 'Latest insights and updates' },
-    { name: 'Community', href: '/community', description: 'Join our developer community' },
-    { name: 'Support', href: '/support', description: 'Get help when you need it' },
-    { name: 'Changelog', href: '/changelog', description: 'Latest features and updates' },
-  ];
+  // TODO: Add resource items when pages are created
+  const resourceItems: { name: string; href: string; description: string }[] = [];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] p-3 mb-24">
@@ -148,37 +142,40 @@ export const NavBar = () => {
                 </div>
 
                 {/* Resources Dropdown */}
-                <div
-                  className="relative group"
-                  onMouseEnter={() => handleDropdownHover('resources')}
-                  onMouseLeave={handleDropdownLeave}
-                >
-                  <button className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors duration-200 py-2 font-medium">
-                    <span>Resources</span>
-                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${activeDropdown === 'resources' ? 'rotate-180' : ''}`} />
-                  </button>
+                {/* Resources dropdown - hidden when no items */}
+                {resourceItems.length > 0 && (
+                  <div
+                    className="relative group"
+                    onMouseEnter={() => handleDropdownHover('resources')}
+                    onMouseLeave={handleDropdownLeave}
+                  >
+                    <button className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors duration-200 py-2 font-medium">
+                      <span>Resources</span>
+                      <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${activeDropdown === 'resources' ? 'rotate-180' : ''}`} />
+                    </button>
 
-                  <div className={`absolute left-0 top-full mt-2 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform z-[110] ${activeDropdown === 'resources' ? 'translate-y-0' : 'translate-y-2'}`}>
-                    <div className="bg-white/80 backdrop-blur-lg border border-gray-200/30 rounded-xl shadow-lg p-6">
-                      <div className="space-y-1">
-                        {resourceItems.map((item) => (
-                          <Link
-                            key={item.name}
-                            to={item.href}
-                            className="block p-3 rounded-lg hover:bg-gray-50/60 transition-colors duration-200 group"
-                          >
-                            <div className="font-medium text-gray-900 group-hover:text-primary transition-colors duration-200">
-                              {item.name}
-                            </div>
-                            <div className="text-sm text-gray-500 mt-1">
-                              {item.description}
-                            </div>
-                          </Link>
-                        ))}
+                    <div className={`absolute left-0 top-full mt-2 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform z-[110] ${activeDropdown === 'resources' ? 'translate-y-0' : 'translate-y-2'}`}>
+                      <div className="bg-white/80 backdrop-blur-lg border border-gray-200/30 rounded-xl shadow-lg p-6">
+                        <div className="space-y-1">
+                          {resourceItems.map((item) => (
+                            <Link
+                              key={item.name}
+                              to={item.href}
+                              className="block p-3 rounded-lg hover:bg-gray-50/60 transition-colors duration-200 group"
+                            >
+                              <div className="font-medium text-gray-900 group-hover:text-primary transition-colors duration-200">
+                                {item.name}
+                              </div>
+                              <div className="text-sm text-gray-500 mt-1">
+                                {item.description}
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* AI Tutor Button */}
                 <RainbowButton onClick={() => navigate('/playground')}>
@@ -193,7 +190,11 @@ export const NavBar = () => {
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
-                  <Button onClick={() => navigate('/dashboard')} variant="ghost" className="font-medium text-gray-700 hover:text-gray-900">
+                  <Button
+                    onClick={() => navigate('/dashboard')}
+                    variant="ghost"
+                    className="font-medium"
+                  >
                     Dashboard
                   </Button>
                   {hasAdminRole(user) && (
@@ -287,22 +288,28 @@ export const NavBar = () => {
                   </div>
                 </div>
 
-                {/* Mobile Resources Section */}
-                <div>
-                  <div className="font-medium text-gray-900 mb-3">Resources</div>
-                  <div className="space-y-2">
-                    {resourceItems.slice(0, 4).map((item) => (
-                      <Link key={item.name} to={item.href} className="block text-sm text-gray-600 hover:text-primary transition-colors duration-200 py-1">
-                        {item.name}
-                      </Link>
-                    ))}
+                {/* Mobile Resources Section - hidden when no items */}
+                {resourceItems.length > 0 && (
+                  <div>
+                    <div className="font-medium text-gray-900 mb-3">Resources</div>
+                    <div className="space-y-2">
+                      {resourceItems.slice(0, 4).map((item) => (
+                        <Link key={item.name} to={item.href} className="block text-sm text-gray-600 hover:text-primary transition-colors duration-200 py-1">
+                          {item.name}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Mobile Auth Buttons */}
                 {user ? (
                   <>
-                    <Button onClick={() => navigate('/dashboard')} variant="outline" className="w-full">
+                    <Button
+                      onClick={() => navigate('/dashboard')}
+                      variant="outline"
+                      className="w-full"
+                    >
                       Dashboard
                     </Button>
                     {hasAdminRole(user) && (

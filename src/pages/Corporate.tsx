@@ -25,62 +25,46 @@ const Corporate = () => {
             </p>
           </div>
 
-          <div className="grid gap-12 md:grid-cols-2 items-center mb-16">
-            <div>
+          <div className="max-w-4xl mx-auto mb-16">
+            <div className="text-center">
               <h2 className="text-3xl font-bold mb-6">Upskill Your Team with AI-Powered Learning</h2>
-              <p className="text-lg mb-6">
+              <p className="text-lg mb-8">
                 Our enterprise solutions provide customized learning paths tailored to your organization's specific needs and objectives.
               </p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start gap-3">
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-start gap-3">
                   <CheckCircle className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold">Customized Learning Paths</span>
-                    <p className="text-muted-foreground">Tailored curriculum designed for your team's specific skill gaps and objectives.</p>
+                    <span className="font-semibold block mb-2">Customized Learning Paths</span>
+                    <p className="text-muted-foreground text-sm">Tailored curriculum designed for your team's specific skill gaps and objectives.</p>
                   </div>
-                </li>
-                <li className="flex items-start gap-3">
+                </div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-start gap-3">
                   <CheckCircle className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold">Centralized Management</span>
-                    <p className="text-muted-foreground">Administrative dashboard to track team progress and performance.</p>
+                    <span className="font-semibold block mb-2">Centralized Management</span>
+                    <p className="text-muted-foreground text-sm">Administrative dashboard to track team progress and performance.</p>
                   </div>
-                </li>
-                <li className="flex items-start gap-3">
+                </div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-start gap-3">
                   <CheckCircle className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold">Volume Discounts</span>
-                    <p className="text-muted-foreground">Special pricing for team accounts with bulk user licenses.</p>
+                    <span className="font-semibold block mb-2">Volume Discounts</span>
+                    <p className="text-muted-foreground text-sm">Special pricing for team accounts with bulk user licenses.</p>
                   </div>
-                </li>
-              </ul>
+                </div>
+              </div>
+            </div>
+            <div className="text-center">
               <Button size="lg" onClick={handleContactSales}>
                 Contact Sales
               </Button>
-            </div>
-            <div className="bg-white p-8 rounded-lg shadow-lg">
-              <div className="flex justify-between mb-8">
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-lg">Current Partners Include:</h3>
-                </div>
-                <Badge variant="outline" className="h-fit">
-                  Enterprise Partners
-                </Badge>
-              </div>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg h-24">
-                  <span className="text-lg font-bold text-gray-400">ACME Corp</span>
-                </div>
-                <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg h-24">
-                  <span className="text-lg font-bold text-gray-400">TechGiant</span>
-                </div>
-                <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg h-24">
-                  <span className="text-lg font-bold text-gray-400">InnovateCo</span>
-                </div>
-                <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg h-24">
-                  <span className="text-lg font-bold text-gray-400">FutureTech</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -208,48 +192,6 @@ const Corporate = () => {
                   </Button>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-
-          <div className="bg-white p-8 rounded-lg shadow-sm">
-            <h2 className="text-2xl font-bold mb-6 text-center">Success Stories</h2>
-            <div className="grid gap-8 md:grid-cols-2">
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <div className="mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
-                    <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
-                    <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
-                  </svg>
-                </div>
-                <p className="mb-6 italic">
-                  "Implementing this AI-driven learning platform has significantly accelerated our team's skill development. The customized learning paths and detailed analytics have been invaluable for our L&D strategy."
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <div>
-                    <div className="font-semibold">Sarah Johnson</div>
-                    <div className="text-sm text-muted-foreground">CTO, TechGiant Inc.</div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <div className="mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
-                    <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
-                    <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
-                  </svg>
-                </div>
-                <p className="mb-6 italic">
-                  "We've seen a 40% improvement in technical proficiency across our engineering team since adopting this platform. The AI tutors provide personalized support that scales with our growing organization."
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <div>
-                    <div className="font-semibold">Michael Chen</div>
-                    <div className="text-sm text-muted-foreground">VP of Engineering, InnovateCo</div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
