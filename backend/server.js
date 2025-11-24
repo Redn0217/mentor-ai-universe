@@ -101,16 +101,8 @@ if (!require('fs').existsSync(dataDir)) {
   console.log(`Created data directory: ${dataDir}`);
 }
 
-// Serve static files from the React app build directory in production
-if (process.env.NODE_ENV === 'production') {
-  // Serve static files from Vite build output
-  app.use(express.static(path.join(__dirname, '../dist')));
-
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
-  });
-}
+// Note: Static files are served separately on Hostinger
+// Backend only serves API endpoints
 
 // Start server
 app.listen(PORT, () => {
