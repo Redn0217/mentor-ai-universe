@@ -25,17 +25,13 @@ import courseRoutes from './routes/course.js';
 app.use('/api/chat', chatRoutes);
 app.use('/api/courses', courseRoutes);
 
-// Serve static files from the React app build directory in production
-if (config.nodeEnv === 'production') {
-  // Go up two directories from current file (src/server.ts -> backend/src -> backend -> root)
-  const rootDir = path.resolve(__dirname, '../../');
-  app.use(express.static(path.join(rootDir, 'dist')));
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', environment: config.nodeEnv });
+});
 
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(rootDir, 'dist', 'index.html'));
-  });
-}
+// Note: Static files are served separately on Hostinger
+// Backend only serves API endpoints
 
 // Start server
 app.listen(PORT, () => {
