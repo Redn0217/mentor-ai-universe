@@ -1,0 +1,138 @@
+================================================================================
+  SETUP INSTRUCTIONS FOR YOUR FRIEND
+================================================================================
+
+Hey! Follow these steps to get the project running on your machine:
+
+--------------------------------------------------------------------------------
+STEP 1: Install Dependencies
+--------------------------------------------------------------------------------
+
+Open PowerShell/Terminal in the project folder and run:
+
+    npm install
+
+This will install everything (frontend + backend) automatically.
+
+--------------------------------------------------------------------------------
+STEP 2: Create the Backend Environment File
+--------------------------------------------------------------------------------
+
+The error you're getting is because the .env file is missing.
+
+Run this command in PowerShell:
+
+    Copy-Item backend\.env.example backend\.env
+
+Or on Mac/Linux:
+
+    cp backend/.env.example backend/.env
+
+--------------------------------------------------------------------------------
+STEP 3: Add Your Credentials
+--------------------------------------------------------------------------------
+
+Open the file: backend\.env
+
+You'll see placeholder values like:
+    SUPABASE_URL=your-supabase-project-url
+    SUPABASE_ANON_KEY=your-supabase-anon-key
+    etc.
+
+You have TWO options:
+
+OPTION A - Use My Credentials (Quick Test):
+-------------------------------------------
+Replace the entire content of backend\.env with this:
+
+PORT=3003
+NODE_ENV=development
+OPENAI_API_KEY=your-openai-api-key-here
+NVIDIA_API_KEY=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
+SUPABASE_URL=https://iucimtwcakmouafdnrwj.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Y2ltdHdjYWttb3VhZmRucndqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyMDAxMzQsImV4cCI6MjA2Mjc3NjEzNH0.-_RIvC_Sb5FjF5iPbzKiQMLg7id3pjb2oHoX9kvsQlc
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Y2ltdHdjYWttb3VhZmRucndqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzIwMDEzNCwiZXhwIjoyMDYyNzc2MTM0fQ.avMlEslVmFv6M2koDEPyDH-Roy5NrRaLMsE6LLLEmBQ
+
+
+OPTION B - Create Your Own Supabase Project:
+--------------------------------------------
+1. Go to https://supabase.com
+2. Sign up for free
+3. Create a new project
+4. Go to Project Settings → API
+5. Copy the values and paste them in backend\.env
+
+--------------------------------------------------------------------------------
+STEP 4: Test the .env File (Optional but Recommended)
+--------------------------------------------------------------------------------
+
+Before running the full project, test if the .env file is loaded correctly:
+
+    cd backend
+    node test-env.js
+
+You should see:
+    ✅ SUCCESS: All required environment variables are loaded!
+
+If you see errors, the test will tell you what's wrong.
+
+--------------------------------------------------------------------------------
+STEP 5: Run the Project
+--------------------------------------------------------------------------------
+
+Go back to the root directory and run:
+
+    cd ..
+    npm run dev:all
+
+You should see:
+    [0] VITE ready at http://localhost:8080/
+    [1] Server running on port 3003
+    [1] ✅ Supabase connected successfully
+
+If you see this, you're all set! 🎉
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+
+If you still get "supabaseUrl is required":
+1. Make sure backend\.env exists
+2. Open it and verify it has the SUPABASE_URL line
+3. Restart the server (Ctrl+C and run npm run dev:all again)
+
+If port 8080 is busy:
+- Vite will automatically use 8081 instead (that's fine!)
+
+If nothing works:
+1. Delete node_modules folders
+2. Run: npm cache clean --force
+3. Run: npm install
+4. Try again
+
+--------------------------------------------------------------------------------
+QUICK COMMAND SUMMARY
+--------------------------------------------------------------------------------
+
+# Install everything
+npm install
+
+# Create .env file (Windows)
+Copy-Item backend\.env.example backend\.env
+
+# Create .env file (Mac/Linux)
+cp backend/.env.example backend/.env
+
+# Edit backend\.env with credentials (see OPTION A above)
+
+# Run the project
+npm run dev:all
+
+================================================================================
+
+For more detailed help, see:
+- QUICK_START.md
+- SETUP_GUIDE.md
+
+Good luck! 🚀
+

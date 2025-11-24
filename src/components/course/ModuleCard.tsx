@@ -85,7 +85,7 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
             </div>
           </div>
 
-          {isUnlocked && (
+          {isUnlocked ? (
             <button
               onClick={onStartModule}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
@@ -105,6 +105,15 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
                   {progress > 0 ? 'Continue' : 'Start'}
                 </>
               )}
+            </button>
+          ) : (
+            <button
+              disabled
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
+              title="Enroll in the course to unlock this module"
+            >
+              <Lock className="w-4 h-4" />
+              <span>Locked</span>
             </button>
           )}
         </div>

@@ -3,7 +3,10 @@ import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { createRequire } from 'module';
 import { config } from './config/env.js';
+
+const require = createRequire(import.meta.url);
 
 // Create Express app
 const app = express();
@@ -19,11 +22,13 @@ app.use(express.json());
 
 // Import routes
 import chatRoutes from './routes/chat.js';
-import courseRoutes from './routes/course.js';
+const courseRoutes = require('./routes/course.js');
+const aiCourseRoutes = require('./routes/aiCourse.js');
 
 // Use routes
 app.use('/api/chat', chatRoutes);
 app.use('/api/courses', courseRoutes);
+app.use('/api/ai-courses', aiCourseRoutes);
 
 // Health check endpoint for Render
 app.get('/health', (req, res) => {

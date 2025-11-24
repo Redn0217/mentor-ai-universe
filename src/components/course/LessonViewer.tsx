@@ -4,6 +4,8 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { stateService } from '@/services/stateService';
+import hljs from 'highlight.js';
+import './LessonContent.css';
 
 interface LessonViewerProps {
   lesson: {
@@ -66,6 +68,18 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
       hasRestoredStateRef.current = true;
     }
   }, [lesson.id]);
+
+  // Apply syntax highlighting to code blocks after content loads
+  useEffect(() => {
+    if (lesson.content && lesson.content.includes('<')) {
+      // Wait for DOM to update, then highlight code blocks
+      setTimeout(() => {
+        document.querySelectorAll('pre.ql-syntax').forEach((block) => {
+          hljs.highlightElement(block as HTMLElement);
+        });
+      }, 100);
+    }
+  }, [lesson.content]);
 
   // Save lesson state periodically
   useEffect(() => {
@@ -147,49 +161,59 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
 
             {/* Lesson Content */}
             <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-              <div className="prose prose-lg max-w-none">
-                <ReactMarkdown
-                  components={{
-                    code({ node, inline, className, children, ...props }) {
-                      const match = /language-(\w+)/.exec(className || '');
-                      return !inline && match ? (
-                        <SyntaxHighlighter
-                          style={tomorrow}
-                          language={match[1]}
-                          PreTag="div"
-                          className="rounded-lg"
-                          {...props}
-                        >
-                          {String(children).replace(/\n$/, '')}
-                        </SyntaxHighlighter>
-                      ) : (
-                        <code className="bg-gray-100 px-1 py-0.5 rounded text-sm" {...props}>
-                          {children}
-                        </code>
-                      );
-                    },
-                    h1: ({ children }) => (
-                      <h1 className="text-3xl font-bold text-gray-900 mb-4 mt-8 first:mt-0">{children}</h1>
-                    ),
-                    h2: ({ children }) => (
-                      <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-6">{children}</h2>
-                    ),
-                    h3: ({ children }) => (
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2 mt-4">{children}</h3>
-                    ),
-                    p: ({ children }) => (
-                      <p className="text-gray-700 leading-relaxed mb-4">{children}</p>
-                    ),
-                    ul: ({ children }) => (
-                      <ul className="list-disc list-inside space-y-2 mb-4 text-gray-700">{children}</ul>
-                    ),
-                    li: ({ children }) => (
-                      <li className="leading-relaxed">{children}</li>
-                    ),
-                  }}
-                >
-                  {lesson.content}
-                </ReactMarkdown>
+              <div className="prose prose-lg max-w-none lesson-content">
+                {/* Check if content is HTML (from WYSIWYG editor) or Markdown */}
+                {lesson.content && lesson.content.includes('<') ? (
+                  // Render HTML content from WYSIWYG editor
+                  <div
+                    dangerouslySetInnerHTML={{ __html: lesson.content }}
+                    className="ql-editor"
+                  />
+                ) : (
+                  // Fallback to Markdown rendering for legacy content
+                  <ReactMarkdown
+                    components={{
+                      code({ node, inline, className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || '');
+                        return !inline && match ? (
+                          <SyntaxHighlighter
+                            style={tomorrow}
+                            language={match[1]}
+                            PreTag="div"
+                            className="rounded-lg"
+                            {...props}
+                          >
+                            {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
+                        ) : (
+                          <code className="bg-gray-100 px-1 py-0.5 rounded text-sm" {...props}>
+                            {children}
+                          </code>
+                        );
+                      },
+                      h1: ({ children }) => (
+                        <h1 className="text-3xl font-bold text-gray-900 mb-4 mt-8 first:mt-0">{children}</h1>
+                      ),
+                      h2: ({ children }) => (
+                        <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-6">{children}</h2>
+                      ),
+                      h3: ({ children }) => (
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2 mt-4">{children}</h3>
+                      ),
+                      p: ({ children }) => (
+                        <p className="text-gray-700 leading-relaxed mb-4">{children}</p>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className="list-disc list-inside space-y-2 mb-4 text-gray-700">{children}</ul>
+                      ),
+                      li: ({ children }) => (
+                        <li className="leading-relaxed">{children}</li>
+                      ),
+                    }}
+                  >
+                    {lesson.content}
+                  </ReactMarkdown>
+                )}
               </div>
             </div>
 

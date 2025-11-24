@@ -23,6 +23,9 @@ import Pricing from "./pages/Pricing";
 import Certifications from "./pages/Certifications";
 import Corporate from "./pages/Corporate";
 import TechnologyCourse from "./pages/TechnologyCourse";
+import Courses from "./pages/Courses";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import CoursesList from "./pages/admin/CoursesList";
 import CourseEditor from "./pages/admin/CourseEditor";
 import Create from "./pages/Create";
@@ -51,6 +54,7 @@ const AppContent = () => {
         <Route path="/" element={<Index />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/courses" element={<Courses />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/playground" element={<Playground />} />
@@ -69,7 +73,9 @@ const AppContent = () => {
 
 
         {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route element={<ProtectedRoute />}>
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/courses" element={<CoursesList />} />
           <Route path="/admin/courses/:slug" element={<CourseEditor />} />
         </Route>

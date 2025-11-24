@@ -5,11 +5,16 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 
+// Load environment variables from backend/.env
+const envPath = path.resolve(__dirname, '.env');
+dotenv.config({ path: envPath });
+
+console.log('🔧 Loading .env from:', envPath);
+console.log('🔧 SUPABASE_URL loaded:', process.env.SUPABASE_URL ? '✅ Yes' : '❌ No');
+
 // Import routes
 const courseRoutes = require('./src/routes/course');
-
-// Load environment variables
-dotenv.config();
+const paymentRoutes = require('./routes/payment');
 
 // Set NODE_ENV if not already set
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
@@ -51,6 +56,7 @@ app.get('/health', (_req, res) => {
 
 // API routes
 app.use('/api/courses', courseRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // API proxy for NVIDIA API
 app.post('/api/chat', async (req, res) => {

@@ -1,8 +1,14 @@
 // CommonJS version of env.ts for compatibility
 const dotenv = require('dotenv');
+const path = require('path');
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from backend/.env
+// Resolve path relative to this file: backend/src/config/env.js -> backend/.env
+const envPath = path.resolve(__dirname, '../../.env');
+dotenv.config({ path: envPath });
+
+console.log('🔧 Loading .env from:', envPath);
+console.log('🔧 SUPABASE_URL loaded:', process.env.SUPABASE_URL ? '✅ Yes' : '❌ No');
 
 const config = {
   port: process.env.PORT || 8080,
@@ -11,6 +17,7 @@ const config = {
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   supabaseUrl: process.env.SUPABASE_URL || '',
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
 };
 
 module.exports = { config };

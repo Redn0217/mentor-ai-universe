@@ -5,137 +5,71 @@ import { TutorChat } from '@/components/tutors/TutorChat';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
 import { FeaturesDemo } from '@/components/ui/features-demo';
+import { fetchCourses } from '@/services/apiService';
+import { getCourseIcon } from '@/utils/courseIcons';
 
 import { Link } from 'react-router-dom';
 import Typewriter from 'react-typewriter-effect';
 
-const technologies = [
-  {
-    title: "Python",
-    slug: "python",
-    description: "Learn Python programming from basics to advanced concepts with practical exercises.",
-    color: "#3776AB",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor"><path d="M14 13.5h2.5a2 2 0 0 0 2-1.5 2 2 0 0 0-2-2h-9a2 2 0 0 0-2 2 2 2 0 0 0 2 2H10"/><path d="M10 17V5.5a2 2 0 0 0-2-2 2 2 0 0 0-2 2v5"/><path d="M14 6.5v11a2 2 0 0 0 2 2 2 2 0 0 0 2-2v-5"/></svg>,
-    modules: 8,
-    exercises: 24,
-    tutor: {
-      name: "Dr. Ana Python",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana"
-    }
-  },
-  {
-    title: "DevOps",
-    slug: "devops",
-    description: "Master continuous integration, delivery, and deployment practices.",
-    color: "#EE3424",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="16" cy="16" r="6"/><circle cx="8" cy="16" r="6"/><circle cx="12" cy="8" r="6"/><line x1="12" y1="2" x2="12" y2="14"/><line x1="16" y1="16" x2="8" y2="16"/></svg>,
-    modules: 6,
-    exercises: 18,
-    tutor: {
-      name: "Sam Jenkins",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sam"
-    }
-  },
-  {
-    title: "Cloud Computing",
-    slug: "cloud",
-    description: "Learn to deploy and manage applications on major cloud platforms.",
-    color: "#4285F4",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>,
-    modules: 7,
-    exercises: 21,
-    tutor: {
-      name: "Alex Cloud",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
-    }
-  },
-  {
-    title: "Linux",
-    slug: "linux",
-    description: "Master Linux administration, shell scripting, and system configuration.",
-    color: "#FCC624",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>,
-    modules: 5,
-    exercises: 15,
-    tutor: {
-      name: "Lina Penguin",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lina"
-    }
-  },
-  {
-    title: "Networking",
-    slug: "networking",
-    description: "Understand network protocols, configuration, and troubleshooting.",
-    color: "#00BCF2",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>,
-    modules: 6,
-    exercises: 18,
-    tutor: {
-      name: "Mike Router",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mike"
-    }
-  },
-  {
-    title: "Storage",
-    slug: "storage",
-    description: "Learn about storage systems, RAID configurations, and data backup solutions.",
-    color: "#FF6F00",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>,
-    modules: 4,
-    exercises: 12,
-    tutor: {
-      name: "Sarah Storage",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah"
-    }
-  },
-  {
-    title: "Virtualization",
-    slug: "virtualization",
-    description: "Master virtualization technologies and hypervisor management.",
-    color: "#0F9D58",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="M3 9h12"/><path d="M3 15h12"/><path d="M9 9v6"/></svg>,
-    modules: 5,
-    exercises: 15,
-    tutor: {
-      name: "Victor VM",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Victor"
-    }
-  },
-  {
-    title: "Object Storage",
-    slug: "objectstorage",
-    description: "Understand object storage concepts, implementation, and best practices.",
-    color: "#FF9900",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>,
-    modules: 4,
-    exercises: 12,
-    tutor: {
-      name: "Olivia Object",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Olivia"
-    }
-  },
-  {
-    title: "AI & Machine Learning",
-    slug: "ai",
-    description: "Explore artificial intelligence concepts, machine learning algorithms, and their applications.",
-    color: "#9B30FF",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M2 5h20"/><path d="M3 3v2"/><path d="M7 3v2"/><path d="M17 3v2"/><path d="M21 3v2"/><path d="m19 5-7 7-7-7"/></svg>,
-    modules: 8,
-    exercises: 24,
-    tutor: {
-      name: "Dr. Alan Neural",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alan"
-    }
-  }
-];
+interface Technology {
+  title: string;
+  slug: string;
+  description: string;
+  color: string;
+  icon: any;
+  modules: number;
+  exercises: number;
+  tutor: {
+    name: string;
+    avatar: string;
+  };
+}
 
 const Index = () => {
-  const [activeTech, setActiveTech] = useState(technologies[0]);
+  const [technologies, setTechnologies] = useState<Technology[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTech, setActiveTech] = useState<Technology | null>(null);
   const [currentRotation, setCurrentRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, rotation: 0 });
   const [isAutoRotating, setIsAutoRotating] = useState(true);
   const rotationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fetch courses from database
+  useEffect(() => {
+    const loadCourses = async () => {
+      try {
+        setLoading(true);
+        const courses = await fetchCourses();
+
+        // Transform courses to technologies format
+        const techs: Technology[] = courses.map(course => ({
+          title: course.title,
+          slug: course.slug,
+          description: course.short_description || course.description,
+          color: course.color,
+          icon: getCourseIcon(course.slug),
+          modules: course.modules_count || 0,
+          exercises: course.exercises_count || 0,
+          tutor: {
+            name: course.tutor?.name || 'Instructor',
+            avatar: course.tutor?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${course.slug}`
+          }
+        }));
+
+        setTechnologies(techs);
+        if (techs.length > 0) {
+          setActiveTech(techs[0]);
+        }
+      } catch (error) {
+        console.error('Error loading courses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCourses();
+  }, []);
 
   // Auto-rotation functionality
   useEffect(() => {
@@ -399,27 +333,28 @@ const Index = () => {
 
           <div className="max-w-6xl mx-auto">
             {/* 3D Rotating Carousel */}
-            <div className="relative mb-2 h-[300px] flex items-center justify-center">
-              {/* Navigation Buttons */}
-              <button
-                onClick={() => handleManualRotation('left')}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all duration-200 hover:scale-110"
-                aria-label="Rotate left"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m15 18-6-6 6-6"/>
-                </svg>
-              </button>
+            {technologies.length > 0 && (
+              <div className="relative mb-2 h-[300px] flex items-center justify-center">
+                {/* Navigation Buttons */}
+                <button
+                  onClick={() => handleManualRotation('left')}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all duration-200 hover:scale-110"
+                  aria-label="Rotate left"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m15 18-6-6 6-6"/>
+                  </svg>
+                </button>
 
-              <button
-                onClick={() => handleManualRotation('right')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all duration-200 hover:scale-110"
-                aria-label="Rotate right"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m9 18 6-6-6-6"/>
-                </svg>
-              </button>
+                <button
+                  onClick={() => handleManualRotation('right')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all duration-200 hover:scale-110"
+                  aria-label="Rotate right"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m9 18 6-6-6-6"/>
+                  </svg>
+                </button>
 
 
 
@@ -451,7 +386,7 @@ const Index = () => {
                         key={tech.slug}
                         onClick={() => handleCardClick(tech, index)}
                         className={`absolute cursor-pointer transition-all duration-300 transform hover:scale-110 ${
-                          activeTech.slug === tech.slug
+                          activeTech?.slug === tech.slug
                             ? 'ring-2 ring-brand-teal shadow-2xl'
                             : 'hover:shadow-xl'
                         }`}
@@ -495,17 +430,29 @@ const Index = () => {
                   })}
                 </div>
               </div>
-            </div>
+              </div>
+            )}
 
             {/* Active Tutor Chat */}
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <TutorChat
-                tutorName={activeTech.tutor.name}
-                tutorAvatar={activeTech.tutor.avatar}
-                technology={activeTech.title}
-                techColor={activeTech.color}
-              />
-            </div>
+            {loading ? (
+              <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-teal mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading courses...</p>
+              </div>
+            ) : activeTech ? (
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <TutorChat
+                  tutorName={activeTech.tutor.name}
+                  tutorAvatar={activeTech.tutor.avatar}
+                  technology={activeTech.title}
+                  techColor={activeTech.color}
+                />
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
+                <p className="text-gray-600">No courses available yet. Check back soon!</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -51,8 +51,8 @@ export const getCourses = async (): Promise<CourseListItem[]> => {
 
       if (oldError) {
         console.error('Error fetching courses from old structure:', error);
-        console.warn('Falling back to local data');
-        return getFallbackCourses();
+        console.warn('No courses available');
+        return [];
       }
 
       // Convert old structure to new format
@@ -106,8 +106,8 @@ export const getCourses = async (): Promise<CourseListItem[]> => {
     return coursesWithCounts;
   } catch (error) {
     console.error('Error in getCourses:', error);
-    console.warn('Falling back to local data');
-    return getFallbackCourses();
+    console.warn('No courses available');
+    return [];
   }
 };
 
@@ -151,49 +151,7 @@ const getCourseCounts = async (courseId: string) => {
   }
 };
 
-// Fallback courses data
-const getFallbackCourses = (): CourseListItem[] => [
-  {
-    id: "python",
-    slug: "python",
-    title: "Python Programming",
-    description: "Learn Python programming from basics to advanced concepts with practical exercises.",
-    short_description: "Complete Python programming course from beginner to advanced level",
-    color: "#3776AB",
-    difficulty_level: "beginner",
-    estimated_duration_hours: 40,
-    tags: ["python", "programming", "beginner"],
-    is_featured: true,
-    tutor: {
-      name: "Dr. Ana Python",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana"
-    },
-    modules_count: 2,
-    lessons_count: 6,
-    exercises_count: 3,
-    updated_at: "2023-05-15T00:00:00Z"
-  },
-  {
-    id: "javascript",
-    slug: "javascript",
-    title: "JavaScript Fundamentals",
-    description: "Master modern JavaScript with practical web development projects.",
-    short_description: "Learn JavaScript from basics to advanced concepts",
-    color: "#F7DF1E",
-    difficulty_level: "beginner",
-    estimated_duration_hours: 35,
-    tags: ["javascript", "web-development", "programming"],
-    is_featured: false,
-    tutor: {
-      name: "John Script",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John"
-    },
-    modules_count: 3,
-    lessons_count: 8,
-    exercises_count: 5,
-    updated_at: "2023-06-10T00:00:00Z"
-  }
-];
+// Fallback courses data removed - all courses should come from database
 
 // Function to get a specific course by slug (updated for new structure)
 export const getCourse = async (slug: string): Promise<Course | null> => {

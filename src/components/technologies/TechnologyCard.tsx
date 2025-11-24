@@ -60,7 +60,7 @@ export const TechnologyCard = ({
       </CardContent>
       <CardFooter>
         <Button asChild className="w-full">
-          <Link to={`/course/${slug}`}>Start Learning</Link>
+          <Link to={`/course/${slug}`}>View Course</Link>
         </Button>
       </CardFooter>
     </Card>

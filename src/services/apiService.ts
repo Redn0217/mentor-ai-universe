@@ -2,8 +2,8 @@
 
 import type { CourseListItem, Course } from '@/types/database';
 
-// API URL - Use deployed backend for now (database is already migrated there)
-const API_BASE_URL = 'https://internsify-backend-2.onrender.com';
+// API URL - Use local backend for development
+const API_BASE_URL = 'http://localhost:3003';
 
 // Legacy interface for backward compatibility
 export interface CourseData extends Course {}
@@ -172,6 +172,50 @@ export const deleteCourse = async (slug: string): Promise<void> => {
   }
 };
 
+// Create a new lesson
+export const createLesson = async (courseSlug: string, moduleId: string, lessonData: any): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/courses/${courseSlug}/modules/${moduleId}/lessons`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(lessonData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create lesson');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating lesson:', error);
+    throw error;
+  }
+};
+
+// Update a lesson
+export const updateLesson = async (courseSlug: string, moduleId: string, lessonId: string, lessonData: any): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/courses/${courseSlug}/modules/${moduleId}/lessons/${lessonId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(lessonData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update lesson');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating lesson:', error);
+    throw error;
+  }
+};
+
 // Fetch course with full hierarchy (modules, lessons, exercises)
 export const getCourseWithHierarchy = async (slug: string): Promise<Course> => {
   try {
@@ -213,6 +257,108 @@ export const getCourseWithHierarchy = async (slug: string): Promise<Course> => {
     };
   } catch (error) {
     console.error(`Error fetching course with hierarchy ${slug}:`, error);
+    throw error;
+  }
+};
+
+// ==================== MODULE MANAGEMENT ====================
+
+// Add a new module to a course
+export const addModule = async (courseSlug: string, moduleData: any): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/courses/${courseSlug}/modules`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(moduleData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add module');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Error adding module:', error);
+    throw error;
+  }
+};
+
+// Update a module
+export const updateModule = async (courseSlug: string, moduleId: string, moduleData: any): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/courses/${courseSlug}/modules/${moduleId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(moduleData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update module');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Error updating module:', error);
+    throw error;
+  }
+};
+
+// Delete a module
+export const deleteModule = async (courseSlug: string, moduleId: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/courses/${courseSlug}/modules/${moduleId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete module');
+    }
+  } catch (error) {
+    console.error('Error deleting module:', error);
+    throw error;
+  }
+};
+
+// ==================== LESSON MANAGEMENT ====================
+
+// Add a new lesson to a module
+export const addLesson = async (courseSlug: string, moduleId: string, lessonData: any): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/courses/${courseSlug}/modules/${moduleId}/lessons`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(lessonData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add lesson');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Error adding lesson:', error);
+    throw error;
+  }
+};
+
+// Delete a lesson
+export const deleteLesson = async (courseSlug: string, moduleId: string, lessonId: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/courses/${courseSlug}/modules/${moduleId}/lessons/${lessonId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete lesson');
+    }
+  } catch (error) {
+    console.error('Error deleting lesson:', error);
     throw error;
   }
 };
