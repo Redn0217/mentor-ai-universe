@@ -1,0 +1,44 @@
+name: Build and Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout source code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Build the project with Hostinger-specific files
+      - name: Build
+        run: npm run build:hostinger
+
+      # 5. Deploy via SFTP
+      - name: Deploy to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USERNAME }}
+          server-dir: ${{ secrets.DEPLOY_PATH }}/
+          local-dir: ./dist/
+          protocol: sftp
+          port: ${{ secrets.HOSTINGER_PORT }}
+          private-key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          dangerous-clean-slate: true
+
