@@ -29,16 +29,16 @@ jobs:
       - name: Build
         run: npm run build:hostinger
 
-      # 5. Deploy via SFTP
+      # 5. Deploy via SFTP using SSH key
       - name: Deploy to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4
         with:
-          server: ${{ secrets.HOSTINGER_HOST }}
-          username: ${{ secrets.HOSTINGER_USERNAME }}
-          server-dir: ${{ secrets.DEPLOY_PATH }}/
+          server: 147.93.109.125
+          username: u169871373
+          password: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
+          server-dir: /public_html/
           local-dir: ./dist/
-          protocol: sftp
-          port: ${{ secrets.HOSTINGER_PORT }}
-          private-key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          protocol: ftps
+          port: 21
           dangerous-clean-slate: true
 
