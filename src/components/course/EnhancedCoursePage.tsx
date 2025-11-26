@@ -22,6 +22,22 @@ const EnhancedCoursePage: React.FC = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
 
+  // Fetch progress data
+  const fetchProgress = async (courseData: any) => {
+    if (!user || !courseData) return;
+
+    try {
+      const progress = await progressService.getModuleProgress(user.id, courseData.id);
+      setModuleProgress(progress);
+
+      // Check if user is enrolled
+      const enrolled = await enrollmentService.isEnrolled(user.id, courseData.id);
+      setIsEnrolled(enrolled);
+    } catch (error) {
+      console.error('Error fetching progress:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchCourse = async () => {
       if (!courseSlug) return;
@@ -32,14 +48,7 @@ const EnhancedCoursePage: React.FC = () => {
         setCourse(courseData);
 
         // Fetch real progress data if user is logged in
-        if (user && courseData) {
-          const progress = await progressService.getModuleProgress(user.id, courseData.id);
-          setModuleProgress(progress);
-
-          // Check if user is enrolled
-          const enrolled = await enrollmentService.isEnrolled(user.id, courseData.id);
-          setIsEnrolled(enrolled);
-        }
+        await fetchProgress(courseData);
       } catch (err) {
         setError('Failed to load course data');
         console.error('Error fetching course:', err);
@@ -50,6 +59,18 @@ const EnhancedCoursePage: React.FC = () => {
 
     fetchCourse();
   }, [courseSlug, user]);
+
+  // Refetch progress when page becomes visible (user returns from lesson)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && course && user) {
+        fetchProgress(course);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [course, user]);
 
   const handleEnrollCourse = async () => {
     if (!user) {
@@ -163,9 +184,30 @@ const EnhancedCoursePage: React.FC = () => {
     );
   }
 
+  // Calculate progress based on lessons (not modules) for consistency with Dashboard
+  const calculateOverallProgress = () => {
+    if (!user || !course.modules) return 0;
+
+    // Count total lessons across all modules
+    let totalLessons = 0;
+    let completedLessons = 0;
+
+    course.modules.forEach((module: any) => {
+      const moduleLessons = module.lessons?.length || 0;
+      totalLessons += moduleLessons;
+
+      // Count completed lessons in this module
+      if (moduleProgress[module.id]) {
+        completedLessons += moduleProgress[module.id].completed_lessons;
+      }
+    });
+
+    return totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+  };
+
+  const overallProgress = calculateOverallProgress();
   const totalModules = course.modules?.length || 0;
   const completedModules = course.modules?.filter((module: any) => isModuleCompleted(module)).length || 0;
-  const overallProgress = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-gray-50">

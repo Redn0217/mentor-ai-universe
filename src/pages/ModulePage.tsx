@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import LessonViewer from '../components/course/LessonViewer';
 import ExerciseViewer from '../components/course/ExerciseViewer';
+import CourseSidebar from '../components/course/CourseSidebar';
 import { getCourseWithHierarchy } from '../services/apiService';
 import { progressService } from '@/services/progressService';
 import { stateService } from '@/services/stateService';
@@ -9,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const ModulePage: React.FC = () => {
   const { courseSlug, moduleId } = useParams<{ courseSlug: string; moduleId: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [course, setCourse] = useState<any>(null);
@@ -17,6 +19,7 @@ const ModulePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedExercise, setSelectedExercise] = useState<any>(null);
   const [stateLoaded, setStateLoaded] = useState(false);
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
   const hasMountedRef = useRef(false);
 
   useEffect(() => {
@@ -31,10 +34,22 @@ const ModulePage: React.FC = () => {
         if (module) {
           setCurrentModule(module);
 
-          // Restore state after course data is loaded
-          if (!stateLoaded && !hasMountedRef.current) {
+          // Check if there's a lesson query parameter
+          const lessonParam = searchParams.get('lesson');
+          if (lessonParam !== null) {
+            const lessonIndex = parseInt(lessonParam, 10);
+            if (!isNaN(lessonIndex) && lessonIndex >= 0 && lessonIndex < module.lessons.length) {
+              setCurrentLessonIndex(lessonIndex);
+            }
+          } else if (!stateLoaded && !hasMountedRef.current) {
+            // Restore state after course data is loaded only if no lesson param
             restoreState();
             hasMountedRef.current = true;
+          }
+
+          // Fetch completed lessons for ALL modules in the course
+          if (user && courseData.id) {
+            fetchAllCompletedLessons(courseData.id, courseData.modules);
           }
         }
       } catch (error) {
@@ -45,7 +60,33 @@ const ModulePage: React.FC = () => {
     };
 
     fetchCourseData();
-  }, [courseSlug, moduleId]);
+  }, [courseSlug, moduleId, user, searchParams]);
+
+  // Fetch completed lessons from database for ALL modules
+  const fetchAllCompletedLessons = async (courseId: string, modules: any[]) => {
+    if (!user || !modules) return;
+
+    try {
+      // Fetch all completed lessons for this course
+      const completedLessonIds = new Set<string>();
+
+      // Check each lesson in ALL modules
+      for (const module of modules) {
+        if (module.lessons) {
+          for (const lesson of module.lessons) {
+            const isCompleted = await progressService.isLessonCompleted(user.id, lesson.id);
+            if (isCompleted) {
+              completedLessonIds.add(lesson.id);
+            }
+          }
+        }
+      }
+
+      setCompletedLessons(completedLessonIds);
+    } catch (error) {
+      console.error('Error fetching completed lessons:', error);
+    }
+  };
 
   // Restore state from localStorage
   const restoreState = () => {
@@ -139,6 +180,9 @@ const ModulePage: React.FC = () => {
           completion_percentage: 100,
           time_spent_minutes: 0 // You could track actual time spent
         });
+
+        // Update local state to mark lesson as completed
+        setCompletedLessons(prev => new Set(prev).add(currentLesson.id));
       } catch (error) {
         console.error('Error tracking lesson completion:', error);
       }
@@ -146,12 +190,8 @@ const ModulePage: React.FC = () => {
 
     console.log('Lesson completed:', currentLesson.id);
 
-    // Auto-advance to next lesson
-    if (hasNext) {
-      handleNext();
-    } else {
-      navigate(`/course/${courseSlug}`);
-    }
+    // Don't auto-advance - let the completion modal handle navigation
+    // The modal will show options to continue to next lesson or stay
   };
 
   const handleStartExercise = (exercise: any) => {
@@ -247,21 +287,37 @@ const ModulePage: React.FC = () => {
   const navInfo = getNavigationInfo();
 
   return (
-    <LessonViewer
-      lesson={currentLesson}
-      onPrevious={handlePrevious}
-      onNext={handleNext}
-      onComplete={handleComplete}
-      onStartExercise={handleStartExercise}
-      hasPrevious={hasPrevious}
-      hasNext={hasNext}
-      isCompleted={false} // Mock - in real app, check user progress
-      hasNextLesson={navInfo.hasNextLesson}
-      hasNextModule={navInfo.hasNextModule}
-      nextLessonTitle={navInfo.nextLessonTitle}
-      nextModuleTitle={navInfo.nextModuleTitle}
-      onContinueToNext={handleLessonContinueToNext}
-    />
+    <div className="flex h-screen overflow-hidden">
+      {/* Left Sidebar */}
+      <CourseSidebar
+        course={course}
+        currentModuleId={moduleId || ''}
+        currentLessonId={currentLesson.id}
+        completedLessons={completedLessons}
+        courseSlug={courseSlug || ''}
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto">
+        <LessonViewer
+          lesson={currentLesson}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          onComplete={handleComplete}
+          onStartExercise={handleStartExercise}
+          hasPrevious={hasPrevious}
+          hasNext={hasNext}
+          isCompleted={completedLessons.has(currentLesson.id)}
+          hasNextLesson={navInfo.hasNextLesson}
+          hasNextModule={navInfo.hasNextModule}
+          nextLessonTitle={navInfo.nextLessonTitle}
+          nextModuleTitle={navInfo.nextModuleTitle}
+          onContinueToNext={handleLessonContinueToNext}
+          courseTitle={course?.title}
+          courseSlug={courseSlug}
+        />
+      </div>
+    </div>
   );
 };
 

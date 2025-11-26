@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, BookOpen, Clock, Target, CheckCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, Clock, Target, CheckCircle, ArrowLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -32,6 +32,9 @@ interface LessonViewerProps {
   nextLessonTitle?: string;
   nextModuleTitle?: string;
   onContinueToNext?: () => void;
+  // Course info
+  courseTitle?: string;
+  courseSlug?: string;
 }
 
 const LessonViewer: React.FC<LessonViewerProps> = ({
@@ -47,7 +50,9 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
   hasNextModule = false,
   nextLessonTitle,
   nextModuleTitle,
-  onContinueToNext
+  onContinueToNext,
+  courseTitle,
+  courseSlug
 }) => {
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const scrollPositionRef = useRef(0);
@@ -123,7 +128,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                 <span>{lesson.estimated_duration_minutes} min</span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4">
               {/* Complete Button */}
               <button
@@ -137,6 +142,17 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                 <CheckCircle className="w-4 h-4" />
                 {isCompleted ? 'Completed' : 'Mark Complete'}
               </button>
+
+              {/* Back to Course Button */}
+              {courseSlug && (
+                <button
+                  onClick={() => window.location.href = `/course/${courseSlug}`}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Course</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

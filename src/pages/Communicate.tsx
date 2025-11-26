@@ -1,20 +1,14 @@
-import { MainLayout } from '@/components/layout/MainLayout';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { GradientButton } from '@/components/ui/gradient-button';
-import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 
 const Communicate = () => {
   return (
-    <MainLayout>
+    <DashboardLayout>
       <div className="py-16 bg-gradient-to-br from-green-50 via-white to-green-50 min-h-screen">
         <div className="max-w-6xl mx-auto px-6">
           {/* Header */}
           <div className="mb-12">
-            <Link to="/" className="inline-flex items-center text-muted-foreground hover:text-primary mb-6 transition-colors">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Link>
             <div className="flex items-center mb-6">
               <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mr-6">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -181,7 +175,7 @@ const Communicate = () => {
           </div>
         </div>
       </div>
-    </MainLayout>
+    </DashboardLayout>
   );
 };
 

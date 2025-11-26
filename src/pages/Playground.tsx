@@ -1,13 +1,13 @@
 
 import React from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { CodeEditor } from '@/components/playground/CodeEditor';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const Playground = () => {
   return (
-    <MainLayout>
+    <DashboardLayout>
       <div className="max-w-7xl mx-auto px-6 py-12 sm:px-8 lg:px-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Coding Playground</h1>
@@ -110,7 +110,7 @@ const Playground = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </MainLayout>
+    </DashboardLayout>
   );
 };
 

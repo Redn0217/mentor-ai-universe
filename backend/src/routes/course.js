@@ -29,6 +29,30 @@ const getCourseWithHierarchy = async (courseSlug) => {
       return null;
     }
 
+    // Sort modules by order_index
+    if (data && data.modules) {
+      data.modules.sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+
+      // Sort lessons within each module by order_index
+      data.modules.forEach(module => {
+        if (module.lessons) {
+          module.lessons.sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+
+          // Sort exercises within each lesson
+          module.lessons.forEach(lesson => {
+            if (lesson.exercises) {
+              lesson.exercises.sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+            }
+          });
+        }
+
+        // Sort module-level exercises
+        if (module.exercises) {
+          module.exercises.sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+        }
+      });
+    }
+
     return data;
   } catch (error) {
     console.error('Exception fetching course hierarchy:', error);

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { hasAdminRole } from '@/lib/adminAuth';
+import { isAdmin } from '@/lib/adminAuth';
 import { Shield, Lock, Mail } from 'lucide-react';
 
 export default function AdminLogin() {
@@ -20,9 +20,16 @@ export default function AdminLogin() {
 
   // Redirect if already logged in as admin
   useEffect(() => {
-    if (user && hasAdminRole(user)) {
-      navigate('/admin');
-    }
+    const checkAdmin = async () => {
+      if (user) {
+        const adminStatus = await isAdmin(user);
+        if (adminStatus) {
+          navigate('/admin');
+        }
+      }
+    };
+
+    checkAdmin();
   }, [user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {

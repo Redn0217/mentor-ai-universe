@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TechnologyCard } from '@/components/technologies/TechnologyCard';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { getCourseIcon } from '@/utils/courseIcons';
 import { fetchCourses } from '@/services/apiService';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Course {
   id: string;
@@ -35,6 +36,7 @@ const Courses = () => {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'beginner' | 'intermediate' | 'advanced'>('all');
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchCoursesData();
@@ -69,7 +71,7 @@ const Courses = () => {
   const featuredCourses = courses.filter(course => course.is_featured);
 
   return (
-    <MainLayout>
+    <DashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
         {/* Hero Section */}
         <section className="relative py-20 px-4 overflow-hidden">
@@ -151,7 +153,7 @@ const Courses = () => {
                     color={course.color}
                     icon={getCourseIcon(course.slug)}
                     modules={course.modules_count || 0}
-                    exercises={course.exercises_count || 0}
+                    lessons={course.lessons_count || 0}
                   />
                 ))}
               </div>
@@ -211,7 +213,7 @@ const Courses = () => {
                     color={course.color}
                     icon={getCourseIcon(course.slug)}
                     modules={course.modules_count || 0}
-                    exercises={course.exercises_count || 0}
+                    lessons={course.lessons_count || 0}
                   />
                 ))}
               </div>
@@ -251,33 +253,35 @@ const Courses = () => {
           </section>
         )}
 
-        {/* CTA Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-6 text-gray-900">
-              Ready to Start Learning?
-            </h2>
-            <p className="text-xl text-gray-600 mb-8">
-              Join thousands of students already learning with our expert tutors.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <button
-                onClick={() => navigate('/signup')}
-                className="px-8 py-4 bg-gradient-to-r from-[#007c87] to-[#f15a29] text-white rounded-lg font-semibold hover:shadow-lg transition-all"
-              >
-                Get Started Free
-              </button>
-              <button
-                onClick={() => navigate('/about')}
-                className="px-8 py-4 bg-white text-gray-700 rounded-lg font-semibold border-2 border-gray-200 hover:border-[#007c87] hover:text-[#007c87] transition-all"
-              >
-                Learn More
-              </button>
+        {/* CTA Section - Only show if not logged in */}
+        {!user && (
+          <section className="py-20 px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-4xl font-bold mb-6 text-gray-900">
+                Ready to Start Learning?
+              </h2>
+              <p className="text-xl text-gray-600 mb-8">
+                Join thousands of students already learning with our expert tutors.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <button
+                  onClick={() => navigate('/signup')}
+                  className="px-8 py-4 bg-gradient-to-r from-[#007c87] to-[#f15a29] text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+                >
+                  Get Started Free
+                </button>
+                <button
+                  onClick={() => navigate('/about')}
+                  className="px-8 py-4 bg-white text-gray-700 rounded-lg font-semibold border-2 border-gray-200 hover:border-[#007c87] hover:text-[#007c87] transition-all"
+                >
+                  Learn More
+                </button>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </div>
-    </MainLayout>
+    </DashboardLayout>
   );
 };
 

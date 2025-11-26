@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 import Playground from "./pages/Playground";
 import Pricing from "./pages/Pricing";
 import Certifications from "./pages/Certifications";
@@ -83,6 +84,7 @@ const AppContent = () => {
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
           {/* Add more protected routes here */}
         </Route>
 

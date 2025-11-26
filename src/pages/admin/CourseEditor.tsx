@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { hasAdminRole } from '@/lib/adminAuth';
+import { isAdmin } from '@/lib/adminAuth';
 import { LessonEditorModal } from '@/components/admin/LessonEditorModal';
 import { Edit } from 'lucide-react';
 import { updateLesson as updateLessonAPI, createLesson as createLessonAPI } from '@/services/apiService';
@@ -85,12 +85,13 @@ export default function CourseEditor() {
   const [activeTab, setActiveTab] = useState('overview');
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
   // Fetch course data
   const { data, isLoading, error } = useQuery({
     queryKey: ['courseEdit', slug],
     queryFn: () => fetchCourse(slug || ''),
-    enabled: !!slug
+    enabled: !!slug && !isCheckingAdmin
   });
 
   // Save course data mutation
@@ -122,14 +123,27 @@ export default function CourseEditor() {
 
   // Check if user is admin
   useEffect(() => {
-    if (user && !hasAdminRole(user)) {
-      toast({
-        title: "Access Denied",
-        description: "You don't have permission to access this page.",
-        variant: "destructive",
-      });
-      navigate('/');
-    }
+    const checkAdmin = async () => {
+      if (!user) {
+        navigate('/admin/login');
+        return;
+      }
+
+      const adminStatus = await isAdmin(user);
+
+      if (!adminStatus) {
+        toast({
+          title: "Access Denied",
+          description: "You don't have permission to access this page.",
+          variant: "destructive",
+        });
+        navigate('/');
+      } else {
+        setIsCheckingAdmin(false);
+      }
+    };
+
+    checkAdmin();
   }, [user, navigate, toast]);
 
   const handleSave = () => {
@@ -478,14 +492,16 @@ export default function CourseEditor() {
     }
   };
 
-  if (isLoading) {
+  if (isCheckingAdmin || isLoading) {
     return (
       <MainLayout>
         <div className="max-w-7xl mx-auto py-12 px-6 sm:px-8 lg:px-12">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="h-16 w-16 border-4 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-lg">Loading course editor...</p>
+              <p className="text-lg">
+                {isCheckingAdmin ? 'Verifying admin access...' : 'Loading course editor...'}
+              </p>
             </div>
           </div>
         </div>

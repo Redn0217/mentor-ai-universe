@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { useToast } from "@/hooks/use-toast";
+import { syncAdminStatus, clearAdminCache } from '@/lib/adminAuth';
 
 type AuthContextType = {
   user: User | null;
@@ -27,9 +28,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         console.error('Error fetching session:', error);
       }
-      
+
       setSession(session);
       setUser(session?.user ?? null);
+
+      // Sync admin status in background (non-blocking)
+      if (session?.user) {
+        syncAdminStatus(session.user).catch(console.error);
+      }
+
       setLoading(false);
     };
 
@@ -39,6 +46,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+
+        // Sync admin status in background (non-blocking)
+        if (session?.user) {
+          syncAdminStatus(session.user).catch(console.error);
+        } else {
+          clearAdminCache();
+        }
+
         setLoading(false);
       }
     );
@@ -51,8 +66,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+
+      // Sync admin status in background (non-blocking)
+      if (data.user) {
+        syncAdminStatus(data.user).catch(console.error);
+      }
+
       toast({
         title: "Success",
         description: "You have been signed in successfully!",
@@ -104,6 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       setLoading(true);
+      clearAdminCache(); // Clear admin cache on sign out
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       toast({

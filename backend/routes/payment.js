@@ -3,14 +3,27 @@ const router = express.Router();
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
-// Initialize Razorpay instance
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// Initialize Razorpay instance only if credentials are available
+let razorpay = null;
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+  razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  });
+  console.log('✅ Razorpay initialized successfully');
+} else {
+  console.warn('⚠️  Razorpay credentials not found. Payment routes will return errors.');
+}
 
 // Create Razorpay order
 router.post('/create-order', async (req, res) => {
+  if (!razorpay) {
+    return res.status(503).json({
+      success: false,
+      message: 'Payment gateway not configured. Please contact administrator.'
+    });
+  }
+
   try {
     const { amount, currency, receipt, notes } = req.body;
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { hasAdminRole } from '@/lib/adminAuth';
+import { isAdmin } from '@/lib/adminAuth';
 import { fetchCourses } from '@/services/apiService';
-import { 
-  BookOpen, 
-  Users, 
-  TrendingUp, 
+import {
+  BookOpen,
+  Users,
+  TrendingUp,
   Settings,
   Plus,
   Edit,
@@ -23,17 +23,31 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
   // Check if user is admin
   useEffect(() => {
-    if (user && !hasAdminRole(user)) {
-      toast({
-        title: "Access Denied",
-        description: "You don't have permission to access the admin panel.",
-        variant: "destructive",
-      });
-      navigate('/');
-    }
+    const checkAdmin = async () => {
+      if (!user) {
+        navigate('/admin/login');
+        return;
+      }
+
+      const adminStatus = await isAdmin(user);
+
+      if (!adminStatus) {
+        toast({
+          title: "Access Denied",
+          description: "You don't have permission to access the admin panel.",
+          variant: "destructive",
+        });
+        navigate('/');
+      } else {
+        setIsCheckingAdmin(false);
+      }
+    };
+
+    checkAdmin();
   }, [user, navigate, toast]);
 
   // Fetch courses data for statistics
@@ -113,6 +127,21 @@ export default function AdminDashboard() {
       color: 'bg-gray-500 hover:bg-gray-600'
     }
   ];
+
+  if (isCheckingAdmin) {
+    return (
+      <MainLayout>
+        <div className="max-w-7xl mx-auto px-6 py-12 sm:px-8 lg:px-12">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-600">Verifying admin access...</p>
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>

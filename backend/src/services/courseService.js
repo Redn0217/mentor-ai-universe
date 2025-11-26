@@ -59,31 +59,90 @@ class CourseService {
   // Get course counts (modules, lessons, exercises)
   async getCourseCounts(courseId) {
     try {
-      const [modulesResult, lessonsResult, exercisesResult] = await Promise.all([
+      // First, get module IDs for this course
+      const { data: modules, error: modulesError } = await supabase
+        .from('modules')
+        .select('id')
+        .eq('course_id', courseId)
+        .eq('is_published', true);
+
+      if (modulesError) {
+        console.error('Error fetching modules for counts:', modulesError);
+      }
+
+      const moduleIds = modules?.map(m => m.id) || [];
+      console.log(`📊 Course ${courseId}: Found ${moduleIds.length} modules`);
+
+      // Then get lesson IDs for these modules
+      let lessonIds = [];
+      if (moduleIds.length > 0) {
+        const { data: lessons, error: lessonsError } = await supabase
+          .from('lessons')
+          .select('id')
+          .in('module_id', moduleIds)
+          .eq('is_published', true);
+
+        if (lessonsError) {
+          console.error('Error fetching lessons for counts:', lessonsError);
+        }
+
+        lessonIds = lessons?.map(l => l.id) || [];
+        console.log(`📊 Course ${courseId}: Found ${lessonIds.length} lessons`);
+      }
+
+      // Count exercises - check both module_id and lesson_id
+      let exercisesCount = 0;
+      if (moduleIds.length > 0 || lessonIds.length > 0) {
+        // Build the OR filter properly
+        const filters = [];
+        if (moduleIds.length > 0) {
+          filters.push(`module_id.in.(${moduleIds.join(',')})`);
+        }
+        if (lessonIds.length > 0) {
+          filters.push(`lesson_id.in.(${lessonIds.join(',')})`);
+        }
+
+        const { count, error: exercisesError, data: exercisesData } = await supabase
+          .from('exercises')
+          .select('*', { count: 'exact' })
+          .or(filters.join(','))
+          .eq('is_published', true);
+
+        if (exercisesError) {
+          console.error('Error fetching exercises for counts:', exercisesError);
+        } else {
+          exercisesCount = count || 0;
+          console.log(`📊 Course ${courseId}: Found ${exercisesCount} exercises`);
+          if (exercisesData && exercisesData.length > 0) {
+            console.log(`📊 Sample exercises:`, exercisesData.slice(0, 2).map(e => ({ id: e.id, title: e.title, module_id: e.module_id, lesson_id: e.lesson_id })));
+          }
+        }
+      }
+
+      // Now count everything
+      const [modulesResult, lessonsResult] = await Promise.all([
         supabase
           .from('modules')
           .select('id', { count: 'exact' })
           .eq('course_id', courseId)
           .eq('is_published', true),
-        
+
         supabase
           .from('lessons')
           .select('id', { count: 'exact' })
-          .eq('module_id', supabase.from('modules').select('id').eq('course_id', courseId))
-          .eq('is_published', true),
-        
-        supabase
-          .from('exercises')
-          .select('id', { count: 'exact' })
-          .or(`module_id.in.(${supabase.from('modules').select('id').eq('course_id', courseId)}),lesson_id.in.(${supabase.from('lessons').select('id').eq('module_id', supabase.from('modules').select('id').eq('course_id', courseId))})`)
+          .in('module_id', moduleIds.length > 0 ? moduleIds : [''])
           .eq('is_published', true)
       ]);
 
-      return {
+      const result = {
         modules_count: modulesResult.count || 0,
         lessons_count: lessonsResult.count || 0,
-        exercises_count: exercisesResult.count || 0
+        exercises_count: exercisesCount
       };
+
+      console.log(`📊 Final counts for course ${courseId}:`, result);
+
+      return result;
     } catch (error) {
       console.error('Error fetching course counts:', error);
       return {

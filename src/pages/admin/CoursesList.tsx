@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { hasAdminRole } from '@/lib/adminAuth';
+import { isAdmin } from '@/lib/adminAuth';
 import {
   Card,
   CardContent,
@@ -33,17 +33,31 @@ export default function CoursesList() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [showAIModal, setShowAIModal] = useState(false);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
   // Check if user is admin
   useEffect(() => {
-    if (user && !hasAdminRole(user)) {
-      toast({
-        title: "Access Denied",
-        description: "You don't have permission to access this page.",
-        variant: "destructive",
-      });
-      navigate('/');
-    }
+    const checkAdmin = async () => {
+      if (!user) {
+        navigate('/admin/login');
+        return;
+      }
+
+      const adminStatus = await isAdmin(user);
+
+      if (!adminStatus) {
+        toast({
+          title: "Access Denied",
+          description: "You don't have permission to access this page.",
+          variant: "destructive",
+        });
+        navigate('/');
+      } else {
+        setIsCheckingAdmin(false);
+      }
+    };
+
+    checkAdmin();
   }, [user, navigate, toast]);
 
   // Fetch courses data
@@ -77,6 +91,21 @@ export default function CoursesList() {
       }
     }
   };
+
+  if (isCheckingAdmin) {
+    return (
+      <MainLayout>
+        <div className="max-w-7xl mx-auto px-6 py-12 sm:px-8 lg:px-12">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-600">Verifying admin access...</p>
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>

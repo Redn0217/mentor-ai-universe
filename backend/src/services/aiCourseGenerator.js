@@ -123,7 +123,23 @@ Return ONLY valid JSON without any markdown formatting or code blocks. The JSON 
           "duration_minutes": 30,
           "content": "<h1>Introduction to Arrays</h1><p>Arrays are fundamental data structures that store multiple values in a single variable. They are ordered collections where each element has a specific position called an index.</p><p>In this lesson, we'll explore what arrays are, why they're important, and how to use them effectively in your programs.</p><h2>What is an Array?</h2><p>An array is a <strong>collection of elements</strong> stored in contiguous memory locations. Each element can be accessed using its <strong>index</strong>, which starts at 0.</p><pre class=\"ql-syntax\">// Creating an array of numbers\nlet numbers = [1, 2, 3, 4, 5];\nconsole.log(numbers);\n// Output: [1, 2, 3, 4, 5]\n\n// Accessing elements by index\nconsole.log(numbers[0]); // Output: 1\nconsole.log(numbers[2]); // Output: 3</pre><h2>Why Use Arrays?</h2><p>Arrays are essential because they allow you to store and manage multiple related values efficiently. Instead of creating separate variables for each value, you can group them together.</p><pre class=\"ql-syntax\">// Without arrays (inefficient)\nlet student1 = \"Alice\";\nlet student2 = \"Bob\";\nlet student3 = \"Charlie\";\n\n// With arrays (efficient)\nlet students = [\"Alice\", \"Bob\", \"Charlie\"];\nconsole.log(students);\n// Output: [\"Alice\", \"Bob\", \"Charlie\"]</pre><h2>Common Array Operations</h2><p>Arrays support various operations like adding, removing, and modifying elements.</p><pre class=\"ql-syntax\">let fruits = [\"apple\", \"banana\"];\n\n// Adding elements\nfruits.push(\"orange\");\nconsole.log(fruits);\n// Output: [\"apple\", \"banana\", \"orange\"]\n\n// Removing elements\nfruits.pop();\nconsole.log(fruits);\n// Output: [\"apple\", \"banana\"]</pre><h2>Common Mistakes</h2><ul><li>Forgetting that array indices start at 0, not 1</li><li>Accessing indices that don't exist (returns undefined)</li><li>Modifying arrays while iterating over them</li></ul><h2>Best Practices</h2><ul><li>Use descriptive names for arrays (e.g., students, not arr)</li><li>Check array length before accessing elements</li><li>Use array methods instead of manual loops when possible</li><li>Keep arrays homogeneous (same data type) for clarity</li></ul><h2>Key Points</h2><ul><li>Arrays store multiple values in a single variable</li><li>Array indices start at 0</li><li>Use square brackets [] to create and access arrays</li><li>Arrays have a length property</li><li>Common methods: push(), pop(), shift(), unshift()</li></ul><p><strong>What's Next?</strong> In the next lesson, we'll learn different ways to create and initialize arrays.</p>",
           "video_url": null,
-          "exercises": [...]
+          "exercises": [
+            {
+              "title": "Create Your First Array",
+              "description": "Practice creating arrays and accessing elements",
+              "instructions": "Create an array of your 5 favorite colors and print the first and last color.",
+              "starter_code": "// Create an array of 5 colors\nlet colors = [];\n\n// Print the first color\n\n// Print the last color",
+              "solution_code": "// Create an array of 5 colors\nlet colors = ['red', 'blue', 'green', 'yellow', 'purple'];\n\n// Print the first color\nconsole.log(colors[0]); // Output: red\n\n// Print the last color\nconsole.log(colors[4]); // Output: purple\n// Or use: colors[colors.length - 1]",
+              "hints": [
+                "Remember that array indices start at 0",
+                "The last element is at index length - 1",
+                "Use square brackets [] to create an array"
+              ],
+              "type": "coding",
+              "difficulty": "beginner",
+              "estimated_time": 10
+            }
+          ]
         },
         {
           "title": "Creating and Initializing Arrays",
@@ -450,7 +466,18 @@ Estimated Duration: ${estimatedHours} hours
    - Include detailed comments explaining what the code does
    - Show expected output using // Output: comments
    - Progress from simple to complex examples
-5. EXERCISES: Each lesson should have 1 exercise with starter_code, solution_code, and hints
+5. EXERCISES: Each lesson MUST have 1-2 exercises with the following structure:
+   {
+     "title": "Exercise title",
+     "description": "What the student needs to do",
+     "instructions": "Step-by-step instructions",
+     "starter_code": "// Starting code template",
+     "solution_code": "// Complete solution",
+     "hints": ["Hint 1", "Hint 2", "Hint 3"],
+     "type": "coding",
+     "difficulty": "beginner|intermediate|advanced",
+     "estimated_time": 15
+   }
 
 ⚠️ ABSOLUTELY CRITICAL: DO NOT use "..." or "content here..." or any placeholders in the lesson content!
 ⚠️ GENERATE THE FULL, COMPLETE CONTENT for EVERY lesson following the example format shown below!
@@ -497,7 +524,7 @@ IMPORTANT STRUCTURE:
 - Generate EXACTLY 3-4 modules
 - Each module has EXACTLY 4-5 lessons
 - Each lesson has FULL HTML content (like the example - NO shortcuts!)
-- Each lesson has 1 exercise with starter_code, solution_code, and hints
+- Each lesson MUST have 1-2 exercises in the "exercises" array with complete starter_code, solution_code, and hints
 
 CONTENT LENGTH REQUIREMENTS (ABSOLUTELY CRITICAL):
 - Each lesson MUST be 200-400 words of explanation + 3 code examples

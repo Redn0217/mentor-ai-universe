@@ -18,7 +18,7 @@ interface Technology {
   color: string;
   icon: any;
   modules: number;
-  exercises: number;
+  lessons: number;
   tutor: {
     name: string;
     avatar: string;
@@ -50,7 +50,7 @@ const Index = () => {
           color: course.color,
           icon: getCourseIcon(course.slug),
           modules: course.modules_count || 0,
-          exercises: course.exercises_count || 0,
+          lessons: course.lessons_count || 0,
           tutor: {
             name: course.tutor?.name || 'Instructor',
             avatar: course.tutor?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${course.slug}`
@@ -274,7 +274,7 @@ const Index = () => {
                 color={tech.color}
                 slug={tech.slug}
                 modules={tech.modules}
-                exercises={tech.exercises}
+                lessons={tech.lessons}
               />
             ))}
           </div>

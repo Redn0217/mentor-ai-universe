@@ -114,6 +114,28 @@ export const getCourses = async (): Promise<CourseListItem[]> => {
 // Helper function to get course counts
 const getCourseCounts = async (courseId: string) => {
   try {
+    // First, get module IDs for this course
+    const { data: modules } = await supabase
+      .from('modules')
+      .select('id')
+      .eq('course_id', courseId)
+      .eq('is_published', true);
+
+    const moduleIds = modules?.map(m => m.id) || [];
+
+    // Then get lesson IDs for these modules
+    let lessonIds: string[] = [];
+    if (moduleIds.length > 0) {
+      const { data: lessons } = await supabase
+        .from('lessons')
+        .select('id')
+        .in('module_id', moduleIds)
+        .eq('is_published', true);
+
+      lessonIds = lessons?.map(l => l.id) || [];
+    }
+
+    // Now count everything
     const [modulesResult, lessonsResult, exercisesResult] = await Promise.all([
       supabase
         .from('modules')
@@ -124,16 +146,17 @@ const getCourseCounts = async (courseId: string) => {
       supabase
         .from('lessons')
         .select('id', { count: 'exact' })
-        .in('module_id',
-          supabase.from('modules').select('id').eq('course_id', courseId).eq('is_published', true)
-        )
+        .in('module_id', moduleIds.length > 0 ? moduleIds : [''])
         .eq('is_published', true),
 
-      supabase
-        .from('exercises')
-        .select('id', { count: 'exact' })
-        .or(`module_id.in.(${courseId}),lesson_id.in.(${courseId})`)
-        .eq('is_published', true)
+      // Count exercises that belong to either modules or lessons in this course
+      moduleIds.length > 0 || lessonIds.length > 0
+        ? supabase
+            .from('exercises')
+            .select('id', { count: 'exact' })
+            .or(`module_id.in.(${moduleIds.join(',')}),lesson_id.in.(${lessonIds.join(',')})`)
+            .eq('is_published', true)
+        : Promise.resolve({ count: 0 })
     ]);
 
     return {

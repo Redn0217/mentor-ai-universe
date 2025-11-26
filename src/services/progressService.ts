@@ -113,7 +113,11 @@ class ProgressService {
 
       // Process the data to create module progress summary
       const moduleProgress: Record<string, ModuleProgress> = {};
-      
+
+      // Track unique completed lessons and exercises per module to avoid counting duplicates
+      const completedLessonsPerModule: Record<string, Set<string>> = {};
+      const completedExercisesPerModule: Record<string, Set<string>> = {};
+
       if (data) {
         data.forEach(progress => {
           if (progress.module_id) {
@@ -130,22 +134,26 @@ class ProgressService {
                 time_spent_minutes: 0,
                 last_accessed_at: progress.last_accessed_at
               };
+              completedLessonsPerModule[progress.module_id] = new Set();
+              completedExercisesPerModule[progress.module_id] = new Set();
             }
 
             const moduleData = moduleProgress[progress.module_id];
-            
+
             if (progress.progress_type === 'module_started') {
               moduleData.is_started = true;
             }
-            
-            if (progress.progress_type === 'lesson_completed') {
-              moduleData.completed_lessons++;
+
+            if (progress.progress_type === 'lesson_completed' && progress.lesson_id) {
+              // Track unique lessons only
+              completedLessonsPerModule[progress.module_id].add(progress.lesson_id);
             }
-            
-            if (progress.progress_type === 'exercise_completed') {
-              moduleData.completed_exercises++;
+
+            if (progress.progress_type === 'exercise_completed' && progress.exercise_id) {
+              // Track unique exercises only
+              completedExercisesPerModule[progress.module_id].add(progress.exercise_id);
             }
-            
+
             moduleData.time_spent_minutes += progress.time_spent_minutes || 0;
             
             // Update last accessed time if this is more recent
@@ -153,6 +161,12 @@ class ProgressService {
               moduleData.last_accessed_at = progress.last_accessed_at;
             }
           }
+        });
+
+        // Set the unique counts from the Sets
+        Object.keys(moduleProgress).forEach(moduleId => {
+          moduleProgress[moduleId].completed_lessons = completedLessonsPerModule[moduleId]?.size || 0;
+          moduleProgress[moduleId].completed_exercises = completedExercisesPerModule[moduleId]?.size || 0;
         });
       }
 
@@ -165,7 +179,7 @@ class ProgressService {
           // Merge local and remote progress (take the higher values)
           const remote = moduleProgress[moduleId];
           const local = localProgress[moduleId];
-          
+
           remote.completed_lessons = Math.max(remote.completed_lessons, local.completed_lessons);
           remote.completed_exercises = Math.max(remote.completed_exercises, local.completed_exercises);
           remote.time_spent_minutes = Math.max(remote.time_spent_minutes, local.time_spent_minutes);
