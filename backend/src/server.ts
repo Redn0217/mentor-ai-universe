@@ -3,10 +3,7 @@ import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { createRequire } from 'module';
 import { config } from './config/env.js';
-
-const require = createRequire(import.meta.url);
 
 // Create Express app
 const app = express();
@@ -22,25 +19,19 @@ app.use(express.json());
 
 // Import routes
 import chatRoutes from './routes/chat.js';
-const courseRoutes = require('./routes/course.js');
-const aiCourseRoutes = require('./routes/aiCourse.js');
+import courseRoutes from './routes/course.js';
 
 // Use routes
 app.use('/api/chat', chatRoutes);
 app.use('/api/courses', courseRoutes);
-app.use('/api/ai-courses', aiCourseRoutes);
 
-// Serve static files from the React app build directory in production
-if (config.nodeEnv === 'production') {
-  // Go up two directories from current file (src/server.ts -> backend/src -> backend -> root)
-  const rootDir = path.resolve(__dirname, '../../');
-  app.use(express.static(path.join(rootDir, 'dist')));
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', environment: config.nodeEnv });
+});
 
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(rootDir, 'dist', 'index.html'));
-  });
-}
+// Note: Static files are served separately on Hostinger
+// Backend only serves API endpoints
 
 // Start server
 app.listen(PORT, () => {
