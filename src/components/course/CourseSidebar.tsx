@@ -65,7 +65,7 @@ const CourseSidebar: React.FC<CourseSidebarProps> = ({
       <div className="py-2">
         {course.modules.map((module: any, moduleIndex: number) => {
           const isExpanded = expandedModules.has(module.id);
-          const isCurrentModule = module.id === currentModuleId;
+           const isCurrentModule = module.id === currentModuleId;
           const moduleLessons = module.lessons || [];
           const completedCount = moduleLessons.filter((lesson: any) =>
             completedLessons.has(lesson.id)
