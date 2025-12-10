@@ -612,7 +612,8 @@ router.post('/', async (req, res) => {
               description: module.description || '',
               slug: module.slug || module.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || `module-${i + 1}`,
               order_index: i,
-              estimated_duration_minutes: module.estimated_duration_minutes || 0
+              estimated_duration_minutes: module.estimated_duration_minutes || 0,
+              is_published: true
             })
             .select()
             .single();
@@ -825,7 +826,8 @@ router.post('/:slug/modules', async (req, res) => {
           description: newModule.description,
           slug: newModule.slug || newModule.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
           order_index: newModule.order_index || 0,
-          estimated_duration_minutes: newModule.estimated_duration_minutes || 0
+          estimated_duration_minutes: newModule.estimated_duration_minutes || 0,
+          is_published: true
         })
         .select()
         .single();

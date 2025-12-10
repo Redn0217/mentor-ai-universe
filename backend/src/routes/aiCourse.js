@@ -121,7 +121,8 @@ async function saveCourseToDatabase(courseStructure) {
           description: module.description,
           slug: module.slug,
           order_index: module.order_index,
-          estimated_duration_minutes: module.estimated_duration_minutes
+          estimated_duration_minutes: module.estimated_duration_minutes,
+          is_published: true
         };
 
         const { data: savedModule, error: moduleError } = await supabase
