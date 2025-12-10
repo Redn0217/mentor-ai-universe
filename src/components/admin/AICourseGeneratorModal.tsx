@@ -22,6 +22,11 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
 
+// API URL - Use Render backend for production, localhost for development
+const API_BASE_URL = import.meta.env.PROD
+  ? 'https://internsify-backend-2.onrender.com'
+  : 'http://localhost:3003';
+
 interface AICourseGeneratorModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -61,7 +66,7 @@ export function AICourseGeneratorModal({ open, onOpenChange }: AICourseGenerator
     setIsGenerating(true);
 
     try {
-      const response = await fetch('http://localhost:3003/api/ai-courses/generate', {
+      const response = await fetch(`${API_BASE_URL}/api/ai-courses/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
