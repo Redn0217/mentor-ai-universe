@@ -1,6 +1,6 @@
-const express = require('express');
-const { generateCourseWithAI } = require('../services/aiCourseGenerator.js');
-const { supabase } = require('../lib/supabase.js');
+import express from 'express';
+import { generateCourseWithAI } from '../services/aiCourseGenerator.js';
+import { supabase } from '../lib/supabase.js';
 
 const router = express.Router();
 
@@ -23,6 +23,12 @@ router.post('/generate', async (req, res) => {
     console.log('🚀 Starting AI course generation request...');
     console.log('📚 Course:', courseName);
     console.log('📝 Prompt length:', prompt.length);
+
+    // Warn if prompt is very long
+    if (prompt.length > 2000) {
+      console.log('⚠️ WARNING: Very long prompt detected. This may result in incomplete course generation.');
+      console.log('⚠️ Consider breaking this into multiple smaller courses for better results.');
+    }
 
     // Generate course with AI
     const courseStructure = await generateCourseWithAI({
@@ -254,5 +260,5 @@ async function saveCourseToDatabase(courseStructure) {
   }
 }
 
-module.exports = router;
+export default router;
 

@@ -1,9 +1,15 @@
+import express from 'express';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { supabase, checkSupabaseConnection } from '../lib/supabase.js';
 
-const express = require('express');
+// Get current directory in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const router = express.Router();
-const fs = require('fs').promises;
-const path = require('path');
-const { supabase, checkSupabaseConnection } = require('../lib/supabase');
 
 // Helper function to get course with full hierarchy
 const getCourseWithHierarchy = async (courseSlug) => {
@@ -1146,4 +1152,4 @@ router.delete('/:slug/modules/:moduleId/lessons/:lessonId', async (req, res) => 
   }
 });
 
-module.exports = router;
+export default router;

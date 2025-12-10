@@ -1,5 +1,5 @@
 // Course Service for New Relational Database Structure
-const { supabase } = require('../lib/supabase');
+import { supabase } from '../lib/supabase.js';
 
 class CourseService {
   // Get all courses with counts
@@ -376,4 +376,4 @@ class CourseService {
   }
 }
 
-module.exports = new CourseService();
+export default new CourseService();

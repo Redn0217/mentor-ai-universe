@@ -1,5 +1,5 @@
-const { createClient } = require('@supabase/supabase-js');
-const { config } = require('../config/env');
+import { createClient } from '@supabase/supabase-js';
+import { config } from '../config/env.js';
 
 // Create a Supabase client with service role key for backend operations
 // This bypasses Row Level Security (RLS) policies
@@ -39,7 +39,4 @@ const checkSupabaseConnection = async () => {
 };
 
 // Export the Supabase client and helper functions
-module.exports = {
-  supabase,
-  checkSupabaseConnection,
-};
+export { supabase, checkSupabaseConnection };

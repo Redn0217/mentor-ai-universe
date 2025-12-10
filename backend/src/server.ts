@@ -20,10 +20,12 @@ app.use(express.json());
 // Import routes
 import chatRoutes from './routes/chat.js';
 import courseRoutes from './routes/course.js';
+import aiCourseRoutes from './routes/aiCourse.js';
 
 // Use routes
 app.use('/api/chat', chatRoutes);
 app.use('/api/courses', courseRoutes);
+app.use('/api/ai-courses', aiCourseRoutes);
 
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
