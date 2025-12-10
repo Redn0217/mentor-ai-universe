@@ -66,11 +66,66 @@ const getCourseWithHierarchy = async (courseSlug) => {
   }
 };
 
+// Helper function to get counts for a single course
+const getCourseCountsById = async (courseId) => {
+  try {
+    // Count modules
+    const { count: modulesCount } = await supabase
+      .from('modules')
+      .select('*', { count: 'exact', head: true })
+      .eq('course_id', courseId)
+      .eq('is_published', true);
+
+    // Get module IDs for counting lessons
+    const { data: modules } = await supabase
+      .from('modules')
+      .select('id')
+      .eq('course_id', courseId)
+      .eq('is_published', true);
+
+    const moduleIds = modules?.map(m => m.id) || [];
+
+    // Count lessons
+    let lessonsCount = 0;
+    if (moduleIds.length > 0) {
+      const { count } = await supabase
+        .from('lessons')
+        .select('*', { count: 'exact', head: true })
+        .in('module_id', moduleIds)
+        .eq('is_published', true);
+      lessonsCount = count || 0;
+    }
+
+    // Count exercises
+    let exercisesCount = 0;
+    if (moduleIds.length > 0) {
+      const { count } = await supabase
+        .from('exercises')
+        .select('*', { count: 'exact', head: true })
+        .in('module_id', moduleIds)
+        .eq('is_published', true);
+      exercisesCount = count || 0;
+    }
+
+    return {
+      modules_count: modulesCount || 0,
+      lessons_count: lessonsCount,
+      exercises_count: exercisesCount
+    };
+  } catch (error) {
+    console.error(`❌ Error getting counts for course ${courseId}:`, error);
+    return {
+      modules_count: 0,
+      lessons_count: 0,
+      exercises_count: 0
+    };
+  }
+};
+
 // Helper function to get courses with counts
 const getCoursesWithCounts = async () => {
   try {
-    // Get courses with related data - use LEFT joins to include all courses
-    // Filter courses by is_published, but allow courses without modules/lessons
+    // Get all published courses (without nested data)
     const { data, error } = await supabase
       .from('courses')
       .select(`
@@ -87,65 +142,47 @@ const getCoursesWithCounts = async () => {
         is_published,
         tutor_name,
         tutor_avatar,
-        updated_at,
-        modules(
-          id,
-          is_published,
-          lessons(id, is_published),
-          exercises(id, is_published)
-        )
+        updated_at
       `)
-      .eq('is_published', true);
+      .eq('is_published', true)
+      .order('updated_at', { ascending: false });
 
     if (error) {
-      console.error('❌ Error fetching courses with counts:', error);
+      console.error('❌ Error fetching courses:', error);
       return null;
     }
 
-    console.log(`📊 Fetched ${data.length} courses with nested data`);
+    console.log(`📊 Fetched ${data.length} published courses`);
 
-    // Transform the data to include counts
-    const coursesWithCounts = data.map(course => {
-      // Handle courses with no modules (newly created courses)
-      const allModules = course.modules || [];
-      const publishedModules = allModules.filter(m => m.is_published === true);
-      const modulesCount = publishedModules.length;
+    // Get counts for each course in parallel
+    const coursesWithCounts = await Promise.all(
+      data.map(async (course) => {
+        const counts = await getCourseCountsById(course.id);
 
-      const lessonsCount = publishedModules.reduce((total, module) => {
-        const allLessons = module.lessons || [];
-        const publishedLessons = allLessons.filter(l => l.is_published === true);
-        return total + publishedLessons.length;
-      }, 0);
+        console.log(`📊 Course "${course.title}": ${counts.modules_count} modules, ${counts.lessons_count} lessons, ${counts.exercises_count} exercises`);
 
-      const exercisesCount = publishedModules.reduce((total, module) => {
-        const allExercises = module.exercises || [];
-        const publishedExercises = allExercises.filter(e => e.is_published === true);
-        return total + publishedExercises.length;
-      }, 0);
-
-      console.log(`📊 Course "${course.title}": ${modulesCount} modules, ${lessonsCount} lessons, ${exercisesCount} exercises (is_published: ${course.is_published})`);
-
-      return {
-        id: course.id,
-        slug: course.slug,
-        title: course.title,
-        description: course.description,
-        short_description: course.short_description,
-        color: course.color,
-        difficulty_level: course.difficulty_level,
-        estimated_duration_hours: course.estimated_duration_hours,
-        tags: course.tags || [],
-        is_featured: course.is_featured,
-        tutor: {
-          name: course.tutor_name || 'Course Instructor',
-          avatar: course.tutor_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor'
-        },
-        modules_count: modulesCount,
-        lessons_count: lessonsCount,
-        exercises_count: exercisesCount,
-        updated_at: course.updated_at
-      };
-    });
+        return {
+          id: course.id,
+          slug: course.slug,
+          title: course.title,
+          description: course.description,
+          short_description: course.short_description,
+          color: course.color,
+          difficulty_level: course.difficulty_level,
+          estimated_duration_hours: course.estimated_duration_hours,
+          tags: course.tags || [],
+          is_featured: course.is_featured,
+          tutor: {
+            name: course.tutor_name || 'Course Instructor',
+            avatar: course.tutor_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor'
+          },
+          modules_count: counts.modules_count,
+          lessons_count: counts.lessons_count,
+          exercises_count: counts.exercises_count,
+          updated_at: course.updated_at
+        };
+      })
+    );
 
     return coursesWithCounts;
   } catch (error) {
