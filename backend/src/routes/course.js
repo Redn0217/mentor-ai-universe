@@ -69,7 +69,7 @@ const getCourseWithHierarchy = async (courseSlug) => {
 // Helper function to get courses with counts
 const getCoursesWithCounts = async () => {
   try {
-    // Get courses with related data
+    // Get courses with related data - filter by is_published
     const { data, error } = await supabase
       .from('courses')
       .select(`
@@ -86,41 +86,63 @@ const getCoursesWithCounts = async () => {
         tutor_name,
         tutor_avatar,
         updated_at,
-        modules:modules(
+        modules!inner(
           id,
-          lessons:lessons(id),
-          exercises:exercises(id)
+          is_published,
+          lessons!inner(id, is_published),
+          exercises(id, is_published)
         )
-      `);
+      `)
+      .eq('modules.is_published', true)
+      .eq('modules.lessons.is_published', true);
 
     if (error) {
-      console.error('Error fetching courses with counts:', error);
+      console.error('❌ Error fetching courses with counts:', error);
       return null;
     }
 
+    console.log(`📊 Fetched ${data.length} courses with nested data`);
+
     // Transform the data to include counts
-    return data.map(course => ({
-      id: course.id,
-      slug: course.slug,
-      title: course.title,
-      description: course.description,
-      short_description: course.short_description,
-      color: course.color,
-      difficulty_level: course.difficulty_level,
-      estimated_duration_hours: course.estimated_duration_hours,
-      tags: course.tags || [],
-      is_featured: course.is_featured,
-      tutor: {
-        name: course.tutor_name || 'Course Instructor',
-        avatar: course.tutor_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor'
-      },
-      modules_count: course.modules?.length || 0,
-      lessons_count: course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 0,
-      exercises_count: course.modules?.reduce((total, module) => total + (module.exercises?.length || 0), 0) || 0,
-      updated_at: course.updated_at
-    }));
+    const coursesWithCounts = data.map(course => {
+      const publishedModules = course.modules?.filter(m => m.is_published) || [];
+      const modulesCount = publishedModules.length;
+      const lessonsCount = publishedModules.reduce((total, module) => {
+        const publishedLessons = module.lessons?.filter(l => l.is_published) || [];
+        return total + publishedLessons.length;
+      }, 0);
+      const exercisesCount = publishedModules.reduce((total, module) => {
+        const publishedExercises = module.exercises?.filter(e => e.is_published) || [];
+        return total + publishedExercises.length;
+      }, 0);
+
+      console.log(`📊 Course "${course.title}": ${modulesCount} modules, ${lessonsCount} lessons, ${exercisesCount} exercises`);
+
+      return {
+        id: course.id,
+        slug: course.slug,
+        title: course.title,
+        description: course.description,
+        short_description: course.short_description,
+        color: course.color,
+        difficulty_level: course.difficulty_level,
+        estimated_duration_hours: course.estimated_duration_hours,
+        tags: course.tags || [],
+        is_featured: course.is_featured,
+        tutor: {
+          name: course.tutor_name || 'Course Instructor',
+          avatar: course.tutor_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor'
+        },
+        modules_count: modulesCount,
+        lessons_count: lessonsCount,
+        exercises_count: exercisesCount,
+        updated_at: course.updated_at
+      };
+    });
+
+    return coursesWithCounts;
   } catch (error) {
-    console.error('Exception fetching courses with counts:', error);
+    console.error('❌ Exception fetching courses with counts:', error);
     return null;
   }
 };
