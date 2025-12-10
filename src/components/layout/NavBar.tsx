@@ -39,6 +39,7 @@ export const NavBar = () => {
   const platformItems = [
 
     { name: 'Playground', href: '/playground', description: 'Interactive coding environment' },
+    { name: 'Practice', href: '/practice', description: 'Hands-on coding challenges' },
     { name: 'Certifications', href: '/certifications', description: 'Industry recognized certificates' },
     { name: 'About', href: '/about', description: 'Learn more about our platform' },
     { name: 'Contact', href: '/contact', description: 'Get in touch with our team' },
