@@ -69,7 +69,8 @@ const getCourseWithHierarchy = async (courseSlug) => {
 // Helper function to get courses with counts
 const getCoursesWithCounts = async () => {
   try {
-    // Get courses with related data - filter by is_published
+    // Get courses with related data - use LEFT joins to include all courses
+    // Filter courses by is_published, but allow courses without modules/lessons
     const { data, error } = await supabase
       .from('courses')
       .select(`
@@ -83,18 +84,18 @@ const getCoursesWithCounts = async () => {
         estimated_duration_hours,
         tags,
         is_featured,
+        is_published,
         tutor_name,
         tutor_avatar,
         updated_at,
-        modules!inner(
+        modules(
           id,
           is_published,
-          lessons!inner(id, is_published),
+          lessons(id, is_published),
           exercises(id, is_published)
         )
       `)
-      .eq('modules.is_published', true)
-      .eq('modules.lessons.is_published', true);
+      .eq('is_published', true);
 
     if (error) {
       console.error('❌ Error fetching courses with counts:', error);
@@ -105,18 +106,24 @@ const getCoursesWithCounts = async () => {
 
     // Transform the data to include counts
     const coursesWithCounts = data.map(course => {
-      const publishedModules = course.modules?.filter(m => m.is_published) || [];
+      // Handle courses with no modules (newly created courses)
+      const allModules = course.modules || [];
+      const publishedModules = allModules.filter(m => m.is_published === true);
       const modulesCount = publishedModules.length;
+
       const lessonsCount = publishedModules.reduce((total, module) => {
-        const publishedLessons = module.lessons?.filter(l => l.is_published) || [];
+        const allLessons = module.lessons || [];
+        const publishedLessons = allLessons.filter(l => l.is_published === true);
         return total + publishedLessons.length;
       }, 0);
+
       const exercisesCount = publishedModules.reduce((total, module) => {
-        const publishedExercises = module.exercises?.filter(e => e.is_published) || [];
+        const allExercises = module.exercises || [];
+        const publishedExercises = allExercises.filter(e => e.is_published === true);
         return total + publishedExercises.length;
       }, 0);
 
-      console.log(`📊 Course "${course.title}": ${modulesCount} modules, ${lessonsCount} lessons, ${exercisesCount} exercises`);
+      console.log(`📊 Course "${course.title}": ${modulesCount} modules, ${lessonsCount} lessons, ${exercisesCount} exercises (is_published: ${course.is_published})`);
 
       return {
         id: course.id,
