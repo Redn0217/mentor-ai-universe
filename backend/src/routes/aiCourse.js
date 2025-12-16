@@ -30,19 +30,45 @@ router.post('/generate', async (req, res) => {
       console.log('⚠️ Consider breaking this into multiple smaller courses for better results.');
     }
 
+    // Set up Server-Sent Events
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Progress callback function
+    const sendProgress = (data) => {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    // Send initial progress
+    sendProgress({
+      type: 'progress',
+      stage: 'starting',
+      message: 'Initializing AI course generation...',
+      progress: 0
+    });
+
     // Generate course with AI
     const courseStructure = await generateCourseWithAI({
       courseName,
       description: description || '',
       prompt,
       difficultyLevel: difficultyLevel || 'beginner',
-      estimatedHours: estimatedHours || 10
+      estimatedHours: estimatedHours || 10,
+      onProgress: sendProgress
     });
 
     // Override color if provided
     if (color) {
       courseStructure.color = color;
     }
+
+    sendProgress({
+      type: 'progress',
+      stage: 'saving',
+      message: 'Saving course to database...',
+      progress: 95
+    });
 
     console.log('✅ AI generation complete, saving to database...');
 
@@ -53,19 +79,27 @@ router.post('/generate', async (req, res) => {
     console.log('📊 Course ID:', savedCourse.id);
     console.log('📊 Modules:', savedCourse.modules?.length || 0);
 
-    res.status(201).json({
-      success: true,
-      message: 'Course generated successfully',
+    // Send completion event
+    sendProgress({
+      type: 'complete',
+      message: 'Course generated successfully!',
+      progress: 100,
       course: savedCourse
     });
 
+    // End the SSE stream
+    res.end();
+
   } catch (error) {
     console.error('❌ Error in AI course generation:', error);
-    res.status(500).json({
-      error: 'Failed to generate course',
-      message: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
+
+    // Send error event
+    res.write(`data: ${JSON.stringify({
+      type: 'error',
+      message: error.message || 'Failed to generate course'
+    })}\n\n`);
+
+    res.end();
   }
 });
 

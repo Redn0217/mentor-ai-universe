@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
+import { AICourseProgressModal } from './AICourseProgressModal';
 
 // API URL - Use Render backend for production, localhost for development
 const API_BASE_URL = import.meta.env.PROD
@@ -32,6 +33,12 @@ interface AICourseGeneratorModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface ProgressLog {
+  timestamp: Date;
+  message: string;
+  type: 'info' | 'success' | 'error';
+}
+
 export function AICourseGeneratorModal({ open, onOpenChange }: AICourseGeneratorModalProps) {
   const [courseName, setCourseName] = useState('');
   const [description, setDescription] = useState('');
@@ -40,6 +47,16 @@ export function AICourseGeneratorModal({ open, onOpenChange }: AICourseGenerator
   const [estimatedHours, setEstimatedHours] = useState('10');
   const [color, setColor] = useState('#3B82F6');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [progressStage, setProgressStage] = useState('');
+  const [progressMessage, setProgressMessage] = useState('');
+  const [progressLogs, setProgressLogs] = useState<ProgressLog[]>([]);
+  const [currentModule, setCurrentModule] = useState<number>();
+  const [totalModules, setTotalModules] = useState<number>();
+  const [currentLesson, setCurrentLesson] = useState<number>();
+  const [totalLessonsInModule, setTotalLessonsInModule] = useState<number>();
+  const [completedLessons, setCompletedLessons] = useState<number>();
+  const [totalLessons, setTotalLessons] = useState<number>();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -64,6 +81,10 @@ export function AICourseGeneratorModal({ open, onOpenChange }: AICourseGenerator
     }
 
     setIsGenerating(true);
+    setProgress(0);
+    setProgressStage('starting');
+    setProgressMessage('Initializing...');
+    setProgressLogs([{ timestamp: new Date(), message: 'Starting AI course generation...', type: 'info' }]);
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/ai-courses/generate`, {
@@ -81,48 +102,101 @@ export function AICourseGeneratorModal({ open, onOpenChange }: AICourseGenerator
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to generate course');
+      if (!response.body) {
+        throw new Error('No response body');
       }
 
-      toast({
-        title: '🎉 Course Generated Successfully!',
-        description: `"${data.course.title}" has been created with ${data.course.modules?.length || 0} modules.`,
-      });
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
 
-      // Close modal and navigate to the course editor
-      onOpenChange(false);
-      
-      // Reset form
-      setCourseName('');
-      setDescription('');
-      setPrompt('');
-      setDifficultyLevel('beginner');
-      setEstimatedHours('10');
-      setColor('#3B82F6');
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      // Navigate to the course page or editor
-      if (data.course.slug) {
-        navigate(`/course/${data.course.slug}`);
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.type === 'progress') {
+                setProgress(data.progress || 0);
+                setProgressStage(data.stage || '');
+                setProgressMessage(data.message || '');
+                setProgressLogs(prev => [...prev, {
+                  timestamp: new Date(),
+                  message: data.message,
+                  type: 'info'
+                }]);
+
+                // Update module/lesson counters
+                if (data.currentModule) setCurrentModule(data.currentModule);
+                if (data.totalModules) setTotalModules(data.totalModules);
+                if (data.currentLesson) setCurrentLesson(data.currentLesson);
+                if (data.totalLessonsInModule) setTotalLessonsInModule(data.totalLessonsInModule);
+                if (data.completedLessons !== undefined) setCompletedLessons(data.completedLessons);
+                if (data.totalLessons) setTotalLessons(data.totalLessons);
+              } else if (data.type === 'complete') {
+                setProgress(100);
+                setProgressLogs(prev => [...prev, {
+                  timestamp: new Date(),
+                  message: 'Course generated successfully!',
+                  type: 'success'
+                }]);
+
+                toast({
+                  title: '🎉 Course Generated Successfully!',
+                  description: `"${data.course.title}" has been created with ${data.course.modules?.length || 0} modules.`,
+                });
+
+                // Reset form
+                setCourseName('');
+                setDescription('');
+                setPrompt('');
+                setDifficultyLevel('beginner');
+                setEstimatedHours('10');
+                setColor('#3B82F6');
+
+                // Navigate to the course page
+                if (data.course.slug) {
+                  setTimeout(() => {
+                    navigate(`/course/${data.course.slug}`);
+                    onOpenChange(false);
+                    setIsGenerating(false);
+                  }, 1500);
+                }
+              } else if (data.type === 'error') {
+                throw new Error(data.message || 'Failed to generate course');
+              }
+            } catch (parseError) {
+              console.error('Error parsing SSE data:', parseError);
+            }
+          }
+        }
       }
 
     } catch (error) {
       console.error('Error generating course:', error);
+      setProgressLogs(prev => [...prev, {
+        timestamp: new Date(),
+        message: error instanceof Error ? error.message : 'Failed to generate course',
+        type: 'error'
+      }]);
       toast({
         title: 'Generation Failed',
         description: error instanceof Error ? error.message : 'Failed to generate course with AI',
         variant: 'destructive',
       });
-    } finally {
       setIsGenerating(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-500" />
@@ -262,6 +336,22 @@ export function AICourseGeneratorModal({ open, onOpenChange }: AICourseGenerator
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    {/* Progress Modal */}
+    <AICourseProgressModal
+      open={isGenerating}
+      progress={progress}
+      stage={progressStage}
+      message={progressMessage}
+      logs={progressLogs}
+      currentModule={currentModule}
+      totalModules={totalModules}
+      currentLesson={currentLesson}
+      totalLessonsInModule={totalLessonsInModule}
+      completedLessons={completedLessons}
+      totalLessons={totalLessons}
+    />
+  </>
   );
 }
 

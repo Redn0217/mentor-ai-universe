@@ -53,10 +53,11 @@ function repairJSON(jsonString) {
  * @param {string} params.prompt - Detailed prompt describing course requirements
  * @param {string} params.difficultyLevel - Difficulty level (beginner, intermediate, advanced)
  * @param {number} params.estimatedHours - Estimated duration in hours
+ * @param {Function} params.onProgress - Optional progress callback function
  * @returns {Promise<Object>} Generated course structure
  */
 async function generateCourseWithAI(params) {
-  const { courseName, description, prompt, difficultyLevel = 'beginner', estimatedHours = 10 } = params;
+  const { courseName, description, prompt, difficultyLevel = 'beginner', estimatedHours = 10, onProgress } = params;
 
   console.log('ðŸ¤– Starting MULTI-STEP AI course generation...');
   console.log('ðŸ“š Course Name:', courseName);
@@ -65,14 +66,35 @@ async function generateCourseWithAI(params) {
 
   // STEP 1: Generate course outline (modules and lesson titles only)
   console.log('\nðŸ“‹ STEP 1: Generating course outline...');
+  if (onProgress) {
+    onProgress({
+      stage: 'outline',
+      message: 'Generating course outline...',
+      progress: 10
+    });
+  }
   const outline = await generateCourseOutline(params);
 
   // STEP 2: Generate content for each lesson
   console.log('\nðŸ“ STEP 2: Generating lesson content...');
-  const courseWithContent = await generateLessonContent(outline, params);
+  if (onProgress) {
+    onProgress({
+      stage: 'content',
+      message: `Starting content generation for ${outline.modules?.length || 0} modules...`,
+      progress: 20
+    });
+  }
+  const courseWithContent = await generateLessonContent(outline, params, onProgress);
 
   // STEP 3: Validate and enhance the structure
   console.log('\n🔍 STEP 3: Validating and enhancing course structure...');
+  if (onProgress) {
+    onProgress({
+      stage: 'validating',
+      message: 'Validating and enhancing course structure...',
+      progress: 90
+    });
+  }
   const finalCourse = validateAndEnhanceCourseStructure(courseWithContent, params);
 
   console.log('\nâœ… Multi-step generation complete!');
@@ -186,10 +208,14 @@ Return ONLY the JSON structure.`;
 /**
  * STEP 2: Generate content for each lesson individually
  */
-async function generateLessonContent(outline, params) {
+async function generateLessonContent(outline, params, onProgress) {
   const { difficultyLevel } = params;
 
   console.log(`ðŸ“ Generating content for ${outline.modules.length} modules...`);
+
+  // Calculate total lessons for progress tracking
+  const totalLessons = outline.modules.reduce((sum, module) => sum + module.lessons.length, 0);
+  let completedLessons = 0;
 
   // Process each module
   for (let moduleIndex = 0; moduleIndex < outline.modules.length; moduleIndex++) {
@@ -200,6 +226,22 @@ async function generateLessonContent(outline, params) {
     for (let lessonIndex = 0; lessonIndex < module.lessons.length; lessonIndex++) {
       const lesson = module.lessons[lessonIndex];
       console.log(`  ðŸ“„ Lesson ${lessonIndex + 1}/${module.lessons.length}: ${lesson.title}`);
+
+      // Send progress update
+      if (onProgress) {
+        const progress = 20 + Math.floor((completedLessons / totalLessons) * 70); // 20-90%
+        onProgress({
+          stage: 'lesson',
+          message: `Module ${moduleIndex + 1}/${outline.modules.length}: Generating "${lesson.title}"`,
+          progress,
+          currentModule: moduleIndex + 1,
+          totalModules: outline.modules.length,
+          currentLesson: lessonIndex + 1,
+          totalLessonsInModule: module.lessons.length,
+          completedLessons,
+          totalLessons
+        });
+      }
 
       // Generate content for this lesson
       const lessonContent = await generateSingleLessonContent(
@@ -215,6 +257,8 @@ async function generateLessonContent(outline, params) {
       // Add the generated content to the lesson
       lesson.content = lessonContent.content;
       lesson.exercises = lessonContent.exercises;
+
+      completedLessons++;
 
       // Small delay to avoid rate limiting
       await new Promise(resolve => setTimeout(resolve, 500));
