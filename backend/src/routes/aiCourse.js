@@ -34,15 +34,20 @@ router.post('/generate', async (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Disable buffering in nginx
 
     // Progress callback function
     const sendProgress = (data) => {
-      res.write(`data: ${JSON.stringify(data)}\n\n`);
+      const progressData = { type: 'progress', ...data };
+      const message = `data: ${JSON.stringify(progressData)}\n\n`;
+      console.log('📤 Sending progress:', progressData.message, `(${progressData.progress}%)`);
+      res.write(message);
+      // Force flush the response
+      if (res.flush) res.flush();
     };
 
     // Send initial progress
     sendProgress({
-      type: 'progress',
       stage: 'starting',
       message: 'Initializing AI course generation...',
       progress: 0
@@ -64,7 +69,6 @@ router.post('/generate', async (req, res) => {
     }
 
     sendProgress({
-      type: 'progress',
       stage: 'saving',
       message: 'Saving course to database...',
       progress: 95
