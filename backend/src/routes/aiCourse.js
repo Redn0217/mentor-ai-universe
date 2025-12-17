@@ -38,11 +38,20 @@ router.post('/generate', async (req, res) => {
 
     // Progress callback function
     const sendProgress = (data) => {
+      // Use data.type if provided, otherwise default to 'progress'
       const progressData = { type: 'progress', ...data };
       const message = `data: ${JSON.stringify(progressData)}\n\n`;
-      console.log('📤 Sending progress:', progressData.message, `(${progressData.progress}%)`);
+      console.log('📤 Sending progress:', progressData.type, progressData.message, `(${progressData.progress}%)`);
       res.write(message);
       // Force flush the response
+      if (res.flush) res.flush();
+    };
+
+    // Send event (for complete/error - won't override type)
+    const sendEvent = (data) => {
+      const message = `data: ${JSON.stringify(data)}\n\n`;
+      console.log('📤 Sending event:', data.type, data.message);
+      res.write(message);
       if (res.flush) res.flush();
     };
 
@@ -83,12 +92,17 @@ router.post('/generate', async (req, res) => {
     console.log('📊 Course ID:', savedCourse.id);
     console.log('📊 Modules:', savedCourse.modules?.length || 0);
 
-    // Send completion event
-    sendProgress({
+    // Send completion event (only send essential info, not full content)
+    sendEvent({
       type: 'complete',
       message: 'Course generated successfully!',
       progress: 100,
-      course: savedCourse
+      course: {
+        id: savedCourse.id,
+        title: savedCourse.title,
+        slug: savedCourse.slug,
+        moduleCount: savedCourse.modules?.length || 0
+      }
     });
 
     // End the SSE stream
@@ -98,10 +112,10 @@ router.post('/generate', async (req, res) => {
     console.error('❌ Error in AI course generation:', error);
 
     // Send error event
-    res.write(`data: ${JSON.stringify({
+    sendEvent({
       type: 'error',
       message: error.message || 'Failed to generate course'
-    })}\n\n`);
+    });
 
     res.end();
   }

@@ -144,7 +144,10 @@ export function AICourseGeneratorModal({ open, onOpenChange }: AICourseGenerator
                 if (data.completedLessons !== undefined) setCompletedLessons(data.completedLessons);
                 if (data.totalLessons) setTotalLessons(data.totalLessons);
               } else if (data.type === 'complete') {
+                console.log('✅ Course generation complete!', data.course);
                 setProgress(100);
+                setProgressStage('complete');
+                setProgressMessage('Course generated successfully!');
                 setProgressLogs(prev => [...prev, {
                   timestamp: new Date(),
                   message: 'Course generated successfully!',
@@ -153,7 +156,7 @@ export function AICourseGeneratorModal({ open, onOpenChange }: AICourseGenerator
 
                 toast({
                   title: '🎉 Course Generated Successfully!',
-                  description: `"${data.course.title}" has been created with ${data.course.modules?.length || 0} modules.`,
+                  description: `"${data.course.title}" has been created with ${data.course.moduleCount || 0} modules.`,
                 });
 
                 // Reset form
@@ -168,6 +171,12 @@ export function AICourseGeneratorModal({ open, onOpenChange }: AICourseGenerator
                 if (data.course.slug) {
                   setTimeout(() => {
                     navigate(`/course/${data.course.slug}`);
+                    onOpenChange(false);
+                    setIsGenerating(false);
+                  }, 1500);
+                } else {
+                  // No slug, just close the modal
+                  setTimeout(() => {
                     onOpenChange(false);
                     setIsGenerating(false);
                   }, 1500);
