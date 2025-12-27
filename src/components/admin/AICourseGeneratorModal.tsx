@@ -23,10 +23,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
 import { AICourseProgressModal } from './AICourseProgressModal';
 
-// API URL - Use Render backend for production, localhost for development
-const API_BASE_URL = import.meta.env.PROD
-  ? 'https://internsify-backend-2.onrender.com'
-  : 'http://localhost:3003';
+// API URL - Always use Render backend
+const API_BASE_URL = 'https://internsify-backend-2.onrender.com';
 
 interface AICourseGeneratorModalProps {
   open: boolean;

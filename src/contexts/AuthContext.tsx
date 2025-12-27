@@ -126,13 +126,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       clearAdminCache(); // Clear admin cache on sign out
-      const { error } = await supabase.auth.signOut();
+
+      // Explicitly clear state BEFORE calling signOut to prevent stale state
+      setUser(null);
+      setSession(null);
+
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) throw error;
+
+      // Clear any cached data in localStorage related to auth
+      localStorage.removeItem('sb-auth-token');
+
       toast({
         title: "Success",
         description: "You have been signed out successfully!",
       });
     } catch (error: any) {
+      // Even if there's an error, clear the local state
+      setUser(null);
+      setSession(null);
+
       toast({
         title: "Error signing out",
         description: error.message,

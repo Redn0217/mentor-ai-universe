@@ -7,6 +7,8 @@ import { getCourseWithHierarchy } from '../services/apiService';
 import { progressService } from '@/services/progressService';
 import { stateService } from '@/services/stateService';
 import { useAuth } from '@/contexts/AuthContext';
+import { CourseTutorChat } from '@/components/tutors/CourseTutorChat';
+import { getTutorForCourse } from '@/data/courseTutors';
 
 const ModulePage: React.FC = () => {
   const { courseSlug, moduleId } = useParams<{ courseSlug: string; moduleId: string }>();
@@ -317,6 +319,24 @@ const ModulePage: React.FC = () => {
           courseSlug={courseSlug}
         />
       </div>
+
+      {/* Course-Specific AI Tutor Chat */}
+      {course && (
+        <CourseTutorChat
+          tutor={getTutorForCourse(courseSlug || '', course?.tutor)}
+          courseContext={{
+            courseTitle: course?.title || '',
+            courseSlug: courseSlug || '',
+            currentModule: currentModule?.title,
+            currentLesson: currentLesson?.title,
+            modules: course?.modules?.map((m: any) => ({
+              title: m.title,
+              lessons: m.lessons?.map((l: any) => ({ title: l.title })) || []
+            })) || []
+          }}
+          techColor={course?.color || '#00D4AA'}
+        />
+      )}
     </div>
   );
 };

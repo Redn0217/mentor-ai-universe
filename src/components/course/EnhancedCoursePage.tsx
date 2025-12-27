@@ -8,6 +8,8 @@ import { progressService, ModuleProgress } from '@/services/progressService';
 import { enrollmentService } from '@/services/enrollmentService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+import { CourseTutorChat } from '@/components/tutors/CourseTutorChat';
+import { getTutorForCourse } from '@/data/courseTutors';
 
 const EnhancedCoursePage: React.FC = () => {
   const { courseSlug } = useParams<{ courseSlug: string }>();
@@ -169,16 +171,29 @@ const EnhancedCoursePage: React.FC = () => {
   if (error || !course) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="text-6xl">😞</div>
-          <h2 className="text-2xl font-bold text-gray-900">Course Not Found</h2>
-          <p className="text-gray-600">{error || 'The course you\'re looking for doesn\'t exist.'}</p>
-          <button
-            onClick={() => navigate('/courses')}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Browse All Courses
-          </button>
+        <div className="text-center space-y-4 max-w-md mx-auto px-4">
+          <div className="text-6xl">📚</div>
+          <h2 className="text-2xl font-bold text-gray-900">Course Coming Soon</h2>
+          <p className="text-gray-600">
+            The "{courseSlug}" course is not yet available. We're working on adding more courses soon!
+          </p>
+          <p className="text-sm text-gray-500">
+            Currently available: Python Programming course. More courses are being developed.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+            <button
+              onClick={() => navigate('/courses')}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Browse Available Courses
+            </button>
+            <button
+              onClick={() => navigate('/course/python')}
+              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Try Python Course
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -380,18 +395,37 @@ const EnhancedCoursePage: React.FC = () => {
               </div>
             )}
 
-            <div className="space-y-6">
-              {course.modules?.map((module: any, index: number) => (
-                <ModuleCard
-                  key={module.id}
-                  module={module}
-                  isUnlocked={user && isEnrolled ? isModuleUnlocked(index) : false}
-                  isCompleted={isModuleCompleted(module)}
-                  progress={calculateModuleProgress(module)}
-                  onStartModule={() => handleStartModule(module.id)}
-                />
-              ))}
-            </div>
+            {course.modules && course.modules.length > 0 ? (
+              <div className="space-y-6">
+                {course.modules.map((module: any, index: number) => (
+                  <ModuleCard
+                    key={module.id}
+                    module={module}
+                    isUnlocked={user && isEnrolled ? isModuleUnlocked(index) : false}
+                    isCompleted={isModuleCompleted(module)}
+                    progress={calculateModuleProgress(module)}
+                    onStartModule={() => handleStartModule(module.id)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 text-center border border-blue-100">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BookOpen className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Course Content Coming Soon</h3>
+                <p className="text-gray-600 max-w-md mx-auto">
+                  We're working on creating amazing content for this course.
+                  Check back soon or explore other available courses.
+                </p>
+                <button
+                  onClick={() => navigate('/courses')}
+                  className="mt-6 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Browse Other Courses
+                </button>
+              </div>
+            )}
           </div>
         )}
         
@@ -405,6 +439,20 @@ const EnhancedCoursePage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Course-Specific AI Tutor Chat */}
+      <CourseTutorChat
+        tutor={getTutorForCourse(courseSlug || '', course?.tutor)}
+        courseContext={{
+          courseTitle: course?.title || '',
+          courseSlug: courseSlug || '',
+          modules: course?.modules?.map((m: any) => ({
+            title: m.title,
+            lessons: m.lessons?.map((l: any) => ({ title: l.title })) || []
+          })) || []
+        }}
+        techColor={course?.color || '#00D4AA'}
+      />
     </div>
   );
 };

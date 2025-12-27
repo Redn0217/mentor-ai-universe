@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { RainbowButton } from '@/components/ui/rainbow-button';
@@ -14,6 +14,28 @@ export const NavBar = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Function to scroll to AI Tutor section
+  const scrollToAITutor = () => {
+    if (location.pathname === '/') {
+      // Already on homepage, just scroll
+      const element = document.getElementById('ai-tutor-demo');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      // Navigate to homepage with hash
+      navigate('/#ai-tutor-demo');
+      // Need to scroll after navigation completes
+      setTimeout(() => {
+        const element = document.getElementById('ai-tutor-demo');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -179,7 +201,7 @@ export const NavBar = () => {
                 )}
 
                 {/* AI Tutor Button */}
-                <RainbowButton onClick={() => navigate('/playground')}>
+                <RainbowButton onClick={scrollToAITutor}>
                   AI Tutor
                 </RainbowButton>
               </div>

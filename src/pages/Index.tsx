@@ -5,10 +5,11 @@ import { TutorChat } from '@/components/tutors/TutorChat';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
 import { FeaturesDemo } from '@/components/ui/features-demo';
-import { fetchCourses } from '@/services/apiService';
 import { getCourseIcon } from '@/utils/courseIcons';
+import { fetchCourses, CourseListItem } from '@/services/apiService';
+import { ArrowRight } from 'lucide-react';
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Typewriter from 'react-typewriter-effect';
 
 interface Technology {
@@ -25,51 +26,127 @@ interface Technology {
   };
 }
 
+// Static AI Tutors for the carousel
+const staticTutors = [
+  {
+    title: 'Python',
+    slug: 'python',
+    description: 'Master Python programming from basics to advanced',
+    color: '#3776AB',
+    tutor: { name: 'Dr. Ana Python', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ana' }
+  },
+  {
+    title: 'JavaScript',
+    slug: 'javascript',
+    description: 'Learn modern JavaScript and web development',
+    color: '#F7DF1E',
+    tutor: { name: 'Jake Script', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jake' }
+  },
+  {
+    title: 'React',
+    slug: 'react',
+    description: 'Build dynamic UIs with React framework',
+    color: '#61DAFB',
+    tutor: { name: 'Rachel React', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rachel' }
+  },
+  {
+    title: 'DevOps',
+    slug: 'devops',
+    description: 'CI/CD, Docker, Kubernetes and automation',
+    color: '#FF6B35',
+    tutor: { name: 'Dev Operator', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DevOps' }
+  },
+  {
+    title: 'Cloud Computing',
+    slug: 'cloud',
+    description: 'AWS, Azure, GCP cloud platforms',
+    color: '#00D4AA',
+    tutor: { name: 'Clara Cloud', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Clara' }
+  },
+  {
+    title: 'Machine Learning',
+    slug: 'ml',
+    description: 'AI, neural networks and data science',
+    color: '#9B59B6',
+    tutor: { name: 'Max Learning', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Max' }
+  },
+  {
+    title: 'Data Science',
+    slug: 'data-science',
+    description: 'Analytics, visualization and insights',
+    color: '#E74C3C',
+    tutor: { name: 'Dana Data', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Dana' }
+  },
+  {
+    title: 'Cybersecurity',
+    slug: 'cybersecurity',
+    description: 'Security practices and ethical hacking',
+    color: '#2ECC71',
+    tutor: { name: 'Sam Secure', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam' }
+  }
+];
+
 const Index = () => {
-  const [technologies, setTechnologies] = useState<Technology[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTech, setActiveTech] = useState<Technology | null>(null);
   const [currentRotation, setCurrentRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, rotation: 0 });
   const [isAutoRotating, setIsAutoRotating] = useState(true);
   const rotationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [courses, setCourses] = useState<CourseListItem[]>([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
+  const location = useLocation();
 
-  // Fetch courses from database
+  // Handle hash scrolling on page load
+  useEffect(() => {
+    if (location.hash) {
+      const elementId = location.hash.replace('#', '');
+      // Small delay to ensure the page is rendered
+      setTimeout(() => {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, [location.hash]);
+
+  // Fetch courses from backend
   useEffect(() => {
     const loadCourses = async () => {
       try {
-        setLoading(true);
-        const courses = await fetchCourses();
-
-        // Transform courses to technologies format
-        const techs: Technology[] = courses.map(course => ({
-          title: course.title,
-          slug: course.slug,
-          description: course.short_description || course.description,
-          color: course.color,
-          icon: getCourseIcon(course.slug),
-          modules: course.modules_count || 0,
-          lessons: course.lessons_count || 0,
-          tutor: {
-            name: course.tutor?.name || 'Instructor',
-            avatar: course.tutor?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${course.slug}`
-          }
-        }));
-
-        setTechnologies(techs);
-        if (techs.length > 0) {
-          setActiveTech(techs[0]);
-        }
+        setCoursesLoading(true);
+        const data = await fetchCourses();
+        setCourses(data);
       } catch (error) {
-        console.error('Error loading courses:', error);
+        console.error('Error fetching courses:', error);
+        // Fall back to static tutors if API fails
+        setCourses([]);
       } finally {
-        setLoading(false);
+        setCoursesLoading(false);
       }
     };
-
     loadCourses();
   }, []);
+
+  // Convert static tutors to carousel format with icons (for the 3D carousel)
+  const carouselTechs = staticTutors.map(tutor => ({
+    ...tutor,
+    icon: getCourseIcon(tutor.slug),
+    modules: 0,
+    lessons: 0
+  }));
+
+  // Get courses to display (up to 8, from API or fallback to static)
+  const displayCourses = courses.length > 0
+    ? courses.slice(0, 8).map(course => ({
+        ...course,
+        icon: getCourseIcon(course.slug),
+        modules: course.modules_count || 0,
+        lessons: course.lessons_count || 0
+      }))
+    : carouselTechs.slice(0, 8);
+
+  const [activeTech, setActiveTech] = useState<Technology>(carouselTechs[0]);
 
   // Auto-rotation functionality
   useEffect(() => {
@@ -88,7 +165,7 @@ const Index = () => {
 
   const handleManualRotation = (direction: 'left' | 'right') => {
     setIsAutoRotating(false); // Pause auto-rotation
-    const rotationAmount = 360 / technologies.length; // Rotate to next/previous item
+    const rotationAmount = 360 / carouselTechs.length; // Rotate to next/previous item
     setCurrentRotation(prev =>
       direction === 'left'
         ? prev - rotationAmount
@@ -98,10 +175,10 @@ const Index = () => {
     setTimeout(() => setIsAutoRotating(true), 3000);
   };
 
-  const handleCardClick = (tech: typeof technologies[0], index: number) => {
+  const handleCardClick = (tech: typeof carouselTechs[0], index: number) => {
     setActiveTech(tech);
     setIsAutoRotating(false); // Pause auto-rotation
-    const rotationAmount = 360 / technologies.length;
+    const rotationAmount = 360 / carouselTechs.length;
     setCurrentRotation(-index * rotationAmount); // Rotate to bring selected card to front
     // Resume auto-rotation after 3 seconds
     setTimeout(() => setIsAutoRotating(true), 3000);
@@ -254,7 +331,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Act IV: Feature Breakdown */}
+      {/* Act IV: Feature Breakdown - Courses from Backend */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -263,20 +340,38 @@ const Index = () => {
               Everything you need to master modern technology skills, from beginner concepts to advanced implementations.
             </p>
           </div>
-          
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-20">
-            {technologies.map((tech) => (
-              <TechnologyCard
-                key={tech.slug}
-                title={tech.title}
-                description={tech.description}
-                icon={tech.icon}
-                color={tech.color}
-                slug={tech.slug}
-                modules={tech.modules}
-                lessons={tech.lessons}
-              />
-            ))}
+
+          {coursesLoading ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="animate-pulse bg-gray-100 rounded-xl h-64"></div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+              {displayCourses.map((course: any) => (
+                <TechnologyCard
+                  key={course.slug}
+                  title={course.title}
+                  description={course.short_description || course.description}
+                  icon={course.icon}
+                  color={course.color}
+                  slug={course.slug}
+                  modules={course.modules_count || course.modules || 0}
+                  lessons={course.lessons_count || course.lessons || 0}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* View All Button */}
+          <div className="text-center">
+            <Link to="/courses">
+              <button className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-teal to-brand-orange text-white font-semibold rounded-lg hover:opacity-90 transition-all hover:gap-4 shadow-lg hover:shadow-xl">
+                View all courses
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -322,10 +417,10 @@ const Index = () => {
       <FeaturesDemo />
 
       {/* Interactive AI Tutor Demo */}
-      <section className="py-20 bg-gray-50">
+      <section id="ai-tutor-demo" className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4 text-gray-900">Experience AI-powered learning</h2>
+          <div className="text-center mb-4">
+            <h2 className="text-3xl font-bold mb-2 text-gray-900">Experience AI-powered learning</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Get a taste of our interactive learning experience by chatting with one of our specialized AI tutors.
             </p>
@@ -333,35 +428,33 @@ const Index = () => {
 
           <div className="max-w-6xl mx-auto">
             {/* 3D Rotating Carousel */}
-            {technologies.length > 0 && (
-              <div className="relative mb-2 h-[300px] flex items-center justify-center">
+            {carouselTechs.length > 0 && (
+              <div className="relative mb-2 h-[380px] flex items-center justify-center">
                 {/* Navigation Buttons */}
                 <button
                   onClick={() => handleManualRotation('left')}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all duration-200 hover:scale-110"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all duration-200 hover:scale-110"
                   aria-label="Rotate left"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m15 18-6-6 6-6"/>
                   </svg>
                 </button>
 
                 <button
                   onClick={() => handleManualRotation('right')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all duration-200 hover:scale-110"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all duration-200 hover:scale-110"
                   aria-label="Rotate right"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m9 18 6-6-6-6"/>
                   </svg>
                 </button>
 
-
-
               {/* 3D Carousel Container */}
               <div
                 className="relative w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
-                style={{ perspective: '1500px' }}
+                style={{ perspective: '2000px' }}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
@@ -371,58 +464,59 @@ const Index = () => {
                   className="relative preserve-3d"
                   style={{
                     transformStyle: 'preserve-3d',
-                    transform: `rotateY(${currentRotation}deg) rotateX(-3deg)`,
+                    transform: `rotateY(${currentRotation}deg) rotateX(-5deg)`,
                     transition: 'transform 0.8s ease-out',
-                    width: '400px',
-                    height: '400px',
+                    width: '500px',
+                    height: '500px',
                   }}
                 >
-                  {technologies.map((tech, index) => {
-                    const angle = (360 / technologies.length) * index;
-                    const radius = 380; // Reduced spacing between cards
+                  {carouselTechs.map((tech, index) => {
+                    const angle = (360 / carouselTechs.length) * index;
+                    const radius = 400; // Larger radius for bigger carousel
 
                     return (
                       <div
                         key={tech.slug}
                         onClick={() => handleCardClick(tech, index)}
-                        className={`absolute cursor-pointer transition-all duration-300 transform hover:scale-110 ${
+                        className={`absolute cursor-pointer transition-all duration-300 transform hover:scale-105 ${
                           activeTech?.slug === tech.slug
-                            ? 'ring-2 ring-brand-teal shadow-2xl'
+                            ? 'ring-2 ring-brand-teal shadow-2xl z-10'
                             : 'hover:shadow-xl'
                         }`}
                         style={{
                           transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
                           transformOrigin: 'center center',
-                          width: '180px', // Slightly wider
-                          height: '130px', // Even shorter height
+                          width: '180px',
+                          height: '150px',
                           left: '50%',
                           top: '50%',
-                          marginLeft: '-90px', // Adjusted for wider width
-                          marginTop: '-65px', // Adjusted for shorter height
+                          marginLeft: '-90px',
+                          marginTop: '-75px',
                         }}
                       >
                         <div
-                          className="w-full h-full bg-gradient-to-br from-white via-white to-gray-50 backdrop-blur-sm rounded-xl p-2 shadow-2xl border border-white/30 hover:shadow-3xl transition-all duration-300"
+                          className="w-full h-full bg-gradient-to-br from-white via-white to-gray-50 backdrop-blur-sm rounded-xl p-4 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300"
                           style={{
-                            boxShadow: `0 20px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.2)`,
+                            boxShadow: `0 10px 30px rgba(0,0,0,0.1)`,
                           }}
                         >
-                          <div className="flex flex-col items-center text-center h-full justify-center">
+                          <div className="flex flex-col items-center text-center h-full justify-center gap-2">
                             <div
-                              className="w-12 h-12 rounded-lg flex items-center justify-center mb-1 shadow-lg"
+                              className="w-10 h-10 rounded-lg flex items-center justify-center shadow-md"
                               style={{
                                 backgroundColor: tech.color + '20',
                                 color: tech.color,
-                                boxShadow: `0 6px 12px ${tech.color}20`
                               }}
                             >
-                              <div className="w-8 h-8">
+                              <div className="w-6 h-6">
                                 {tech.icon}
                               </div>
                             </div>
-                            <h3 className="font-bold text-gray-900 mb-0.5 text-xs leading-tight">{tech.title}</h3>
-                            <p className="text-xs text-gray-600 font-medium mb-0.5">{tech.tutor.name}</p>
-                            <p className="text-gray-600 line-clamp-2 leading-tight text-[8px]">{tech.description}</p>
+                            <div>
+                              <h3 className="font-bold text-gray-900 text-sm leading-tight">{tech.title}</h3>
+                              <p className="text-xs text-brand-teal">{tech.tutor.name}</p>
+                            </div>
+                            <p className="text-[10px] text-gray-500 line-clamp-2">{tech.description}</p>
                           </div>
                         </div>
                       </div>
@@ -434,25 +528,14 @@ const Index = () => {
             )}
 
             {/* Active Tutor Chat */}
-            {loading ? (
-              <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-teal mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading courses...</p>
-              </div>
-            ) : activeTech ? (
-              <div className="bg-white rounded-2xl shadow-xl p-6">
-                <TutorChat
-                  tutorName={activeTech.tutor.name}
-                  tutorAvatar={activeTech.tutor.avatar}
-                  technology={activeTech.title}
-                  techColor={activeTech.color}
-                />
-              </div>
-            ) : (
-              <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
-                <p className="text-gray-600">No courses available yet. Check back soon!</p>
-              </div>
-            )}
+            <div className="bg-white rounded-2xl shadow-xl p-4">
+              <TutorChat
+                tutorName={activeTech.tutor.name}
+                tutorAvatar={activeTech.tutor.avatar}
+                technology={activeTech.title}
+                techColor={activeTech.color}
+              />
+            </div>
           </div>
         </div>
       </section>

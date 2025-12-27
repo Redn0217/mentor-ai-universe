@@ -204,9 +204,15 @@ class ProgressService {
         .eq('user_id', userId)
         .eq('lesson_id', lessonId)
         .eq('progress_type', 'lesson_completed')
-        .single();
+        .maybeSingle(); // Use maybeSingle() instead of single() to avoid 406 when no rows found
 
-      if (error || !data) {
+      if (error) {
+        console.warn('Error fetching lesson progress:', error.message);
+        return this.isLessonCompletedLocally(userId, lessonId);
+      }
+
+      if (!data) {
+        // No progress record found - check local storage
         return this.isLessonCompletedLocally(userId, lessonId);
       }
 
@@ -225,9 +231,15 @@ class ProgressService {
         .eq('user_id', userId)
         .eq('exercise_id', exerciseId)
         .eq('progress_type', 'exercise_completed')
-        .single();
+        .maybeSingle(); // Use maybeSingle() instead of single() to avoid 406 when no rows found
 
-      if (error || !data) {
+      if (error) {
+        console.warn('Error fetching exercise progress:', error.message);
+        return this.isExerciseCompletedLocally(userId, exerciseId);
+      }
+
+      if (!data) {
+        // No progress record found - check local storage
         return this.isExerciseCompletedLocally(userId, exerciseId);
       }
 

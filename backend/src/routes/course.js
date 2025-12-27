@@ -28,10 +28,15 @@ const getCourseWithHierarchy = async (courseSlug) => {
         )
       `)
       .eq('slug', courseSlug)
-      .single();
+      .maybeSingle(); // Use maybeSingle to avoid error when course not found
 
     if (error) {
       console.error('Error fetching course hierarchy:', error);
+      return null;
+    }
+
+    if (!data) {
+      console.log(`Course ${courseSlug} not found in hierarchical query`);
       return null;
     }
 
@@ -349,21 +354,40 @@ const readCourse = async (slug) => {
         };
       }
 
-      // Fallback to old structure
-      console.log(`Trying old structure for course ${slug}...`);
+      // Fallback: Get basic course info without full hierarchy (for courses without modules yet)
+      console.log(`Trying to get basic course info for ${slug}...`);
       const { data, error } = await supabase
         .from('courses')
         .select('*')
         .eq('slug', slug)
-        .single();
+        .maybeSingle(); // Use maybeSingle to avoid error when not found
 
       if (error) {
         console.error(`Error fetching course ${slug} from Supabase:`, error);
       } else if (data) {
-        console.log(`Found course ${slug} in old structure`);
+        console.log(`Found course ${slug} (basic info, no modules yet)`);
+        // Return course with empty modules array - this allows the course page to load
         return {
-          ...data,
-          lastUpdated: data.last_updated || data.lastUpdated,
+          id: data.id,
+          slug: data.slug,
+          title: data.title,
+          description: data.description,
+          short_description: data.short_description,
+          icon: data.icon || 'code',
+          color: data.color,
+          difficulty_level: data.difficulty_level,
+          estimated_duration_hours: data.estimated_duration_hours,
+          learning_objectives: data.learning_objectives || [],
+          tags: data.tags || [],
+          modules: [], // Empty modules - course exists but content not yet created
+          tutor: {
+            name: data.tutor_name || 'Course Instructor',
+            avatar: data.tutor_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor',
+            bio: data.tutor_bio
+          },
+          lastUpdated: data.updated_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+          created_at: data.created_at,
+          updated_at: data.updated_at
         };
       }
     }
@@ -378,7 +402,7 @@ const readCourse = async (slug) => {
       return course;
     }
 
-    console.log(`Course ${slug} not found`);
+    console.log(`Course ${slug} not found anywhere`);
     return null;
   } catch (error) {
     console.error(`Error reading course with slug ${slug}:`, error);

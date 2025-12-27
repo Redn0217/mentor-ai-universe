@@ -2,10 +2,8 @@
 
 import type { CourseListItem, Course } from '@/types/database';
 
-// API URL - Use Render backend for production, localhost for development
-const API_BASE_URL = import.meta.env.PROD
-  ? 'https://internsify-backend-2.onrender.com'
-  : 'http://localhost:3003';
+// API URL - Always use Render backend (even in development)
+const API_BASE_URL = 'https://internsify-backend-2.onrender.com';
 
 // Legacy interface for backward compatibility
 export interface CourseData extends Course {}
